@@ -1,170 +1,93 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bao Lab at Fudan University</title>
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background-color: #000;
-      color: white;
-    }
-    #banner {
-      position: relative;
-      width: 100%;
-      height: 50vh;
-      overflow: hidden;
-      background-color: #000;
-    }
-    #matrixCanvas {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: -1;
-    }
-    .banner-content {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding-top: 15vh;
-    }
-    section {
-      padding: 40px;
-      max-width: 900px;
-      margin: 0 auto;
-      line-height: 1.6;
-    }
-    h1, h2 {
-      margin: 0 0 20px 0;
-    }
-    ul {
-      list-style: disc;
-      margin-left: 20px;
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bao Lab at Fudan University</title>
+<style>
+body, html { margin: 0; padding: 0; font-family: Arial, sans-serif; color: #ffffff; background-color: #000000; }
+nav { background-color: #111; padding: 10px; display: flex; gap: 15px; }
+nav a { color: #fff; text-decoration: none; font-weight: bold; }
+#banner { position: relative; height: 40vh; background-color: #000; overflow: hidden; }
+#matrixCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
+.banner-content { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); text-align: center; }
+.banner-content h1 { margin: 0; font-size: 2.5em; }
+.banner-content p { margin-top: 10px; font-size: 1.2em; }
+</style>
 </head>
 <body>
-  <div id="banner">
-    <canvas id="matrixCanvas"></canvas>
-    <div class="banner-content">
-      <h1>Bao Lab at Fudan University</h1>
-      <p>We study complex systems and their applications in biology and medicine.</p>
-    </div>
-  </div>
-  <section id="about">
-    <h2>About</h2>
-    <p>Our lab is led by Feng Bao, PI at Fudan University. We develop general learning approaches for biological and medical studies and drug screening. We are looking for highly motivated students and postdocs to work together.</p>
-  </section>
-  <section id="team">
-    <h2>Team</h2>
-    <ul>
-      <li><strong>Principal Investigator:</strong> Feng Bao</li>
-      <!-- Add other team members here -->
-    </ul>
-  </section>
-  <section id="research">
-    <h2>Research Interests</h2>
-    <p>We focus on statistical learning methods and biological applications:</p>
-    <ul>
-      <li><strong>Statistical learning:</strong>
-        <ul>
-          <li>Architectures to disentangle information within multi-modal/-omics inputs.</li>
-          <li>Integration analysis across more than two modalities.</li>
-          <li>Contrastive learning for multimodal data.</li>
-        </ul>
-      </li>
-      <li><strong>Biological questions:</strong>
-        <ul>
-          <li>Quantifying interactions across multiple omics types.</li>
-          <li>Improving the throughput of spatially resolved transcriptomics using statistical methods.</li>
-          <li>Integrating high-content phenotypic drug profiles.</li>
-        </ul>
-      </li>
-    </ul>
-  </section>
-  <section id="publications">
-    <h2>Publications</h2>
-    <p>See our latest publications in leading journals and conferences (coming soon).</p>
-  </section>
-  <section id="tools">
-    <h2>Tools</h2>
-    <p>Our lab develops open-source software to support multi-omics and spatial data analysis:</p>
-    <ul>
-      <li><a href="https://github.com/BaoLab-fudan/adMDM" target="_blank">adMDM</a> – tool for multi-dimensional multi-omics data integration.</li>
-      <li><a href="https://github.com/BaoLab-fudan/SpatialMUSE" target="_blank">SpatialMUSE</a> – tool for spatial multi-omics data analysis.</li>
-    </ul>
-  </section>
-  <section id="contact">
-    <h2>Contact</h2>
-    <p>Email: fbao [at] fudan.edu.cn</p>
-  </section>
-  <script>
-    // enhanced dynamic point matrix with connecting lines
-    const canvas = document.getElementById('matrixCanvas');
-    const ctx = canvas.getContext('2d');
-    let points = [];
-    const numPoints = 100;
-    const maxDistance = 120;
-    function resizeCanvas() {
-      canvas.width = canvas.offsetWidth;
-      canvas.height = canvas.offsetHeight;
-    }
-    function initPoints() {
-      points = [];
-      for (let i = 0; i < numPoints; i++) {
-        points.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          vx: (Math.random() - 0.5) * 0.5,
-          vy: (Math.random() - 0.5) * 0.5
-        });
-      }
-    }
-    function update() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      // draw lines between close points
-      for (let i = 0; i < points.length; i++) {
-        for (let j = i + 1; j < points.length; j++) {
-          const dx = points[i].x - points[j].x;
-          const dy = points[i].y - points[j].y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < maxDistance) {
-            ctx.beginPath();
-            const opacity = 1 - dist / maxDistance;
-            ctx.strokeStyle = 'rgba(255,255,255,' + opacity + ')';
-            ctx.moveTo(points[i].x, points[i].y);
-            ctx.lineTo(points[j].x, points[j].y);
-            ctx.stroke();
-          }
-        }
-      }
-      // update positions and draw points
-      points.forEach(p => {
-        p.x += p.vx;
-        p.y += p.vy;
-        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
-        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
-        ctx.beginPath();
-        ctx.fillStyle = '#ffffff';
-        ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
-        ctx.fill();
-      });
-      requestAnimationFrame(update);
-    }
-    function init() {
-      resizeCanvas();
-      initPoints();
-      update();
-    }
-    window.addEventListener('resize', () => {
-      resizeCanvas();
-      initPoints();
-    });
-    init();
-  </script>
+<nav>
+<a href="index.html">Home</a>
+<a href="about.html">About</a>
+<a href="team.html">Team</a>
+<a href="research.html">Research</a>
+<a href="publications.html">Publications</a>
+<a href="tools.html">Tools</a>
+<a href="contact.html">Contact</a>
+</nav>
+<div id="banner">
+<canvas id="matrixCanvas"></canvas>
+<div class="banner-content">
+<h1>Bao Lab at Fudan University</h1>
+<p>We study complex systems and their applications in biology and medicine</p>
+</div>
+</div>
+<script>
+const canvas = document.getElementById('matrixCanvas');
+const ctx = canvas.getContext('2d');
+let points = [];
+const numPoints = 100;
+const maxDistance = 100;
+function resizeCanvas() {
+ canvas.width = window.innerWidth;
+ canvas.height = document.getElementById('banner').offsetHeight;
+}
+function initPoints() {
+ points = [];
+ for (let i = 0; i < numPoints; i++) {
+   points.push({x: Math.random() * canvas.width, y: Math.random() * canvas.height,
+                vx: (Math.random() - 0.5) * 1.2, vy: (Math.random() - 0.5) * 1.2});
+ }
+}
+function update() {
+ ctx.clearRect(0, 0, canvas.width, canvas.height);
+ for (let i = 0; i < numPoints; i++) {
+   for (let j = i + 1; j < numPoints; j++) {
+     const dx = points[i].x - points[j].x;
+     const dy = points[i].y - points[j].y;
+     const dist = Math.sqrt(dx*dx + dy*dy);
+     if (dist < maxDistance) {
+       ctx.beginPath();
+       const opacity = 1 - dist / maxDistance;
+       ctx.strokeStyle = 'rgba(255,255,255,' + opacity + ')';
+       ctx.moveTo(points[i].x, points[i].y);
+       ctx.lineTo(points[j].x, points[j].y);
+       ctx.stroke();
+     }
+   }
+ }
+ points.forEach(p => {
+   p.x += p.vx;
+   p.y += p.vy;
+   if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+   if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+   ctx.beginPath();
+   ctx.fillStyle = '#ffffff';
+   ctx.arc(p.x, p.y, 2.5, 0, Math.PI * 2);
+   ctx.fill();
+ });
+ requestAnimationFrame(update);
+}
+function init() {
+ resizeCanvas();
+ initPoints();
+ update();
+}
+window.addEventListener('resize', () => {
+ resizeCanvas();
+ initPoints();
+});
+init();
+</script>
 </body>
 </html>
