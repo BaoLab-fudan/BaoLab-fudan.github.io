@@ -5,119 +5,129 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Bao Lab at Fudan University</title>
   <style>
-    /* ensure full-screen background and dark color */
-    html, body {
+    body {
       margin: 0;
-      padding: 0;
-      width: 100%;
-      height: 100%;
-      background-color: #000000;
+      font-family: Arial, sans-serif;
+      background-color: #000;
+      color: white;
     }
-    /* full-screen particles container */
-    #particles-js {
-      position: fixed;
+    #banner {
+      position: relative;
+      width: 100%;
+      height: 40vh;
+      overflow: hidden;
+      background-color: #000;
+    }
+    #matrixCanvas {
+      position: absolute;
+      top: 0;
+      left: 0;
       width: 100%;
       height: 100%;
       z-index: -1;
-      top: 0;
-      left: 0;
     }
-    .content {
+    .banner-content {
       position: relative;
       z-index: 1;
-      color: white;
       text-align: center;
-      padding-top: 20vh;
-      font-family: Arial, sans-serif;
+      padding-top: 10vh;
+    }
+    section {
+      padding: 40px;
+      max-width: 800px;
+      margin: 0 auto;
+      line-height: 1.6;
+    }
+    h1, h2 {
+      margin: 0 0 20px 0;
+    }
+    ul {
+      list-style: disc;
+      margin-left: 20px;
     }
   </style>
 </head>
 <body>
-  <div id="particles-js"></div>
-  <div class="content">
-    <h1>Bao Lab at Fudan University</h1>
-    <p>Welcome to our lab website. We study complex systems and their applications in biology and medicine.</p>
+  <div id="banner">
+    <canvas id="matrixCanvas"></canvas>
+    <div class="banner-content">
+      <h1>Bao Lab at Fudan University</h1>
+      <p>We study complex systems and their applications in biology and medicine.</p>
+    </div>
   </div>
-  <!-- Load particles.js -->
-  <script src="https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+  <section id="about">
+    <h2>About</h2>
+    <p>Our lab is led by Feng Bao, PI at Fudan University. We develop general learning approaches for biological and medical studies and drug screening. We are looking for highly motivated students and postdocs to work together.</p>
+  </section>
+  <section id="research">
+    <h2>Research Interests</h2>
+    <p>We focus on statistical learning methods and biological applications:</p>
+    <ul>
+      <li><strong>Statistical learning:</strong>
+        <ul>
+          <li>Architectures to disentangle information within multi-modal/-omics inputs.</li>
+          <li>Integration analysis across more than two modalities.</li>
+          <li>Contrastive learning for multimodal data.</li>
+        </ul>
+      </li>
+      <li><strong>Biological questions:</strong>
+        <ul>
+          <li>Quantifying interactions across multiple omics types.</li>
+          <li>Improving the throughput of spatially resolved transcriptomics using statistical methods.</li>
+          <li>Integrating high-content phenotypic drug profiles.</li>
+        </ul>
+      </li>
+    </ul>
+  </section>
+  <section id="contact">
+    <h2>Contact</h2>
+    <p>Email: fbao [at] fudan.edu.cn</p>
+  </section>
   <script>
-    particlesJS('particles-js',
-      {
-        "particles": {
-          "number": {
-            "value": 80,
-            "density": {
-              "enable": true,
-              "value_area": 800
-            }
-          },
-          "color": {
-            "value": "#ffffff"
-          },
-          "shape": {
-            "type": "circle",
-            "stroke": {
-              "width": 0,
-              "color": "#000000"
-            }
-          },
-          "opacity": {
-            "value": 0.5,
-            "random": false,
-            "anim": {
-              "enable": false
-            }
-          },
-          "size": {
-            "value": 3,
-            "random": true,
-            "anim": {
-              "enable": false
-            }
-          },
-          "line_linked": {
-            "enable": true,
-            "distance": 150,
-            "color": "#ffffff",
-            "opacity": 0.4,
-            "width": 1
-          },
-          "move": {
-            "enable": true,
-            "speed": 2,
-            "direction": "none",
-            "random": false,
-            "straight": false,
-            "out_mode": "out",
-            "bounce": false
-          }
-        },
-        "interactivity": {
-          "detect_on": "canvas",
-          "events": {
-            "onhover": {
-              "enable": true,
-              "mode": "repulse"
-            },
-            "onclick": {
-              "enable": true,
-              "mode": "push"
-            },
-            "resize": true
-          },
-          "modes": {
-            "repulse": {
-              "distance": 100,
-              "duration": 0.4
-            },
-            "push": {
-              "particles_nb": 4
-            }
-          }
-        },
-        "retina_detect": true
+    // dynamic point matrix animation
+    const canvas = document.getElementById('matrixCanvas');
+    const ctx = canvas.getContext('2d');
+    let points = [];
+    const numPoints = 100;
+    function resizeCanvas() {
+      canvas.width = canvas.offsetWidth;
+      canvas.height = canvas.offsetHeight;
+    }
+    function initPoints() {
+      points = [];
+      for (let i = 0; i < numPoints; i++) {
+        points.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          vx: (Math.random() - 0.5) * 0.5,
+          vy: (Math.random() - 0.5) * 0.5
+        });
       }
-    );
+    }
+    function update() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+      points.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > canvas.width) p.vx *= -1;
+        if (p.y < 0 || p.y > canvas.height) p.vy *= -1;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, 2, 0, Math.PI * 2);
+        ctx.fill();
+      });
+      requestAnimationFrame(update);
+    }
+    function init() {
+      resizeCanvas();
+      initPoints();
+      update();
+    }
+    window.addEventListener('resize', () => {
+      resizeCanvas();
+      initPoints();
+    });
+    init();
   </script>
 </body>
 </html>
