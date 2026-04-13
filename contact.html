@@ -2,29 +2,86 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Contact - Bao Lab at Fudan University</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contact — Bao Lab · Fudan University</title>
+<link rel="stylesheet" href="style.css">
 <style>
-body { margin:0; padding:0; background-color:#000; color:#fff; font-family: Arial, sans-serif; }
-nav { background-color:#111; padding:10px; text-align:center; }
-nav a { color:#fff; margin:0 15px; text-decoration:none; font-weight:bold; }
-nav a:hover { text-decoration:underline; }
-section { padding:40px; max-width:800px; margin:auto; }
+.contact-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-top: 8px;
+}
+.contact-item {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 22px 26px;
+}
+.contact-item h3 {
+  font-size: 0.75em;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.contact-item p, .contact-item a {
+  font-size: 0.93em;
+  color: var(--text);
+}
+.contact-item a {
+  color: var(--accent);
+}
+
+@media (max-width: 560px) {
+  .contact-grid { grid-template-columns: 1fr; }
+}
 </style>
 </head>
 <body>
+
 <nav>
-<a href="index.html">Home</a>
-<a href="about.html">About</a>
-<a href="team.html">Team</a>
-<a href="research.html">Research</a>
-<a href="publications.html">Publications</a>
-<a href="tools.html">Tools</a>
-<a href="contact.html">Contact</a>
+  <a class="nav-brand" href="index.html">Bao<span style="color:var(--accent)">Lab</span> · Fudan</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html">Publications</a>
+    <a href="tools.html">Tools</a>
+    <a href="contact.html" class="active">Contact</a>
+  </div>
 </nav>
-<section>
-<h1>Contact</h1>
-<p>If you are interested in our research or have any questions, please feel free to reach out.</p>
-<p>Email: <a href="mailto:fbao@fudan.edu.cn" style="color:#4DA6FF;">fbao@fudan.edu.cn</a></p>
-</section>
+
+<div class="page-content">
+
+  <div class="page-title">Contact</div>
+  <div class="page-subtitle">Get in touch with the Bao Lab</div>
+
+  <p>
+    We welcome inquiries about our research, potential collaborations, and prospective students or postdoctoral researchers interested in joining the lab.
+  </p>
+
+  <div class="contact-grid">
+    <div class="contact-item">
+      <h3>Email</h3>
+      <p><a href="mailto:fbao@fudan.edu.cn">fbao@fudan.edu.cn</a></p>
+    </div>
+    <div class="contact-item">
+      <h3>GitHub</h3>
+      <p><a href="https://github.com/BaoLab-fudan" target="_blank">github.com/BaoLab-fudan</a></p>
+    </div>
+    <div class="contact-item">
+      <h3>Institution</h3>
+      <p>Fudan University<br>Shanghai, China</p>
+    </div>
+    <div class="contact-item">
+      <h3>Joining the Lab</h3>
+      <p>See the <a href="team.html">Team page</a> for open positions and what we look for in candidates.</p>
+    </div>
+  </div>
+
+</div>
 </body>
 </html>

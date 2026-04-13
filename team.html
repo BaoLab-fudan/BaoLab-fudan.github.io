@@ -2,33 +2,161 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Team - Bao Lab at Fudan University</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Team — Bao Lab · Fudan University</title>
+<link rel="stylesheet" href="style.css">
 <style>
-body { margin:0; padding:0; background-color:#000; color:#fff; font-family: Arial, sans-serif; }
-nav { background-color: #111; padding:10px; text-align:center; }
-nav a { color:#fff; margin:0 15px; text-decoration:none; font-weight:bold; }
-nav a:hover { text-decoration:underline; }
-section { padding: 40px; max-width:800px; margin:auto; }
+.pi-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 32px;
+  display: flex;
+  gap: 28px;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.pi-avatar {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 2px solid var(--accent-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2em;
+  flex-shrink: 0;
+  color: var(--accent);
+  font-weight: 700;
+}
+
+.pi-info h2 {
+  font-size: 1.35em;
+  color: var(--text-hi);
+  margin-bottom: 4px;
+  font-weight: 700;
+}
+
+.pi-info .pi-role {
+  color: var(--accent);
+  font-size: 0.85em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 12px;
+}
+
+.pi-info p {
+  font-size: 0.93em;
+  color: var(--text);
+  margin-bottom: 14px;
+}
+
+.pi-links {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.pi-links a {
+  display: inline-block;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  padding: 5px 14px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.18s;
+}
+.pi-links a:hover {
+  background: rgba(0,196,238,0.22);
+  text-decoration: none;
+}
+
+.join-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius);
+  padding: 24px 28px;
+}
+
+.join-card h3 {
+  font-size: 1em;
+  color: var(--text-hi);
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.join-card p {
+  font-size: 0.92em;
+  margin: 0;
+}
+
+@media (max-width: 540px) {
+  .pi-card { flex-direction: column; gap: 18px; }
+}
 </style>
 </head>
 <body>
+
 <nav>
-  <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="team.html">Team</a>
-  <a href="research.html">Research</a>
-  <a href="publications.html">Publications</a>
-  <a href="tools.html">Tools</a>
-  <a href="contact.html">Contact</a>
+  <a class="nav-brand" href="index.html">Bao<span style="color:var(--accent)">Lab</span> · Fudan</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html" class="active">Team</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html">Publications</a>
+    <a href="tools.html">Tools</a>
+    <a href="contact.html">Contact</a>
+  </div>
 </nav>
-<section>
-<h1>Our Team</h1>
-<p>Our lab is led by Principal Investigator <strong>Feng Bao</strong>. We are a group of researchers, students, and collaborators dedicated to developing general learning approaches for biological and medical studies and drug screens.</p>
-<p><strong>Principal Investigator:</strong></p>
-<ul>
-<li>Feng Bao – Principal Investigator</li>
-</ul>
-<p>We are recruiting motivated students and postdocs! If you are interested in joining the Bao Lab, please reach out via our contact page.</p>
-</section>
+
+<div class="page-content">
+
+  <div class="page-title">Our Team</div>
+  <div class="page-subtitle">Researchers dedicated to computational biology and statistical learning</div>
+
+  <div class="section-label">Principal Investigator</div>
+
+  <div class="pi-card">
+    <div class="pi-avatar">FB</div>
+    <div class="pi-info">
+      <h2>Feng Bao</h2>
+      <div class="pi-role">Principal Investigator</div>
+      <p>
+        Feng Bao leads the Bao Lab at Fudan University. His research focuses on developing general statistical learning frameworks for multi-modal and multi-omics biological data, with applications in spatial transcriptomics, drug discovery, and complex systems analysis.
+      </p>
+      <div class="pi-links">
+        <a href="mailto:fbao@fudan.edu.cn">✉ Email</a>
+        <a href="https://github.com/BaoLab-fudan" target="_blank">⌥ GitHub</a>
+        <a href="publications.html">Publications</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Students &amp; Postdocs</div>
+
+  <div class="card" style="color:var(--text-dim); font-size:0.93em; font-style:italic; padding: 22px 28px;">
+    We are actively recruiting motivated PhD students and postdoctoral researchers. If you are passionate about interdisciplinary research at the intersection of machine learning and biology, we'd love to hear from you.
+  </div>
+
+  <div class="section-label">Join Us</div>
+
+  <div class="join-card">
+    <h3>Open Positions</h3>
+    <p>
+      We welcome applications from candidates with backgrounds in bioinformatics, statistics, machine learning, or computational biology. Strong programming skills (Python/R) and enthusiasm for biological questions are highly valued.
+      Please reach out via the <a href="contact.html">contact page</a> with your CV and a brief statement of interest.
+    </p>
+  </div>
+
+</div>
 </body>
 </html>

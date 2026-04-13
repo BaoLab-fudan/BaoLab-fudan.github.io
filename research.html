@@ -2,39 +2,80 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Research - Bao Lab at Fudan University</title>
-<style>
-body { margin:0; padding:0; background-color:#000; color:#fff; font-family: Arial, sans-serif; }
-nav { background-color:#111; padding:10px; text-align:center; }
-nav a { color:#fff; margin:0 15px; text-decoration:none; font-weight:bold; }
-nav a:hover { text-decoration:underline; }
-section { padding:40px; max-width:800px; margin:auto; }
-</style>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Research — Bao Lab · Fudan University</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <nav>
-  <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="team.html">Team</a>
-  <a href="research.html">Research</a>
-  <a href="publications.html">Publications</a>
-  <a href="tools.html">Tools</a>
-  <a href="contact.html">Contact</a>
+  <a class="nav-brand" href="index.html">Bao<span style="color:var(--accent)">Lab</span> · Fudan</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html" class="active">Research</a>
+    <a href="publications.html">Publications</a>
+    <a href="tools.html">Tools</a>
+    <a href="contact.html">Contact</a>
+  </div>
 </nav>
-<section>
-<h1>Research Interests</h1>
-<h2>Statistical Learning</h2>
-<ul>
-<li>Developing architectures to disentangle multi-modal or multi-omics inputs.</li>
-<li>Performing integration analysis across more than two modalities.</li>
-<li>Creating contrastive learning techniques for multimodal data.</li>
-</ul>
-<h2>Biological Questions</h2>
-<ul>
-<li>Quantifying interactions across multiple omics types.</li>
-<li>Improving the throughput of spatially resolved transcriptomics using statistical methods.</li>
-<li>Integrating high-content phenotypic drug profiles to study complex systems.</li>
-</ul>
-</section>
+
+<div class="page-content">
+
+  <div class="page-title">Research</div>
+  <div class="page-subtitle">Statistical learning methods for biology and medicine</div>
+
+  <p>
+    Our research is organized around two complementary directions: developing the statistical and machine learning machinery needed to handle complex multi-modal data, and applying these methods to answer concrete biological and medical questions.
+  </p>
+
+  <div class="section-label">Statistical Learning</div>
+
+  <div class="card">
+    <div class="card-title">Multi-modal Architecture Design</div>
+    <div class="card-body">
+      We develop neural network architectures that can disentangle and integrate multi-modal or multi-omics inputs, learning shared and modality-specific representations that preserve biological structure.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Multi-omics Integration</div>
+    <div class="card-body">
+      We design integration frameworks that scale beyond pairwise comparisons, enabling joint analysis across more than two omics modalities simultaneously.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Contrastive and Self-supervised Learning</div>
+    <div class="card-body">
+      We create contrastive learning techniques tailored for multimodal biological data, allowing models to learn from unlabeled or weakly labeled data — critical in settings where annotations are scarce.
+    </div>
+  </div>
+
+  <div class="section-label">Biological Questions</div>
+
+  <div class="card">
+    <div class="card-title">Cross-omics Interaction Quantification</div>
+    <div class="card-body">
+      We develop methods to quantify and interpret interactions across multiple omics layers, uncovering regulatory relationships that are invisible when each modality is analyzed in isolation.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">Spatially Resolved Transcriptomics</div>
+    <div class="card-body">
+      We use generative deep learning to improve the throughput, resolution, and dimensionality of spatially resolved transcriptomics — including reconstruction of 3D spatial gene expression from 2D data.
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">High-content Drug Profiling</div>
+    <div class="card-body">
+      We integrate high-content phenotypic drug screens with multi-omics data to predict small-molecule function, enabling more efficient drug discovery by bridging chemical and biological spaces.
+    </div>
+  </div>
+
+</div>
 </body>
 </html>

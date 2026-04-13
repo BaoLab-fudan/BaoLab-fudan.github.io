@@ -3,29 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>About - Bao Lab</title>
-<style>
-body, html { margin: 0; padding: 0; font-family: Arial, sans-serif; color: #ffffff; background-color: #000000; }
-nav { background-color: #111; padding: 10px; display: flex; gap: 15px; }
-nav a { color: #fff; text-decoration: none; font-weight: bold; }
-main { padding: 20px; }
-h1 { margin-top: 0; }
-</style>
+<title>About — Bao Lab · Fudan University</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
+
 <nav>
-<a href="index.html">Home</a>
-<a href="about.html">About</a>
-<a href="team.html">Team</a>
-<a href="research.html">Research</a>
-<a href="publications.html">Publications</a>
-<a href="tools.html">Tools</a>
-<a href="contact.html">Contact</a>
+  <a class="nav-brand" href="index.html">Bao<span style="color:var(--accent)">Lab</span> · Fudan</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html" class="active">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html">Publications</a>
+    <a href="tools.html">Tools</a>
+    <a href="contact.html">Contact</a>
+  </div>
 </nav>
-<main>
-<h1>About the Bao Lab</h1>
-<p>The Bao Lab at Fudan University, led by Principal Investigator Feng Bao, develops general learning approaches with applications in biological and medical studies and drug screens. Our mission is to understand complex systems and leverage computational methods to answer biological questions and improve medical research.</p>
-<p>We are always interested in motivated students and postdoctoral fellows who are passionate about interdisciplinary research to join our team and contribute to advancing science.</p>
-</main>
+
+<div class="page-content">
+
+  <div class="page-title">About the Bao Lab</div>
+  <div class="page-subtitle">Fudan University · Shanghai, China</div>
+
+  <p>
+    The Bao Lab at Fudan University, led by Principal Investigator <strong style="color:var(--text-hi)">Feng Bao</strong>, develops general statistical learning approaches with applications in biological and medical studies and drug screening. Our mission is to understand complex systems and leverage computational methods to answer fundamental biological questions and improve medical research.
+  </p>
+
+  <p>
+    We sit at the intersection of machine learning, statistics, and biology — designing methods that can extract meaningful signal from high-dimensional, heterogeneous data. A key focus of the lab is multi-modal and multi-omics integration, where we build architectures that learn joint representations across different data types.
+  </p>
+
+  <div class="section-label">What We Do</div>
+
+  <ul class="accent-list">
+    <li>Develop deep learning and statistical frameworks for multi-modal biological data</li>
+    <li>Apply generative models to spatially resolved transcriptomics</li>
+    <li>Analyze high-content phenotypic drug profiles to understand complex biological systems</li>
+    <li>Build open-source tools for the computational biology community</li>
+  </ul>
+
+  <div class="section-label">Join Us</div>
+
+  <p>
+    We are always interested in motivated students and postdoctoral fellows who are passionate about interdisciplinary research. Whether your background is in machine learning, statistics, bioinformatics, or biology, if you're excited about tackling hard problems at the frontier of data-driven science, we'd love to hear from you.
+  </p>
+
+  <p>
+    Please visit the <a href="contact.html">Contact page</a> or reach out directly to <a href="mailto:fbao@fudan.edu.cn">fbao@fudan.edu.cn</a>.
+  </p>
+
+</div>
 </body>
 </html>

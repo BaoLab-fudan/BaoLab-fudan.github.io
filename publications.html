@@ -2,34 +2,137 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>Publications - Bao Lab at Fudan University</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Publications — Bao Lab · Fudan University</title>
+<link rel="stylesheet" href="style.css">
 <style>
-body { margin:0; padding:0; background-color:#000; color:#fff; font-family: Arial, sans-serif; }
-nav { background-color:#111; padding:10px; text-align:center; }
-nav a { color:#fff; margin:0 15px; text-decoration:none; font-weight:bold; }
-nav a:hover { text-decoration:underline; }
-section { padding:40px; max-width:800px; margin:auto; }
+.pub-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-left: 3px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 12px;
+  transition: border-color 0.2s, border-left-color 0.2s, background 0.2s;
+}
+.pub-card:hover {
+  border-color: var(--accent);
+  border-left-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+.pub-title {
+  font-size: 0.98em;
+  font-weight: 600;
+  color: var(--text-hi);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+.pub-meta {
+  font-size: 0.82em;
+  color: var(--text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+.pub-year {
+  display: inline-block;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
+.pub-link {
+  font-size: 0.82em;
+  color: var(--accent);
+  text-decoration: none;
+  margin-top: 8px;
+  display: inline-block;
+}
+.pub-link:hover { text-decoration: underline; }
+
+.scholar-note {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 18px 24px;
+  font-size: 0.9em;
+  color: var(--text-dim);
+  margin-top: 8px;
+}
 </style>
 </head>
 <body>
+
 <nav>
-  <a href="index.html">Home</a>
-  <a href="about.html">About</a>
-  <a href="team.html">Team</a>
-  <a href="research.html">Research</a>
-  <a href="publications.html">Publications</a>
-  <a href="tools.html">Tools</a>
-  <a href="contact.html">Contact</a>
+  <a class="nav-brand" href="index.html">Bao<span style="color:var(--accent)">Lab</span> · Fudan</a>
+  <div class="nav-links">
+    <a href="index.html">Home</a>
+    <a href="about.html">About</a>
+    <a href="team.html">Team</a>
+    <a href="research.html">Research</a>
+    <a href="publications.html" class="active">Publications</a>
+    <a href="tools.html">Tools</a>
+    <a href="contact.html">Contact</a>
+  </div>
 </nav>
-<section>
-<h1>Publications</h1>
-<ul>
-  <li>2025 – Three-dimensional spatial transcriptomics at isotropic resolution enabled by generative deep learning</li>
-  <li>2025 – Transitive prediction of small-molecule function through alignment of high-content screening resources</li>
-  <li>2025 – Irradiation Hardness of GaN Laser Diodes for Visible Light Communications in Harsh Environments</li>
-  <li>2025 – Q-learning Inspired Geometric Shaping Optimization of APSK Constellations for the Nonlinear LEO-LEO Satellite Channels</li>
-</ul>
-<p>For a complete and up-to-date list, see my Google Scholar profile.</p>
-</section>
+
+<div class="page-content">
+
+  <div class="page-title">Publications</div>
+  <div class="page-subtitle">Selected research outputs from the Bao Lab</div>
+
+  <div class="section-label">2025</div>
+
+  <div class="pub-card">
+    <div class="pub-title">
+      Three-dimensional spatial transcriptomics at isotropic resolution enabled by generative deep learning
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2025</span>
+      <span>Spatial omics · Deep learning · Generative models</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">
+      Transitive prediction of small-molecule function through alignment of high-content screening resources
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2025</span>
+      <span>Drug discovery · Multi-modal learning · High-content screening</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">
+      Irradiation Hardness of GaN Laser Diodes for Visible Light Communications in Harsh Environments
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2025</span>
+      <span>Photonics · GaN · Optical communications</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">
+      Q-learning Inspired Geometric Shaping Optimization of APSK Constellations for the Nonlinear LEO-LEO Satellite Channels
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2025</span>
+      <span>Reinforcement learning · Satellite communications · Signal processing</span>
+    </div>
+  </div>
+
+  <div class="scholar-note">
+    For a complete and up-to-date list of publications, visit the
+    <a href="https://scholar.google.com" target="_blank">Google Scholar profile →</a>
+  </div>
+
+</div>
 </body>
 </html>
