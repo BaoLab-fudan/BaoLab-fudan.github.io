@@ -56,21 +56,21 @@ gtag('config', 'G-LXFRTDPY7G');
   font-weight: 800;
   letter-spacing: 0;
   color: var(--text-hi);
-  text-shadow: 0 18px 70px rgba(0,0,0,0.72), 0 0 32px rgba(116,221,214,0.12);
+  text-shadow: 0 18px 70px rgba(0,0,0,0.72), 0 0 32px var(--accent-glow);
   line-height: 1.1;
 }
-.hero-lab span { color: #8ce7df; }
+.hero-lab span { color: var(--accent); }
 .hero-sub {
   margin-top: 14px;
   font-size: 1.08rem;
-  color: #b9c9c8;
+  color: var(--text-dim);
   letter-spacing: 0;
   text-transform: uppercase;
 }
 .hero-tagline {
   margin-top: 22px;
   font-size: 1.02rem;
-  color: #d8e4e2;
+  color: var(--text);
   max-width: 640px;
   margin-left: auto;
   margin-right: auto;
@@ -95,18 +95,18 @@ gtag('config', 'G-LXFRTDPY7G');
   transition: background 0.2s, border-color 0.2s;
 }
 .btn-primary {
-  background: #8ce7df;
-  color: #03100f;
-  border: 1px solid #b8f4ef;
-  box-shadow: 0 14px 36px rgba(116,221,214,0.14);
+  background: var(--accent);
+  color: #07090f;
+  border: 1px solid var(--accent);
+  box-shadow: 0 14px 36px rgba(0,196,238,0.14);
 }
-.btn-primary:hover { background: #b8f4ef; }
+.btn-primary:hover { background: #33d1f5; }
 .btn-outline {
   background: transparent;
-  color: #d9e7e1;
-  border: 1px solid rgba(217,231,225,0.26);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
 }
-.btn-outline:hover { border-color: rgba(140,231,223,0.72); background: rgba(140,231,223,0.08); }
+.btn-outline:hover { border-color: var(--accent); background: var(--accent-dim); }
 
 /* ── Home grid ── */
 .home-grid {
@@ -253,10 +253,10 @@ gtag('config', 'G-LXFRTDPY7G');
 
   const palette = {
     bg: [5, 7, 10],
-    quiet: [84, 112, 114],
-    line: [126, 151, 153],
-    glow: [140, 231, 223],
-    text: [224, 240, 238]
+    quiet: [74, 102, 128],
+    line: [74, 102, 128],
+    glow: [0, 196, 238],
+    text: [232, 242, 248]
   };
 
   function rgba(rgb, a){
@@ -309,13 +309,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
     const veil = ctx.createLinearGradient(0, 0, W, H);
     veil.addColorStop(0, 'rgba(255,255,255,0.025)');
-    veil.addColorStop(0.52, 'rgba(140,231,223,0.045)');
+    veil.addColorStop(0.52, 'rgba(0,196,238,0.045)');
     veil.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = veil;
     ctx.fillRect(0, 0, W, H);
 
     ctx.save();
-    ctx.strokeStyle = 'rgba(170,190,190,0.045)';
+    ctx.strokeStyle = 'rgba(0,196,238,0.045)';
     ctx.lineWidth = 1;
     const gap = Math.max(72, Math.min(112, W / 12));
     const drift = (time * 4) % gap;
