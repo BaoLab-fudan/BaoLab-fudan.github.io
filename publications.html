@@ -11,8 +11,8 @@
   border: 1px solid var(--accent-border);
   border-left: 3px solid var(--accent-border);
   border-radius: var(--radius);
-  padding: 20px 24px;
-  margin-bottom: 12px;
+  padding: 18px 22px;
+  margin-bottom: 10px;
   transition: border-color 0.2s, border-left-color 0.2s, background 0.2s;
 }
 .pub-card:hover {
@@ -21,19 +21,29 @@
   background: var(--bg-card-hover);
 }
 .pub-title {
-  font-size: 0.98em;
+  font-size: 0.97em;
   font-weight: 600;
   color: var(--text-hi);
   line-height: 1.5;
   margin-bottom: 8px;
+}
+.pub-authors {
+  font-size: 0.82em;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin-bottom: 6px;
 }
 .pub-meta {
   font-size: 0.82em;
   color: var(--text-dim);
   display: flex;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
+}
+.pub-journal {
+  font-style: italic;
+  color: var(--text);
 }
 .pub-year {
   display: inline-block;
@@ -46,11 +56,22 @@
   border-radius: 4px;
   letter-spacing: 0.04em;
 }
+.pub-badge {
+  display: inline-block;
+  background: rgba(0,196,238,0.18);
+  border: 1px solid rgba(0,196,238,0.35);
+  color: var(--accent);
+  font-size: 0.74em;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.04em;
+}
 .pub-link {
   font-size: 0.82em;
   color: var(--accent);
   text-decoration: none;
-  margin-top: 8px;
+  margin-top: 6px;
   display: inline-block;
 }
 .pub-link:hover { text-decoration: underline; }
@@ -59,8 +80,8 @@
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
   border-radius: var(--radius);
-  padding: 18px 24px;
-  font-size: 0.9em;
+  padding: 16px 22px;
+  font-size: 0.88em;
   color: var(--text-dim);
   margin-top: 8px;
 }
@@ -76,7 +97,6 @@
     <a href="team.html">Team</a>
     <a href="research.html">Research</a>
     <a href="publications.html" class="active">Publications</a>
-    <a href="tools.html">Tools</a>
     <a href="contact.html">Contact</a>
   </div>
 </nav>
@@ -84,53 +104,382 @@
 <div class="page-content">
 
   <div class="page-title">Publications</div>
-  <div class="page-subtitle">Selected research outputs from the Bao Lab</div>
+  <div class="page-subtitle">Research outputs from the Bao Lab and collaborations</div>
 
+  <p style="font-size:0.88em;color:var(--text-dim);">
+    <sup>#</sup> co-corresponding author &nbsp;&nbsp;
+    <sup>*</sup> equal contribution
+  </p>
+
+  <!-- ─── 2026 ─── -->
+  <div class="section-label">2026</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Whole-body molecular and cellular mapping of the laboratory mouse</div>
+    <div class="pub-authors">
+      Clevenger MH, Cipurko D, Patil A, Li B, Takahama M, Mei L, Plaster M, Kawamoto G,
+      <strong>Bao F</strong><sup>#</sup>, Chevrier N<sup>#</sup>
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2026</span>
+      <span class="pub-journal">Cell</span>
+      <span>DOI: 10.1016/j.cell.2026.03.006</span>
+    </div>
+  </div>
+
+  <!-- ─── 2025 ─── -->
   <div class="section-label">2025</div>
 
   <div class="pub-card">
-    <div class="pub-title">
-      Three-dimensional spatial transcriptomics at isotropic resolution enabled by generative deep learning
+    <div class="pub-title">Multi-modal Integration with Adversarial Mutual Distribution Matching</div>
+    <div class="pub-authors">
+      Huang O, Shi J, Li Z, Ye S, Shen C, Zhang J, Cai H, Chi N, <strong>Bao F</strong><sup>#</sup>
     </div>
     <div class="pub-meta">
       <span class="pub-year">2025</span>
-      <span>Spatial omics · Deep learning · Generative models</span>
+      <span class="pub-journal">Pattern Recognition</span>
+      <span>112818</span>
     </div>
   </div>
 
   <div class="pub-card">
-    <div class="pub-title">
-      Transitive prediction of small-molecule function through alignment of high-content screening resources
+    <div class="pub-title">Transitive prediction of small molecule function through alignment of high-content screening resources</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Li L, Hammerlindl H, Shen SQ, Hammerlindl S, Altschuler SJ, Wu LF
     </div>
     <div class="pub-meta">
       <span class="pub-year">2025</span>
-      <span>Drug discovery · Multi-modal learning · High-content screening</span>
+      <span class="pub-journal">Nature Biotechnology</span>
+      <span>https://doi.org/10.1038/s41587-025-02729-2</span>
+    </div>
+  </div>
+
+  <!-- ─── 2024 ─── -->
+  <div class="section-label">2024</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Tissue characterization at an enhanced resolution across spatial omics platforms with deep generative model</div>
+    <div class="pub-authors">
+      Li B, <strong>Bao F</strong><sup>*</sup>, Hou Y, Li F, Li H, Deng Y, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2024</span>
+      <span class="pub-journal">Nature Communications</span>
+      <span>15(1):6541</span>
+    </div>
+  </div>
+
+  <!-- ─── 2022 ─── -->
+  <div class="section-label">2022</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Integrative spatial analysis of cell morphologies and transcriptional states with MUSE</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Wan S, Wang B, Dai Q, Altschuler SJ, Wu LF
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2022</span>
+      <span class="pub-journal">Nature Biotechnology</span>
+      <span>1&ndash;10</span>
     </div>
   </div>
 
   <div class="pub-card">
-    <div class="pub-title">
-      Irradiation Hardness of GaN Laser Diodes for Visible Light Communications in Harsh Environments
+    <div class="pub-title">Differential toxicity to murine small and large intestinal epithelium induced by oncology drugs</div>
+    <div class="pub-authors">
+      Bieber JM, Sanman LE, Sun X, Hammerlindl H, <strong>Bao F</strong>, Roth MA, Koleske ML, et al.
     </div>
     <div class="pub-meta">
-      <span class="pub-year">2025</span>
-      <span>Photonics · GaN · Optical communications</span>
+      <span class="pub-year">2022</span>
+      <span class="pub-journal">Communications Biology</span>
+      <span>5(1):1&ndash;11</span>
+    </div>
+  </div>
+
+  <!-- ─── 2021 ─── -->
+  <div class="section-label">2021</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Computational Reconstruction of Missing Data in Biological Research</div>
+    <div class="pub-authors"><strong>Bao F</strong></div>
+    <div class="pub-meta">
+      <span class="pub-year">2021</span>
+      <span class="pub-journal">Springer Nature</span>
+      <span>ISBN 978-981-16-3064-4</span>
     </div>
   </div>
 
   <div class="pub-card">
-    <div class="pub-title">
-      Q-learning Inspired Geometric Shaping Optimization of APSK Constellations for the Nonlinear LEO-LEO Satellite Channels
+    <div class="pub-title">Disentangled Variational Information Bottleneck for Multiview Representation Learning</div>
+    <div class="pub-authors"><strong>Bao F</strong></div>
+    <div class="pub-meta">
+      <span class="pub-year">2021</span>
+      <span class="pub-journal">CAAI International Conference on Artificial Intelligence</span>
+      <span>91&ndash;102</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Giotto: a toolbox for integrative analysis and visualization of spatial expression data</div>
+    <div class="pub-authors">
+      Dries R, Zhu Q, Dong R, Eng CHL, Li H, Liu K, Fu Y, <strong>Bao F</strong>, et al.
     </div>
     <div class="pub-meta">
-      <span class="pub-year">2025</span>
-      <span>Reinforcement learning · Satellite communications · Signal processing</span>
+      <span class="pub-year">2021</span>
+      <span class="pub-journal">Genome Biology</span>
+      <span>22(1):1&ndash;31</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Unsupervised content-preserving transformation for optical microscopy</div>
+    <div class="pub-authors">
+      Li X, Zhang G, Qiao H, <strong>Bao F</strong>, Deng Y, Wu J, He Y, et al.
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2021</span>
+      <span class="pub-journal">Light: Science &amp; Applications</span>
+      <span>10(1):1&ndash;11</span>
+    </div>
+  </div>
+
+  <!-- ─── 2020 ─── -->
+  <div class="section-label">2020</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Explaining the Genetic Causality for Complex Phenotype via Deep Association Kernel Learning</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Du M, Ren Z, Wan S, Liang KY, Liu S, Wang B, Xin J, Chen F, Christiani DC, Wang M, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2020</span>
+      <span class="pub-journal">Patterns</span>
+      <span>Cell Press &mdash; 100057</span>
+      <span class="pub-badge">Cover Article</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Gated Value Network for Multilabel Classification</div>
+    <div class="pub-authors">
+      Hou Y, Wan S, <strong>Bao F</strong>, Ren Z, Dong Y, Dai Q, Deng Y
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2020</span>
+      <span class="pub-journal">IEEE Transactions on Neural Networks and Learning Systems</span>
+      <span>32(10):4748&ndash;4754</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Human-in-the-Loop Low-Shot Learning</div>
+    <div class="pub-authors">
+      Wan S, Hou Y, <strong>Bao F</strong>, Ren Z, Dong Y, Dai Q, Deng Y
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2020</span>
+      <span class="pub-journal">IEEE Transactions on Neural Networks and Learning Systems</span>
+      <span>32(7):3287&ndash;3292</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Cooperative deep reinforcement learning for large-scale traffic grid signal control</div>
+    <div class="pub-authors">
+      Tan T, <strong>Bao F</strong>, Deng Y, Jin A, Dai Q, Wang J
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2020</span>
+      <span class="pub-journal">IEEE Transactions on Cybernetics</span>
+      <span>50(6):2687&ndash;2700</span>
+    </div>
+  </div>
+
+  <!-- ─── 2019 ─── -->
+  <div class="section-label">2019</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Scalable analysis of cell type composition from single-cell transcriptomics using deep recurrent learning</div>
+    <div class="pub-authors">
+      Deng Y<sup>*</sup>, <strong>Bao F</strong><sup>*</sup>, Dai Q, Wu LF, Altschuler SJ
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2019</span>
+      <span class="pub-journal">Nature Methods</span>
+      <span>16:311&ndash;314</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Learning Deep Landmarks for Imbalanced Classification</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Kong Y, Ren Z, Suo J, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2019</span>
+      <span class="pub-journal">IEEE Transactions on Neural Networks and Learning Systems</span>
+      <span>1(8):2691&ndash;2704</span>
+    </div>
+  </div>
+
+  <!-- ─── 2018 ─── -->
+  <div class="section-label">2018</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Deep learning model for ultrafast multifrequency optical property extractions for spatial frequency domain imaging</div>
+    <div class="pub-authors">
+      Zhao Y, Deng Y, <strong>Bao F</strong>, Peterson H, Istfan R, Roblyer D
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2018</span>
+      <span class="pub-journal">Optics Letters</span>
+      <span>43(22):5669&ndash;5672</span>
+    </div>
+  </div>
+
+  <!-- ─── 2017 ─── -->
+  <div class="section-label">2017</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Information Transduction Capacity Reduces the Uncertainties in Annotation-free Isoform Discovery and Quantification</div>
+    <div class="pub-authors">
+      Deng Y<sup>*</sup>, <strong>Bao F</strong><sup>*</sup>, Yang Y, Ji X, Du M, Zhang Z, Wang M, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2017</span>
+      <span class="pub-journal">Nucleic Acids Research</span>
+      <span>gkx585</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Probabilistic natural mapping of gene-level tests for genome-wide association studies</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Du M, Ren Z, Zhang Q, Zhao Y, Suo J, Zhang Z, Wang M, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2017</span>
+      <span class="pub-journal">Briefings in Bioinformatics</span>
+      <span>bbx002</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Bosco: boosting corrections for genome-wide association studies with imbalanced samples</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Zhao Y, Suo J, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2017</span>
+      <span class="pub-journal">IEEE Transactions on Nanobioscience</span>
+      <span>16(1):69&ndash;77</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Deep Direct Reinforcement Learning for Financial Signal Representation and Trading</div>
+    <div class="pub-authors">
+      Deng Y, <strong>Bao F</strong>, Kong Y, Ren Z, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2017</span>
+      <span class="pub-journal">IEEE Transactions on Neural Networks and Learning Systems</span>
+      <span>28(3):653&ndash;664</span>
+    </div>
+  </div>
+
+  <!-- ─── 2016 ─── -->
+  <div class="section-label">2016</div>
+
+  <div class="pub-card">
+    <div class="pub-title">ACID: association correction for imbalanced data in GWAS</div>
+    <div class="pub-authors">
+      <strong>Bao F</strong>, Deng Y, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">IEEE/ACM Transactions on Computational Biology and Bioinformatics</span>
+      <span>DOI: 10.1109/TCBB.2016.2608819</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Deep and Structured Robust Information Theoretic Learning for Image Analysis</div>
+    <div class="pub-authors">
+      Deng Y<sup>*</sup>, <strong>Bao F</strong><sup>*</sup>, Deng X, Wang R, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">IEEE Transactions on Image Processing</span>
+      <span>25(9):4209&ndash;4221</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">A unified view of nonconvex heuristic approach for low-rank and sparse structure learning</div>
+    <div class="pub-authors">
+      Deng Y, <strong>Bao F</strong>, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">Handbook of Robust Low-Rank and Sparse Matrix Decomposition: Applications in Image and Video Processing</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">A Hierarchical Fused Fuzzy Deep Neural Network for Data Classification</div>
+    <div class="pub-authors">
+      Deng Y, Ren Z, Kong Y, <strong>Bao F</strong>, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">IEEE Transactions on Fuzzy Systems</span>
+      <span>25(4):1006&ndash;1012</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Discriminant kernel assignment for image coding</div>
+    <div class="pub-authors">
+      Deng Y, Zhao Y, Ren Z, Kong Y, <strong>Bao F</strong>, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">IEEE Transactions on Cybernetics</span>
+      <span>47(6):1434&ndash;1445</span>
+    </div>
+  </div>
+
+  <div class="pub-card">
+    <div class="pub-title">Directed adaptive graphical lasso for causality inference</div>
+    <div class="pub-authors">
+      Ren Z, Yang Y, <strong>Bao F</strong>, Deng Y, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2016</span>
+      <span class="pub-journal">Neurocomputing</span>
+      <span>173:1989&ndash;1994</span>
+    </div>
+  </div>
+
+  <!-- ─── 2015 ─── -->
+  <div class="section-label">2015</div>
+
+  <div class="pub-card">
+    <div class="pub-title">Sparse coding-inspired optimal trading system for HFT industry</div>
+    <div class="pub-authors">
+      Deng Y, Kong Y, <strong>Bao F</strong>, Dai Q
+    </div>
+    <div class="pub-meta">
+      <span class="pub-year">2015</span>
+      <span class="pub-journal">IEEE Transactions on Industrial Informatics</span>
+      <span>11(2):467&ndash;475</span>
     </div>
   </div>
 
   <div class="scholar-note">
     For a complete and up-to-date list of publications, visit the
-    <a href="https://scholar.google.com" target="_blank">Google Scholar profile →</a>
+    <a href="https://scholar.google.com" target="_blank">Google Scholar profile &rarr;</a>
   </div>
 
 </div>

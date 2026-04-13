@@ -5,6 +5,124 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>About — Bao Lab · Fudan University</title>
 <link rel="stylesheet" href="style.css">
+<style>
+.timeline {
+  margin-top: 4px;
+}
+.tl-item {
+  display: flex;
+  gap: 20px;
+  margin-bottom: 20px;
+  position: relative;
+}
+.tl-item::before {
+  content: '';
+  position: absolute;
+  left: 88px;
+  top: 26px;
+  bottom: -20px;
+  width: 1px;
+  background: var(--accent-border);
+}
+.tl-item:last-child::before { display: none; }
+.tl-year {
+  flex-shrink: 0;
+  width: 80px;
+  text-align: right;
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--accent);
+  padding-top: 3px;
+  letter-spacing: 0.04em;
+}
+.tl-dot {
+  flex-shrink: 0;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  margin-top: 5px;
+  box-shadow: 0 0 8px rgba(0,196,238,0.5);
+}
+.tl-body {
+  flex: 1;
+}
+.tl-role {
+  font-weight: 600;
+  color: var(--text-hi);
+  font-size: 0.97em;
+}
+.tl-org {
+  font-size: 0.88em;
+  color: var(--text-dim);
+  margin-top: 2px;
+}
+.tl-advisor {
+  font-size: 0.84em;
+  color: var(--text-dim);
+  margin-top: 3px;
+  font-style: italic;
+}
+
+.award-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.award-list li {
+  display: flex;
+  gap: 14px;
+  align-items: baseline;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--accent-border);
+  font-size: 0.92em;
+}
+.award-list li:last-child { border-bottom: none; }
+.award-year {
+  flex-shrink: 0;
+  font-size: 0.78em;
+  font-weight: 700;
+  color: var(--accent);
+  width: 40px;
+}
+
+.grant-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-left: 3px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 18px 22px;
+  margin-bottom: 10px;
+  transition: border-color 0.2s, border-left-color 0.2s;
+}
+.grant-card:hover {
+  border-color: var(--accent);
+  border-left-color: var(--accent);
+}
+.grant-title {
+  font-size: 0.96em;
+  font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 6px;
+}
+.grant-meta {
+  font-size: 0.82em;
+  color: var(--text-dim);
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+.grant-badge {
+  display: inline-block;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.8em;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 4px;
+}
+</style>
 </head>
 <body>
 
@@ -16,7 +134,6 @@
     <a href="team.html">Team</a>
     <a href="research.html">Research</a>
     <a href="publications.html">Publications</a>
-    <a href="tools.html">Tools</a>
     <a href="contact.html">Contact</a>
   </div>
 </nav>
@@ -24,33 +141,165 @@
 <div class="page-content">
 
   <div class="page-title">About the Bao Lab</div>
-  <div class="page-subtitle">Fudan University · Shanghai, China</div>
+  <div class="page-subtitle">Fudan University &middot; Shanghai, China</div>
 
   <p>
-    The Bao Lab at Fudan University, led by Principal Investigator <strong style="color:var(--text-hi)">Feng Bao</strong>, develops general statistical learning approaches with applications in biological and medical studies and drug screening. Our mission is to understand complex systems and leverage computational methods to answer fundamental biological questions and improve medical research.
+    The Bao Lab at Fudan University is led by Principal Investigator
+    <strong style="color:var(--text-hi)">Feng Bao (鲍峰)</strong>, PI
+    at the Institute for AI Industry Research and School of Computer Science.
+    We develop general statistical learning and AI approaches with applications
+    in biological and medical studies and drug screening. Our mission is to understand
+    complex systems and leverage computational methods to answer fundamental biological
+    questions and improve medical research.
   </p>
 
   <p>
-    We sit at the intersection of machine learning, statistics, and biology — designing methods that can extract meaningful signal from high-dimensional, heterogeneous data. A key focus of the lab is multi-modal and multi-omics integration, where we build architectures that learn joint representations across different data types.
+    We sit at the intersection of machine learning, statistics, and biology &mdash; designing
+    methods that extract meaningful signal from high-dimensional, heterogeneous, multi-modal data.
+    Core themes include self-supervised representation learning, multi-modal information fusion,
+    causal inference in complex biological systems, and deep generative models for spatial omics.
   </p>
 
-  <div class="section-label">What We Do</div>
+  <div class="section-label">Career</div>
 
-  <ul class="accent-list">
-    <li>Develop deep learning and statistical frameworks for multi-modal biological data</li>
-    <li>Apply generative models to spatially resolved transcriptomics</li>
-    <li>Analyze high-content phenotypic drug profiles to understand complex biological systems</li>
-    <li>Build open-source tools for the computational biology community</li>
+  <div class="timeline">
+    <div class="tl-item">
+      <div class="tl-year">2024&ndash;</div>
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-role">PI</div>
+        <div class="tl-org">Fudan University / Institute for AI Industry Research, Shanghai</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2019&ndash;2024</div>
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-role">Postdoctoral Researcher</div>
+        <div class="tl-org">University of California, San Francisco / Department of Pharmaceutical Chemistry</div>
+        <div class="tl-advisor">Advisors: Prof. Steven J. Altschuler &amp; Prof. Lani F. Wu</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2018&ndash;2019</div>
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-role">Visiting Scholar</div>
+        <div class="tl-org">Harvard University, Dana-Farber Cancer Research Center / Department of Data Science</div>
+        <div class="tl-advisor">Advisors: Prof. Guo-Cheng Yuan &amp; Prof. Long Cai (Caltech)</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2014&ndash;2019</div>
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-role">Ph.D. in Engineering</div>
+        <div class="tl-org">Tsinghua University / Department of Automation</div>
+        <div class="tl-advisor">Advisor: Academician Qionghai Dai</div>
+      </div>
+    </div>
+    <div class="tl-item">
+      <div class="tl-year">2010&ndash;2014</div>
+      <div class="tl-dot"></div>
+      <div class="tl-body">
+        <div class="tl-role">B.Eng. in Electronic Engineering</div>
+        <div class="tl-org">Xidian University / School of Electronic Engineering</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section-label">Grants &amp; Funding</div>
+
+  <div class="grant-card">
+    <div class="grant-title">Multi-scale Multi-modal Biological Signal Processing and Applications</div>
+    <div class="grant-meta">
+      <span class="grant-badge">2025&ndash;2028</span>
+      <span>National Natural Science Foundation of China &mdash; Overseas Excellent Young Scientist Program (优秀青年项目·海外)</span>
+      <span style="color:var(--accent)">¥1,000,000</span>
+    </div>
+  </div>
+
+  <div class="grant-card">
+    <div class="grant-title">Cross-scale 3D Reconstruction Methods for Spatial Omics</div>
+    <div class="grant-meta">
+      <span class="grant-badge">2026&ndash;2029</span>
+      <span>National Natural Science Foundation of China &mdash; General Program (面上项目)</span>
+      <span style="color:var(--accent)">¥500,000</span>
+    </div>
+  </div>
+
+  <div class="grant-card">
+    <div class="grant-title">Multi-modal Spatial Omics Contrastive Integration for Tumor Spatio-temporal Evolution</div>
+    <div class="grant-meta">
+      <span class="grant-badge">Active</span>
+      <span>Shanghai Science &amp; Technology Commission &mdash; Key Technology R&amp;D (Computational Biology)</span>
+      <span style="color:var(--accent)">¥1,450,000</span>
+    </div>
+  </div>
+
+  <div class="grant-card">
+    <div class="grant-title">Systematic Drug Discovery Platform for Hypoxic Environments</div>
+    <div class="grant-meta">
+      <span class="grant-badge">2019&ndash;2024</span>
+      <span>DARPA (U.S. Defense Advanced Research Projects Agency) &mdash; Lead, Computational Analysis Platform</span>
+      <span style="color:var(--accent)">$11,000,000</span>
+    </div>
+  </div>
+
+  <div class="grant-card">
+    <div class="grant-title">Drug Discovery for Neurodegenerative Disease (ALS)</div>
+    <div class="grant-meta">
+      <span class="grant-badge">2020&ndash;2024</span>
+      <span>Project ALS Foundation &mdash; Machine Learning Methods Design</span>
+    </div>
+  </div>
+
+  <div class="grant-card">
+    <div class="grant-title">Multi-dimensional Multi-scale Computational Imaging Instruments</div>
+    <div class="grant-meta">
+      <span class="grant-badge">2014&ndash;2019</span>
+      <span>Ministry of Science and Technology &mdash; Major Special Project (Ph.D. student)</span>
+    </div>
+  </div>
+
+  <div class="section-label">Awards &amp; Honors</div>
+
+  <ul class="award-list">
+    <li><span class="award-year">2025</span><span>Shanghai Science and Technology Leadership U35 Nomination</span></li>
+    <li><span class="award-year">2025</span><span>Xiaomi Young Scholar</span></li>
+    <li><span class="award-year">2023</span><span>National High-level Overseas Young Talent (国家海外高层次青年人才)</span></li>
+    <li><span class="award-year">2023</span><span>Shanghai High-level Overseas Young Talent (上海市海外高层次青年人才)</span></li>
+    <li><span class="award-year">2021</span><span>Cell Press China Most Popular Article</span></li>
+    <li><span class="award-year">2021</span><span>Germany DAAD AInet Fellowship</span></li>
+    <li><span class="award-year">2021</span><span>CICAI International Conference on Artificial Intelligence, Best Paper Finalist</span></li>
+    <li><span class="award-year">2020</span><span>IEEE CIS Transactions on Fuzzy Systems Outstanding Paper Award</span></li>
+    <li><span class="award-year">2020</span><span>World Artificial Intelligence Conference Outstanding Young Paper Award</span></li>
+    <li><span class="award-year">2019</span><span>Beijing Outstanding Doctoral Dissertation</span></li>
+    <li><span class="award-year">2019</span><span>Tsinghua University Outstanding Doctoral Dissertation</span></li>
   </ul>
+
+  <div class="section-label">Reviewing Service</div>
+
+  <p>
+    Academic reviewer for <em>Cell</em>, <em>Nature Biotechnology</em>,
+    <em>Nature Communications</em>, <em>Cell Systems</em>, <em>Genome Biology</em>,
+    <em>IEEE Transactions on Fuzzy Systems</em>,
+    <em>IEEE Transactions on Neural Networks and Learning Systems</em>,
+    <em>Briefings in Bioinformatics</em>, and
+    <em>IEEE Journal of Selected Topics in Signal Processing</em>.
+  </p>
 
   <div class="section-label">Join Us</div>
 
   <p>
-    We are always interested in motivated students and postdoctoral fellows who are passionate about interdisciplinary research. Whether your background is in machine learning, statistics, bioinformatics, or biology, if you're excited about tackling hard problems at the frontier of data-driven science, we'd love to hear from you.
+    We are always interested in motivated students and postdoctoral fellows who are passionate
+    about interdisciplinary research at the frontier of AI and biology. Whether your background
+    is in machine learning, statistics, bioinformatics, or biology, we would love to hear from you.
   </p>
 
   <p>
-    Please visit the <a href="contact.html">Contact page</a> or reach out directly to <a href="mailto:fbao@fudan.edu.cn">fbao@fudan.edu.cn</a>.
+    Please visit the <a href="contact.html">Contact page</a> or reach out directly to
+    <a href="mailto:fbao@fudan.edu.cn">fbao@fudan.edu.cn</a>.
   </p>
 
 </div>

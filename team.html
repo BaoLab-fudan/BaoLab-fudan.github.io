@@ -10,96 +10,104 @@
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
   border-radius: var(--radius);
-  padding: 32px;
+  padding: 30px 28px;
   display: flex;
-  gap: 28px;
+  gap: 24px;
   align-items: flex-start;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
-
 .pi-avatar {
-  width: 80px;
-  height: 80px;
+  flex-shrink: 0;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   background: var(--accent-dim);
   border: 2px solid var(--accent-border);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 2em;
-  flex-shrink: 0;
-  color: var(--accent);
+  font-size: 1.6em;
   font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.03em;
 }
-
-.pi-info h2 {
-  font-size: 1.35em;
+.pi-info { flex: 1; }
+.pi-name {
+  font-size: 1.2em;
+  font-weight: 700;
   color: var(--text-hi);
   margin-bottom: 4px;
-  font-weight: 700;
 }
-
-.pi-info .pi-role {
+.pi-role {
+  display: inline-block;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
   color: var(--accent);
-  font-size: 0.85em;
-  font-weight: 600;
-  letter-spacing: 0.06em;
+  font-size: 0.74em;
+  font-weight: 700;
+  padding: 2px 10px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   margin-bottom: 12px;
 }
-
-.pi-info p {
-  font-size: 0.93em;
+.pi-bio {
+  font-size: 0.91em;
   color: var(--text);
+  line-height: 1.7;
   margin-bottom: 14px;
 }
-
+.pi-edu {
+  font-size: 0.86em;
+  color: var(--text-dim);
+  line-height: 1.8;
+  margin-bottom: 14px;
+}
+.pi-edu span { color: var(--text); font-weight: 500; }
 .pi-links {
   display: flex;
   gap: 10px;
   flex-wrap: wrap;
 }
-
-.pi-links a {
-  display: inline-block;
+.pi-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
   color: var(--accent);
   font-size: 0.8em;
   font-weight: 600;
-  letter-spacing: 0.05em;
-  padding: 5px 14px;
+  padding: 4px 12px;
   border-radius: 5px;
   text-decoration: none;
   transition: background 0.18s;
 }
-.pi-links a:hover {
-  background: rgba(0,196,238,0.22);
-  text-decoration: none;
-}
+.pi-link:hover { background: rgba(0,196,238,0.22); }
 
-.join-card {
+.member-card {
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
-  border-left: 3px solid var(--accent);
   border-radius: var(--radius);
-  padding: 24px 28px;
+  padding: 22px 24px;
+  margin-bottom: 12px;
 }
-
-.join-card h3 {
-  font-size: 1em;
-  color: var(--text-hi);
-  margin-bottom: 8px;
+.member-card-title {
+  font-size: 0.96em;
   font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 6px;
 }
-
-.join-card p {
-  font-size: 0.92em;
-  margin: 0;
+.member-card-body {
+  font-size: 0.88em;
+  color: var(--text-dim);
+  line-height: 1.6;
 }
+.member-card-body a { color: var(--accent); }
 
-@media (max-width: 540px) {
-  .pi-card { flex-direction: column; gap: 18px; }
+@media (max-width: 560px) {
+  .pi-card { flex-direction: column; }
+  .pi-avatar { width: 64px; height: 64px; font-size: 1.2em; }
 }
 </style>
 </head>
@@ -113,48 +121,67 @@
     <a href="team.html" class="active">Team</a>
     <a href="research.html">Research</a>
     <a href="publications.html">Publications</a>
-    <a href="tools.html">Tools</a>
     <a href="contact.html">Contact</a>
   </div>
 </nav>
 
 <div class="page-content">
 
-  <div class="page-title">Our Team</div>
-  <div class="page-subtitle">Researchers dedicated to computational biology and statistical learning</div>
+  <div class="page-title">Team</div>
+  <div class="page-subtitle">The people behind the Bao Lab</div>
 
   <div class="section-label">Principal Investigator</div>
 
   <div class="pi-card">
     <div class="pi-avatar">FB</div>
     <div class="pi-info">
-      <h2>Feng Bao</h2>
-      <div class="pi-role">Principal Investigator</div>
-      <p>
-        Feng Bao leads the Bao Lab at Fudan University. His research focuses on developing general statistical learning frameworks for multi-modal and multi-omics biological data, with applications in spatial transcriptomics, drug discovery, and complex systems analysis.
-      </p>
+      <div class="pi-name">Feng Bao &nbsp;<span style="font-weight:400;font-size:0.78em;color:var(--text-dim)">(鲍峰)</span></div>
+      <div class="pi-role">PI</div>
+      <div class="pi-bio">
+        Feng Bao is PI at the Institute for AI Industry Research,
+        Fudan University. His research centers on statistical learning and AI methods for
+        biology and medicine, with a focus on self-supervised representation learning,
+        multi-modal information fusion, and causal inference. He applies these methods to
+        spatial omics reconstruction, drug target discovery, and complex disease phenotyping.
+        He received his Ph.D. from Tsinghua University, completed a postdoc at UCSF, and
+        was a Visiting Scholar at Harvard / Dana-Farber Cancer Research Center.
+      </div>
+      <div class="pi-edu">
+        <div><span>2024&ndash;present</span> &mdash; PI, Fudan University, Shanghai</div>
+        <div><span>2019&ndash;2024</span> &mdash; Postdoc, UCSF (Advisors: Steven J. Altschuler &amp; Lani F. Wu)</div>
+        <div><span>2018&ndash;2019</span> &mdash; Visiting Scholar, Harvard / Dana-Farber (Advisors: Guo-Cheng Yuan &amp; Long Cai)</div>
+        <div><span>2014&ndash;2019</span> &mdash; Ph.D. in Engineering, Tsinghua University (Advisor: Academician Qionghai Dai)</div>
+        <div><span>2010&ndash;2014</span> &mdash; B.Eng. in Electronic Engineering, Xidian University</div>
+      </div>
       <div class="pi-links">
-        <a href="mailto:fbao@fudan.edu.cn">✉ Email</a>
-        <a href="https://github.com/BaoLab-fudan" target="_blank">⌥ GitHub</a>
-        <a href="publications.html">Publications</a>
+        <a class="pi-link" href="mailto:fbao@fudan.edu.cn">Email</a>
+        <a class="pi-link" href="https://github.com/BaoLab-fudan" target="_blank">GitHub</a>
+        <a class="pi-link" href="publications.html">Publications</a>
       </div>
     </div>
   </div>
 
   <div class="section-label">Students &amp; Postdocs</div>
 
-  <div class="card" style="color:var(--text-dim); font-size:0.93em; font-style:italic; padding: 22px 28px;">
-    We are actively recruiting motivated PhD students and postdoctoral researchers. If you are passionate about interdisciplinary research at the intersection of machine learning and biology, we'd love to hear from you.
+  <div class="member-card">
+    <div class="member-card-title">Graduate Students &amp; Postdoctoral Researchers</div>
+    <div class="member-card-body">
+      The lab is actively recruiting Ph.D. students and postdoctoral fellows.
+      We welcome applicants from diverse backgrounds including machine learning, statistics,
+      bioinformatics, and biology. See below for how to apply.
+    </div>
   </div>
 
   <div class="section-label">Join Us</div>
 
-  <div class="join-card">
-    <h3>Open Positions</h3>
-    <p>
-      We welcome applications from candidates with backgrounds in bioinformatics, statistics, machine learning, or computational biology. Strong programming skills (Python/R) and enthusiasm for biological questions are highly valued.
-      Please reach out via the <a href="contact.html">contact page</a> with your CV and a brief statement of interest.
-    </p>
+  <div class="member-card">
+    <div class="member-card-title">Open Positions</div>
+    <div class="member-card-body">
+      We are looking for motivated researchers at all levels who are excited about working
+      at the intersection of AI and biology. If you are interested in joining the Bao Lab,
+      please send your CV and a brief statement of research interests to
+      <a href="mailto:fbao@fudan.edu.cn">fbao@fudan.edu.cn</a>.
+    </div>
   </div>
 
 </div>
