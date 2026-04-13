@@ -294,12 +294,11 @@ gtag('config', 'G-LXFRTDPY7G');
         grid.push({
           x: ox + c * gap,
           y: oy + r * gap,
-          size: gap * (0.29 + rand(seed + 5) * 0.08),
-          rx: 0.84 + rand(seed + 8) * 0.26,
-          ry: 0.84 + rand(seed + 11) * 0.24,
-          angle: (rand(seed + 19) - 0.5) * 0.34,
+          size: gap * 0.38,
+          shape: Math.floor(rand(seed + 8) * 5),
+          bit: rand(seed + 11) > 0.5 ? 1 : 0,
           phase: rand(seed + 13) * Math.PI * 2,
-          speed: 0.16 + rand(seed + 17) * 0.12
+          speed: 0.38 + rand(seed + 17) * 0.32
         });
       }
     }
@@ -319,10 +318,47 @@ gtag('config', 'G-LXFRTDPY7G');
     void time;
   }
 
-  function drawCellOutline(cell, scale, start, end){
+  function drawCellPath(cell, scale){
     const s = cell.size * scale;
+    const wobble = 0.10;
     ctx.beginPath();
-    ctx.ellipse(0, 0, s * cell.rx, s * cell.ry, 0, start, end);
+    if(cell.shape === 0){
+      ctx.ellipse(0, 0, s * 1.08, s * 0.78, cell.phase * 0.18, 0, Math.PI * 2);
+    } else if(cell.shape === 1){
+      for(let i = 0; i < 18; i++){
+        const a = i / 18 * Math.PI * 2;
+        const r = s * (0.86 + Math.sin(a * 3 + cell.phase) * wobble);
+        const x = Math.cos(a) * r * 1.05;
+        const y = Math.sin(a) * r * 0.84;
+        if(i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if(cell.shape === 2){
+      for(let i = 0; i < 20; i++){
+        const a = i / 20 * Math.PI * 2;
+        const r = s * (0.78 + Math.cos(a * 2 - cell.phase) * 0.12);
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r * 1.08;
+        if(i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if(cell.shape === 3){
+      const r = s * 0.86;
+      ctx.moveTo(-r, -r * 0.3);
+      ctx.bezierCurveTo(-r * 0.85, -r, r * 0.5, -r * 1.02, r, -r * 0.24);
+      ctx.bezierCurveTo(r * 1.12, r * 0.58, -r * 0.22, r * 1.08, -r * 0.9, r * 0.46);
+      ctx.bezierCurveTo(-r * 1.14, r * 0.24, -r * 1.08, -r * 0.02, -r, -r * 0.3);
+      ctx.closePath();
+    } else {
+      const r = s * 0.9;
+      ctx.moveTo(0, -r);
+      ctx.bezierCurveTo(r * 0.82, -r * 0.8, r * 0.96, r * 0.24, r * 0.38, r * 0.72);
+      ctx.bezierCurveTo(-r * 0.28, r * 1.12, -r * 1.02, r * 0.36, -r * 0.82, -r * 0.32);
+      ctx.bezierCurveTo(-r * 0.62, -r * 0.86, -r * 0.18, -r * 1.02, 0, -r);
+      ctx.closePath();
+    }
   }
 
   function drawCells(time){
@@ -335,38 +371,31 @@ gtag('config', 'G-LXFRTDPY7G');
       const dy = Math.abs(cell.y - H * 0.50) / (H * 0.68);
       const edgeFade = Math.min(1, Math.max(0.12, dx * 0.72 + dy * 0.48));
       const wave = 0.5 + Math.sin(time * cell.speed + cell.phase) * 0.5;
-      const pulse = wave * wave * (3 - 2 * wave);
-      const alpha = 0.08 + edgeFade * 0.08 + pulse * 0.05;
+      const lit = wave * wave * (3 - 2 * wave);
+      const alpha = 0.05 + edgeFade * 0.07 + lit * 0.24;
 
       ctx.save();
       ctx.translate(cell.x, cell.y);
-      ctx.rotate(cell.angle);
-
-      const halo = ctx.createRadialGradient(0, 0, cell.size * 0.22, 0, 0, cell.size * 1.55);
-      halo.addColorStop(0, rgba(palette.glow, 0.06 + pulse * 0.16));
-      halo.addColorStop(0.48, rgba(palette.glow, 0.025 + pulse * 0.08));
-      halo.addColorStop(1, rgba(palette.glow, 0));
-      ctx.fillStyle = halo;
-      ctx.beginPath();
-      ctx.ellipse(0, 0, cell.size * 1.7, cell.size * 1.45, 0, 0, Math.PI * 2);
+      ctx.rotate(Math.sin(cell.phase) * 0.24);
+      drawCellPath(cell, 1);
+      ctx.fillStyle = rgba(palette.glow, alpha * 0.22);
       ctx.fill();
-
-      drawCellOutline(cell, 1.08, 0, Math.PI * 2);
-      ctx.fillStyle = rgba(palette.glow, 0.012 + pulse * 0.032);
-      ctx.fill();
-
-      drawCellOutline(cell, 1, 0, Math.PI * 2);
-      ctx.shadowColor = rgba(palette.glow, 0.28 + pulse * 0.42);
-      ctx.shadowBlur = 5 + pulse * 15;
-      ctx.strokeStyle = rgba(palette.glow, alpha);
+      ctx.strokeStyle = rgba(lit > 0.38 ? palette.glow : palette.line, alpha);
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      ctx.shadowBlur = 0;
-      drawCellOutline(cell, 0.38, 0, Math.PI * 2);
-      ctx.strokeStyle = rgba(palette.text, 0.035 + pulse * 0.035);
+      drawCellPath(cell, 0.42);
+      ctx.strokeStyle = rgba(palette.text, 0.035 + lit * 0.08);
       ctx.lineWidth = 0.7;
       ctx.stroke();
+
+      if(lit > 0.22){
+        ctx.fillStyle = rgba(palette.text, (lit - 0.22) * 0.58);
+        ctx.font = Math.max(11, cell.size * 0.72) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(cell.bit), 0, 1);
+      }
       ctx.restore();
     }
     ctx.restore();
