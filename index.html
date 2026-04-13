@@ -291,9 +291,9 @@ gtag('config', 'G-LXFRTDPY7G');
       for(let c = 0; c < cols; c++){
         const seed = r * 97 + c * 31 + 7;
         grid.push({
-          x: ox + c * gap + (rand(seed) - 0.5) * gap * 0.24,
-          y: oy + r * gap + (rand(seed + 2) - 0.5) * gap * 0.18,
-          size: gap * (0.30 + rand(seed + 4) * 0.14),
+          x: ox + c * gap,
+          y: oy + r * gap,
+          size: gap * 0.38,
           shape: Math.floor(rand(seed + 8) * 5),
           bit: rand(seed + 11) > 0.5 ? 1 : 0,
           phase: rand(seed + 13) * Math.PI * 2,
@@ -314,18 +314,7 @@ gtag('config', 'G-LXFRTDPY7G');
     ctx.fillStyle = veil;
     ctx.fillRect(0, 0, W, H);
 
-    ctx.save();
-    ctx.strokeStyle = 'rgba(0,196,238,0.045)';
-    ctx.lineWidth = 1;
-    const gap = Math.max(72, Math.min(112, W / 12));
-    const drift = (time * 4) % gap;
-    for(let x = -gap; x < W + gap; x += gap){
-      ctx.beginPath();
-      ctx.moveTo(x + drift * 0.18, 0);
-      ctx.lineTo(x - H * 0.09 + drift * 0.18, H);
-      ctx.stroke();
-    }
-    ctx.restore();
+    void time;
   }
 
   function drawCellPath(cell, scale){
@@ -376,7 +365,6 @@ gtag('config', 'G-LXFRTDPY7G');
       if(time > cell.nextFlip){
         cell.nextFlip = time + 0.55 + rand(time + cell.x * 0.01 + cell.y * 0.02) * 2.8;
         if(rand(time + cell.phase) > 0.35) cell.bit = cell.bit ? 0 : 1;
-        if(rand(time + cell.phase + 3) > 0.70) cell.shape = (cell.shape + 1 + Math.floor(rand(time + cell.x) * 4)) % 5;
       }
     }
   }
@@ -394,11 +382,9 @@ gtag('config', 'G-LXFRTDPY7G');
       const flash = Math.max(0, 1 - Math.abs(time - cell.nextFlip + 0.22) * 3.8);
       const lit = Math.min(1, pulse * 0.72 + flash);
       const alpha = 0.05 + edgeFade * 0.08 + lit * 0.42;
-      const x = cell.x + Math.sin(time * 0.16 + cell.phase) * 3.2;
-      const y = cell.y + Math.cos(time * 0.13 + cell.phase) * 2.4;
 
       ctx.save();
-      ctx.translate(x, y);
+      ctx.translate(cell.x, cell.y);
       ctx.rotate(Math.sin(cell.phase) * 0.24);
       drawCellPath(cell, 1);
       ctx.fillStyle = rgba(palette.glow, alpha * 0.30);
