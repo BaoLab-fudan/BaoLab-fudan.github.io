@@ -221,65 +221,185 @@
 <script>
 (function(){
   const canvas = document.getElementById('hero-canvas');
-  const ctx = canvas.getContext('2d');
-  let W, H, particles;
+  const ctx    = canvas.getContext('2d');
+  let W, H, grid;
 
-  function resize() {
-    W = canvas.width = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
+  const CW   = 16;   // cell half-width
+  const CH   = 11;   // cell half-height
+  const CR   = 4;    // corner radius
+  const GAP  = 38;   // center-to-center
+  const R    = CW;   // kept for halo sizing
+
+  // Colormap: crimson → purple → teal (sampled from user palette)
+  const CMAP = [
+    [196,  28,  74],
+    [175,  45, 108],
+    [146,  63, 132],
+    [108,  78, 148],
+    [ 74,  97, 150],
+    [ 44, 120, 155],
+    [ 16, 145, 160],
+    [  4, 163, 166],
+  ];
+  function cmapColor(t) {
+    // t in [0,1] → interpolated RGB from CMAP
+    const s  = Math.max(0, Math.min(0.9999, t)) * (CMAP.length - 1);
+    const i  = Math.floor(s), f = s - i;
+    const a  = CMAP[i], b = CMAP[i+1];
+    return [
+      Math.round(a[0] + (b[0]-a[0])*f),
+      Math.round(a[1] + (b[1]-a[1])*f),
+      Math.round(a[2] + (b[2]-a[2])*f),
+    ];
   }
 
-  function mkParticle() {
+  function easeIn(t) { return t * t; }
+  function easeOut(t) { return t * (2 - t); }
+
+  function mkCell(x, y){
     return {
-      x: Math.random() * W,
-      y: Math.random() * H,
-      r: Math.random() * 1.6 + 0.3,
-      vx: (Math.random() - 0.5) * 0.35,
-      vy: (Math.random() - 0.5) * 0.35,
-      a: Math.random() * 0.55 + 0.15
+      x, y,
+      phase    : 'wait',
+      alpha    : 0,
+      prog     : 0,
+      hold     : 0,
+      cooldown : Math.floor(Math.random() * 1600), // stagger across full cycle so cells are always evenly spread
+      color    : cmapColor(Math.random()),
     };
   }
 
-  function init() {
-    resize();
-    const n = Math.floor((W * H) / 9000);
-    particles = Array.from({length: n}, mkParticle);
+  function init(){
+    W = canvas.width  = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+    const cols = Math.ceil(W / GAP) + 2;
+    const rows = Math.ceil(H / GAP) + 2;
+    const ox   = ((W % GAP)) / 2;
+    const oy   = ((H % GAP)) / 2;
+    grid = [];
+    for(let r=0; r<rows; r++)
+      for(let c=0; c<cols; c++)
+        grid.push(mkCell(ox + c*GAP, oy + r*GAP));
   }
 
-  function draw() {
-    ctx.clearRect(0, 0, W, H);
-    for (let i = 0; i < particles.length; i++) {
-      for (let j = i + 1; j < particles.length; j++) {
-        const dx = particles[i].x - particles[j].x;
-        const dy = particles[i].y - particles[j].y;
-        const d = Math.sqrt(dx*dx + dy*dy);
-        if (d < 130) {
-          ctx.beginPath();
-          ctx.strokeStyle = 'rgba(0,196,238,' + (0.13 * (1 - d/130)) + ')';
-          ctx.lineWidth = 0.7;
-          ctx.moveTo(particles[i].x, particles[i].y);
-          ctx.lineTo(particles[j].x, particles[j].y);
-          ctx.stroke();
-        }
+  // Each cell independently manages its own cycle: wait → in → on → out → wait …
+  const SPEED_IN  = 0.032;   // ~31 frames fade in
+  const SPEED_OUT = 0.020;   // ~50 frames fade out
+
+  function updateCell(c){
+    if(c.phase === 'wait'){
+      if(--c.cooldown <= 0){
+        c.phase = 'in';
+        c.prog  = 0;
+        c.color = cmapColor(Math.random()); // fresh color every cycle
+      }
+    } else if(c.phase === 'in'){
+      c.prog  = Math.min(c.prog + SPEED_IN, 1);
+      c.alpha = easeIn(c.prog);
+      if(c.prog >= 1){
+        c.phase = 'on';
+        c.hold  = 80 + Math.floor(Math.random() * 160);
+        c.alpha = 1;
+      }
+    } else if(c.phase === 'on'){
+      if(--c.hold <= 0){ c.phase = 'out'; c.prog = 0; }
+    } else if(c.phase === 'out'){
+      c.prog  = Math.min(c.prog + SPEED_OUT, 1);
+      c.alpha = easeOut(1 - c.prog);
+      if(c.prog >= 1){
+        c.phase    = 'wait';
+        c.alpha    = 0;
+        c.cooldown = 400 + Math.floor(Math.random() * 1200); // rest before next cycle
       }
     }
-    particles.forEach(function(p) {
-      ctx.beginPath();
-      ctx.arc(p.x, p.y, p.r, 0, Math.PI*2);
-      ctx.fillStyle = 'rgba(0,196,238,' + p.a + ')';
-      ctx.fill();
-    });
   }
 
-  function update() {
-    particles.forEach(function(p) {
-      p.x += p.vx; p.y += p.vy;
-      if (p.x < 0 || p.x > W) p.vx *= -1;
-      if (p.y < 0 || p.y > H) p.vy *= -1;
-    });
+  // Draw a rounded rectangle path (centered at 0,0)
+  function rrect(w, h, r){
+    ctx.beginPath();
+    ctx.moveTo(-w+r, -h);
+    ctx.lineTo( w-r, -h);
+    ctx.arcTo(  w,   -h,  w,  -h+r, r);
+    ctx.lineTo( w,    h-r);
+    ctx.arcTo(  w,    h,  w-r, h,   r);
+    ctx.lineTo(-w+r,  h);
+    ctx.arcTo( -w,    h, -w,   h-r, r);
+    ctx.lineTo(-w,   -h+r);
+    ctx.arcTo( -w,   -h, -w+r,-h,   r);
+    ctx.closePath();
   }
 
-  function loop() { update(); draw(); requestAnimationFrame(loop); }
+  function drawCell(c){
+    const [r,g,b] = c.color;
+
+    // ── resting state: neutral, colorless ──
+    ctx.save();
+    ctx.translate(c.x, c.y);
+    rrect(CW, CH, CR);
+    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
+    ctx.lineWidth   = 0.7;
+    ctx.fillStyle   = 'rgba(255,255,255,0.02)';
+    ctx.fill();
+    ctx.stroke();
+    ctx.restore();
+
+    if(c.alpha <= 0) return;
+
+    const a = c.alpha;
+
+    ctx.save();
+    ctx.translate(c.x, c.y);
+
+    // ── outer glow ──
+    ctx.shadowColor = 'rgba('+r+','+g+','+b+','+(a*0.55)+')';
+    ctx.shadowBlur  = 22;
+
+    // ── cell body with linear gradient (top-lit) ──
+    const body = ctx.createLinearGradient(0,-CH, 0,CH);
+    body.addColorStop(0,   'rgba('+r+','+g+','+b+','+(a*0.55)+')');
+    body.addColorStop(0.5, 'rgba('+r+','+g+','+b+','+(a*0.28)+')');
+    body.addColorStop(1,   'rgba('+r+','+g+','+b+','+(a*0.10)+')');
+    rrect(CW, CH, CR);
+    ctx.fillStyle = body;
+    ctx.fill();
+
+    // ── membrane ──
+    ctx.shadowBlur  = 8;
+    ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+(a*0.80)+')';
+    ctx.lineWidth   = 1.1;
+    rrect(CW, CH, CR);
+    ctx.stroke();
+
+    // ── nucleus: offset ellipse, slightly darker shade ──
+    ctx.shadowBlur = 6;
+    ctx.shadowColor = 'rgba('+r+','+g+','+b+','+(a*0.6)+')';
+    const nr = Math.round(r*0.72), ng = Math.round(g*0.72), nb = Math.round(b*0.72);
+    ctx.beginPath();
+    ctx.ellipse(CW*0.08, CH*0.05, CW*0.38, CH*0.42, 0, 0, Math.PI*2);
+    ctx.fillStyle   = 'rgba('+nr+','+ng+','+nb+','+(a*0.75)+')';
+    ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+(a*0.60)+')';
+    ctx.lineWidth   = 0.8;
+    ctx.fill();
+    ctx.stroke();
+
+    // ── specular gleam (top edge) ──
+    ctx.shadowBlur = 0;
+    const spec = ctx.createLinearGradient(0,-CH, 0,-CH*0.3);
+    spec.addColorStop(0, 'rgba(255,255,255,'+(a*0.30)+')');
+    spec.addColorStop(1, 'rgba(255,255,255,0)');
+    rrect(CW*0.85, CH*0.45, CR*0.8);
+    ctx.translate(0, -CH*0.45);
+    ctx.fillStyle = spec;
+    ctx.fill();
+
+    ctx.restore();
+  }
+
+  function loop(){
+    ctx.clearRect(0,0,W,H);
+    grid.forEach(updateCell);
+    grid.forEach(drawCell);
+    requestAnimationFrame(loop);
+  }
 
   window.addEventListener('resize', init);
   init(); loop();

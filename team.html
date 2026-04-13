@@ -85,6 +85,54 @@
 }
 .pi-link:hover { background: rgba(0,196,238,0.22); }
 
+.students-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 4px;
+}
+@media (max-width: 760px) { .students-grid { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 480px) { .students-grid { grid-template-columns: 1fr; } }
+
+.student-card {
+  background: var(--bg-card);
+  border: 1px solid var(--accent-border);
+  border-radius: var(--radius);
+  padding: 20px 20px 18px;
+  transition: border-color 0.2s, background 0.2s;
+}
+.student-card:hover {
+  border-color: var(--accent);
+  background: var(--bg-card-hover);
+}
+.student-avatar {
+  width: 48px; height: 48px;
+  border-radius: 50%;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1em; font-weight: 700; color: var(--accent);
+  margin-bottom: 12px;
+}
+.student-name {
+  font-size: 0.96em; font-weight: 600;
+  color: var(--text-hi); margin-bottom: 4px;
+}
+.student-role {
+  display: inline-block;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.70em; font-weight: 700;
+  padding: 1px 8px; border-radius: 4px;
+  letter-spacing: 0.08em; text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.student-detail {
+  font-size: 0.84em; color: var(--text-dim); line-height: 1.65;
+}
+.student-detail span { color: var(--text); }
+
 .member-card {
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
@@ -161,15 +209,76 @@
     </div>
   </div>
 
-  <div class="section-label">Students &amp; Postdocs</div>
+  <div class="section-label">Ph.D. Students</div>
 
-  <div class="member-card">
-    <div class="member-card-title">Graduate Students &amp; Postdoctoral Researchers</div>
-    <div class="member-card-body">
-      The lab is actively recruiting Ph.D. students and postdoctoral fellows.
-      We welcome applicants from diverse backgrounds including machine learning, statistics,
-      bioinformatics, and biology. See below for how to apply.
+  <div class="students-grid">
+
+    <div class="student-card">
+      <div class="student-avatar">叶</div>
+      <div class="student-name">叶思源 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Ye Siyuan</span></div>
+      <div class="student-role" style="background:rgba(170,70,255,0.12);border-color:rgba(170,70,255,0.3);color:rgba(190,110,255,1);">Incoming Ph.D.</div>
+      <div class="student-detail">
+        <div><span>Starting:</span> 2026</div>
+        <div><span>B.S.:</span> Fudan University</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
     </div>
+
+    <div class="student-card">
+      <div class="student-avatar">朱</div>
+      <div class="student-name">朱一鸣 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Zhu Yiming</span></div>
+      <div class="student-role">Ph.D. Student</div>
+      <div class="student-detail">
+        <div><span>Enrolled:</span> 2023</div>
+        <div><span>B.S.:</span> Fudan University</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
+    </div>
+
+    <div class="student-card">
+      <div class="student-avatar">王</div>
+      <div class="student-name">王添运 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Wang Tianyun</span></div>
+      <div class="student-role">Ph.D. Student</div>
+      <div class="student-detail">
+        <div><span>Enrolled:</span> 2023</div>
+        <div><span>B.S.:</span> Harbin Institute of Technology</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
+    </div>
+
+    <div class="student-card">
+      <div class="student-avatar">李</div>
+      <div class="student-name">李芊芊 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Li Qianqian</span></div>
+      <div class="student-role">Ph.D. Student</div>
+      <div class="student-detail">
+        <div><span>Enrolled:</span> 2025</div>
+        <div><span>M.S.:</span> Chinese University of Hong Kong</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
+    </div>
+
+    <div class="student-card">
+      <div class="student-avatar">李</div>
+      <div class="student-name">李明晓 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Li Mingxiao</span></div>
+      <div class="student-role">Ph.D. Student</div>
+      <div class="student-detail">
+        <div><span>Enrolled:</span> 2024</div>
+        <div><span>B.S.:</span> Shandong University</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
+    </div>
+
+    <div class="student-card">
+      <div class="student-avatar">黄</div>
+      <div class="student-name">黄一淇 &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">Huang Yiqi</span></div>
+      <div class="student-role">Ph.D. Student</div>
+      <div class="student-detail">
+        <div><span>Enrolled:</span> 2024</div>
+        <div><span>M.S.:</span> McMaster University</div>
+        <div><span>Research:</span> TBD</div>
+      </div>
+    </div>
+
   </div>
 
   <div class="section-label">Join Us</div>
