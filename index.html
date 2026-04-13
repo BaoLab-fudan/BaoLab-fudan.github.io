@@ -5,28 +5,38 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Bao Lab · Fudan University</title>
 <link rel="stylesheet" href="style.css">
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-LXFRTDPY7G"></script>
+<script>
+window.dataLayer = window.dataLayer || [];
+function gtag(){dataLayer.push(arguments);}
+gtag('js', new Date());
+gtag('config', 'G-LXFRTDPY7G');
+</script>
 <style>
 /* ── Hero ── */
 .hero {
   position: relative;
-  height: 100vh;
+  height: calc(100vh - var(--nav-h) - 128px);
   min-height: 540px;
   display: flex;
   align-items: center;
   justify-content: center;
   overflow: hidden;
+  background: #05070a;
 }
 #hero-canvas {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
+  background: transparent;
 }
 .hero-fade {
   position: absolute;
   bottom: 0; left: 0; right: 0;
-  height: 160px;
-  background: linear-gradient(transparent, var(--bg));
+  height: 220px;
+  background: linear-gradient(transparent, rgba(7,9,15,0.86) 72%, var(--bg));
   pointer-events: none;
 }
 .hero-content {
@@ -34,31 +44,33 @@
   z-index: 2;
   text-align: center;
   padding: 0 24px;
+  max-width: 820px;
 }
 .hero-lab {
-  font-size: clamp(2.6rem, 7vw, 5rem);
+  font-size: 5rem;
   font-weight: 800;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   color: var(--text-hi);
-  text-shadow: 0 0 40px rgba(0,196,238,0.4);
+  text-shadow: 0 18px 70px rgba(0,0,0,0.72), 0 0 32px rgba(116,221,214,0.12);
   line-height: 1.1;
 }
-.hero-lab span { color: var(--accent); }
+.hero-lab span { color: #8ce7df; }
 .hero-sub {
   margin-top: 14px;
-  font-size: clamp(0.95rem, 2.5vw, 1.2rem);
-  color: var(--text-dim);
-  letter-spacing: 0.06em;
+  font-size: 1.08rem;
+  color: #b9c9c8;
+  letter-spacing: 0;
   text-transform: uppercase;
 }
 .hero-tagline {
   margin-top: 22px;
-  font-size: clamp(0.9rem, 2vw, 1.05rem);
-  color: var(--text);
-  max-width: 560px;
+  font-size: 1.02rem;
+  color: #d8e4e2;
+  max-width: 640px;
   margin-left: auto;
   margin-right: auto;
   line-height: 1.7;
+  text-shadow: 0 10px 32px rgba(0,0,0,0.65);
 }
 .hero-cta {
   margin-top: 32px;
@@ -73,22 +85,23 @@
   border-radius: 6px;
   font-size: 0.88em;
   font-weight: 600;
-  letter-spacing: 0.04em;
+  letter-spacing: 0;
   text-decoration: none;
   transition: background 0.2s, border-color 0.2s;
 }
 .btn-primary {
-  background: var(--accent);
-  color: #07090f;
-  border: 1px solid var(--accent);
+  background: #8ce7df;
+  color: #03100f;
+  border: 1px solid #b8f4ef;
+  box-shadow: 0 14px 36px rgba(116,221,214,0.14);
 }
-.btn-primary:hover { background: #33d1f5; }
+.btn-primary:hover { background: #b8f4ef; }
 .btn-outline {
   background: transparent;
-  color: var(--accent);
-  border: 1px solid var(--accent-border);
+  color: #d9e7e1;
+  border: 1px solid rgba(217,231,225,0.26);
 }
-.btn-outline:hover { border-color: var(--accent); background: var(--accent-dim); }
+.btn-outline:hover { border-color: rgba(140,231,223,0.72); background: rgba(140,231,223,0.08); }
 
 /* ── Home grid ── */
 .home-grid {
@@ -129,9 +142,14 @@
 
 @media (max-width: 720px) {
   .home-grid { grid-template-columns: 1fr; }
+  .hero { min-height: 620px; }
+  .hero-lab { font-size: 3.25rem; }
+  .hero-sub { font-size: 0.88rem; }
+  .hero-tagline { font-size: 0.92rem; }
 }
 @media (min-width: 721px) and (max-width: 960px) {
   .home-grid { grid-template-columns: 1fr 1fr; }
+  .hero-lab { font-size: 4.2rem; }
 }
 </style>
 </head>
@@ -221,188 +239,246 @@
 <script>
 (function(){
   const canvas = document.getElementById('hero-canvas');
-  const ctx    = canvas.getContext('2d');
-  let W, H, grid;
+  const ctx = canvas.getContext('2d');
+  let W = 0;
+  let H = 0;
+  let DPR = 1;
+  let t0 = performance.now();
 
-  const CW   = 16;   // cell half-width
-  const CH   = 11;   // cell half-height
-  const CR   = 4;    // corner radius
-  const GAP  = 38;   // center-to-center
-  const R    = CW;   // kept for halo sizing
+  const palette = {
+    ink: [5, 7, 10],
+    panel: [12, 18, 20],
+    line: [126, 151, 153],
+    accent: [140, 231, 223],
+    text: [225, 238, 236]
+  };
 
-  // Colormap: crimson → purple → teal (sampled from user palette)
-  const CMAP = [
-    [196,  28,  74],
-    [175,  45, 108],
-    [146,  63, 132],
-    [108,  78, 148],
-    [ 74,  97, 150],
-    [ 44, 120, 155],
-    [ 16, 145, 160],
-    [  4, 163, 166],
-  ];
-  function cmapColor(t) {
-    // t in [0,1] → interpolated RGB from CMAP
-    const s  = Math.max(0, Math.min(0.9999, t)) * (CMAP.length - 1);
-    const i  = Math.floor(s), f = s - i;
-    const a  = CMAP[i], b = CMAP[i+1];
+  function rgba(rgb, a){
+    return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')';
+  }
+
+  function mix(a, b, t){
     return [
-      Math.round(a[0] + (b[0]-a[0])*f),
-      Math.round(a[1] + (b[1]-a[1])*f),
-      Math.round(a[2] + (b[2]-a[2])*f),
+      Math.round(a[0] + (b[0] - a[0]) * t),
+      Math.round(a[1] + (b[1] - a[1]) * t),
+      Math.round(a[2] + (b[2] - a[2]) * t)
     ];
   }
 
-  function easeIn(t) { return t * t; }
-  function easeOut(t) { return t * (2 - t); }
-
-  function mkCell(x, y){
-    return {
-      x, y,
-      phase    : 'wait',
-      alpha    : 0,
-      prog     : 0,
-      hold     : 0,
-      cooldown : Math.floor(Math.random() * 1600), // stagger across full cycle so cells are always evenly spread
-      color    : cmapColor(Math.random()),
-    };
+  function resize(){
+    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    W = canvas.offsetWidth;
+    H = canvas.offsetHeight;
+    canvas.width = Math.round(W * DPR);
+    canvas.height = Math.round(H * DPR);
+    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
   }
 
-  function init(){
-    W = canvas.width  = canvas.offsetWidth;
-    H = canvas.height = canvas.offsetHeight;
-    const cols = Math.ceil(W / GAP) + 2;
-    const rows = Math.ceil(H / GAP) + 2;
-    const ox   = ((W % GAP)) / 2;
-    const oy   = ((H % GAP)) / 2;
-    grid = [];
-    for(let r=0; r<rows; r++)
-      for(let c=0; c<cols; c++)
-        grid.push(mkCell(ox + c*GAP, oy + r*GAP));
-  }
+  function drawBackdrop(time){
+    ctx.fillStyle = '#05070a';
+    ctx.fillRect(0, 0, W, H);
 
-  // Each cell independently manages its own cycle: wait → in → on → out → wait …
-  const SPEED_IN  = 0.032;   // ~31 frames fade in
-  const SPEED_OUT = 0.020;   // ~50 frames fade out
+    const veil = ctx.createLinearGradient(0, 0, W, H);
+    veil.addColorStop(0, 'rgba(255,255,255,0.03)');
+    veil.addColorStop(0.42, 'rgba(140,231,223,0.055)');
+    veil.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = veil;
+    ctx.fillRect(0, 0, W, H);
 
-  function updateCell(c){
-    if(c.phase === 'wait'){
-      if(--c.cooldown <= 0){
-        c.phase = 'in';
-        c.prog  = 0;
-        c.color = cmapColor(Math.random()); // fresh color every cycle
-      }
-    } else if(c.phase === 'in'){
-      c.prog  = Math.min(c.prog + SPEED_IN, 1);
-      c.alpha = easeIn(c.prog);
-      if(c.prog >= 1){
-        c.phase = 'on';
-        c.hold  = 80 + Math.floor(Math.random() * 160);
-        c.alpha = 1;
-      }
-    } else if(c.phase === 'on'){
-      if(--c.hold <= 0){ c.phase = 'out'; c.prog = 0; }
-    } else if(c.phase === 'out'){
-      c.prog  = Math.min(c.prog + SPEED_OUT, 1);
-      c.alpha = easeOut(1 - c.prog);
-      if(c.prog >= 1){
-        c.phase    = 'wait';
-        c.alpha    = 0;
-        c.cooldown = 400 + Math.floor(Math.random() * 1200); // rest before next cycle
-      }
+    ctx.save();
+    ctx.strokeStyle = 'rgba(170,190,190,0.045)';
+    ctx.lineWidth = 1;
+    const gap = Math.max(72, Math.min(112, W / 12));
+    const drift = (time * 4) % gap;
+    for(let x = -gap; x < W + gap; x += gap){
+      ctx.beginPath();
+      ctx.moveTo(x + drift * 0.18, 0);
+      ctx.lineTo(x - H * 0.09 + drift * 0.18, H);
+      ctx.stroke();
     }
+    ctx.restore();
   }
 
-  // Draw a rounded rectangle path (centered at 0,0)
-  function rrect(w, h, r){
+  function roundedRect(x, y, w, h, r){
     ctx.beginPath();
-    ctx.moveTo(-w+r, -h);
-    ctx.lineTo( w-r, -h);
-    ctx.arcTo(  w,   -h,  w,  -h+r, r);
-    ctx.lineTo( w,    h-r);
-    ctx.arcTo(  w,    h,  w-r, h,   r);
-    ctx.lineTo(-w+r,  h);
-    ctx.arcTo( -w,    h, -w,   h-r, r);
-    ctx.lineTo(-w,   -h+r);
-    ctx.arcTo( -w,   -h, -w+r,-h,   r);
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+    ctx.lineTo(x + r, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
+    ctx.lineTo(x, y + r);
+    ctx.quadraticCurveTo(x, y, x + r, y);
     ctx.closePath();
   }
 
-  function drawCell(c){
-    const [r,g,b] = c.color;
+  function drawPanel(x, y, w, h, alpha){
+    roundedRect(x, y, w, h, 8);
+    ctx.fillStyle = rgba(palette.panel, alpha);
+    ctx.fill();
+    ctx.strokeStyle = rgba(palette.line, 0.10);
+    ctx.lineWidth = 1;
+    ctx.stroke();
+  }
 
-    // ── resting state: neutral, colorless ──
+  function drawOmicsMatrix(time){
+    const mobile = W < 640;
+    const size = mobile ? Math.min(W * 0.58, 210) : Math.min(W * 0.22, 280);
+    const cols = 13;
+    const rows = 10;
+    const cell = size / cols;
+    const x0 = mobile ? W * 0.08 : W * 0.10;
+    const y0 = mobile ? H * 0.18 : H * 0.22;
+    const scan = (Math.sin(time * 0.7) + 1) * 0.5;
+
+    drawPanel(x0 - 18, y0 - 18, size + 36, rows * cell + 36, 0.18);
+
     ctx.save();
-    ctx.translate(c.x, c.y);
-    rrect(CW, CH, CR);
-    ctx.strokeStyle = 'rgba(255,255,255,0.06)';
-    ctx.lineWidth   = 0.7;
-    ctx.fillStyle   = 'rgba(255,255,255,0.02)';
-    ctx.fill();
-    ctx.stroke();
-    ctx.restore();
-
-    if(c.alpha <= 0) return;
-
-    const a = c.alpha;
-
-    ctx.save();
-    ctx.translate(c.x, c.y);
-
-    // ── outer glow ──
-    ctx.shadowColor = 'rgba('+r+','+g+','+b+','+(a*0.55)+')';
-    ctx.shadowBlur  = 22;
-
-    // ── cell body with linear gradient (top-lit) ──
-    const body = ctx.createLinearGradient(0,-CH, 0,CH);
-    body.addColorStop(0,   'rgba('+r+','+g+','+b+','+(a*0.55)+')');
-    body.addColorStop(0.5, 'rgba('+r+','+g+','+b+','+(a*0.28)+')');
-    body.addColorStop(1,   'rgba('+r+','+g+','+b+','+(a*0.10)+')');
-    rrect(CW, CH, CR);
-    ctx.fillStyle = body;
-    ctx.fill();
-
-    // ── membrane ──
-    ctx.shadowBlur  = 8;
-    ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+(a*0.80)+')';
-    ctx.lineWidth   = 1.1;
-    rrect(CW, CH, CR);
-    ctx.stroke();
-
-    // ── nucleus: offset ellipse, slightly darker shade ──
-    ctx.shadowBlur = 6;
-    ctx.shadowColor = 'rgba('+r+','+g+','+b+','+(a*0.6)+')';
-    const nr = Math.round(r*0.72), ng = Math.round(g*0.72), nb = Math.round(b*0.72);
-    ctx.beginPath();
-    ctx.ellipse(CW*0.08, CH*0.05, CW*0.38, CH*0.42, 0, 0, Math.PI*2);
-    ctx.fillStyle   = 'rgba('+nr+','+ng+','+nb+','+(a*0.75)+')';
-    ctx.strokeStyle = 'rgba('+r+','+g+','+b+','+(a*0.60)+')';
-    ctx.lineWidth   = 0.8;
-    ctx.fill();
-    ctx.stroke();
-
-    // ── specular gleam (top edge) ──
-    ctx.shadowBlur = 0;
-    const spec = ctx.createLinearGradient(0,-CH, 0,-CH*0.3);
-    spec.addColorStop(0, 'rgba(255,255,255,'+(a*0.30)+')');
-    spec.addColorStop(1, 'rgba(255,255,255,0)');
-    rrect(CW*0.85, CH*0.45, CR*0.8);
-    ctx.translate(0, -CH*0.45);
-    ctx.fillStyle = spec;
-    ctx.fill();
-
+    for(let r = 0; r < rows; r++){
+      for(let c = 0; c < cols; c++){
+        const signal = 0.42 + 0.34 * Math.sin(c * 0.82 + r * 1.17 + time * 0.45);
+        const band = Math.max(0, 1 - Math.abs(c / (cols - 1) - scan) * 5);
+        const tint = mix(palette.line, palette.accent, signal);
+        ctx.fillStyle = rgba(tint, 0.07 + signal * 0.12 + band * 0.18);
+        roundedRect(x0 + c * cell + 2, y0 + r * cell + 2, cell - 4, cell - 4, 2);
+        ctx.fill();
+      }
+    }
+    ctx.strokeStyle = rgba(palette.accent, 0.14);
+    ctx.lineWidth = 1;
+    for(let r = 0; r <= rows; r += 2){
+      ctx.beginPath();
+      ctx.moveTo(x0, y0 + r * cell);
+      ctx.lineTo(x0 + size, y0 + r * cell);
+      ctx.stroke();
+    }
     ctx.restore();
   }
 
-  function loop(){
-    ctx.clearRect(0,0,W,H);
-    grid.forEach(updateCell);
-    grid.forEach(drawCell);
+  function trajectoryPoint(p, cx, cy, scale, time){
+    const a = p * Math.PI * 2.2 - 0.35;
+    const x = cx + (p - 0.5) * scale * 1.2 + Math.sin(a + time * 0.2) * scale * 0.10;
+    const y = cy + Math.sin(a * 1.35) * scale * 0.23 + Math.cos(a * 0.72) * scale * 0.12;
+    return { x: x, y: y };
+  }
+
+  function drawLatentMap(time){
+    const mobile = W < 640;
+    const cx = W * 0.5;
+    const cy = mobile ? H * 0.50 : H * 0.48;
+    const scale = mobile ? W * 0.76 : Math.min(W * 0.36, 500);
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    ctx.beginPath();
+    for(let i = 0; i <= 120; i++){
+      const p = i / 120;
+      const point = trajectoryPoint(p, cx, cy, scale, time);
+      if(i === 0) ctx.moveTo(point.x, point.y);
+      else ctx.lineTo(point.x, point.y);
+    }
+    ctx.strokeStyle = rgba(palette.accent, 0.22);
+    ctx.lineWidth = 1.4;
+    ctx.stroke();
+
+    for(let i = 0; i < 46; i++){
+      const p = i / 45;
+      const point = trajectoryPoint(p, cx, cy, scale, time);
+      const phase = Math.sin(time * 0.8 + i * 0.56);
+      const r = 1.4 + (phase + 1) * 0.55;
+      ctx.fillStyle = rgba(i % 5 === 0 ? palette.accent : palette.text, i % 5 === 0 ? 0.34 : 0.18);
+      ctx.beginPath();
+      ctx.arc(point.x, point.y, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawModelLayers(time){
+    const mobile = W < 640;
+    const x0 = mobile ? W * 0.64 : W * 0.74;
+    const y0 = mobile ? H * 0.19 : H * 0.24;
+    const layerW = mobile ? W * 0.22 : Math.min(W * 0.07, 92);
+    const layerH = mobile ? H * 0.22 : H * 0.40;
+    const gap = mobile ? 9 : 16;
+
+    ctx.save();
+    for(let i = 0; i < 4; i++){
+      const x = x0 + i * gap;
+      const y = y0 + i * (mobile ? 8 : 12);
+      roundedRect(x, y, layerW, layerH, 8);
+      ctx.fillStyle = rgba(palette.text, 0.025 + i * 0.012);
+      ctx.fill();
+      ctx.strokeStyle = rgba(palette.accent, 0.11 + i * 0.025);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      for(let k = 0; k < 5; k++){
+        const yy = y + layerH * (0.16 + k * 0.16);
+        const width = layerW * (0.34 + 0.2 * Math.sin(time * 0.55 + i + k));
+        ctx.strokeStyle = rgba(palette.line, 0.11);
+        ctx.beginPath();
+        ctx.moveTo(x + layerW * 0.18, yy);
+        ctx.lineTo(x + layerW * 0.18 + width, yy);
+        ctx.stroke();
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawFlow(time){
+    const mobile = W < 640;
+    const y = mobile ? H * 0.43 : H * 0.47;
+    const left = mobile ? W * 0.18 : W * 0.25;
+    const right = mobile ? W * 0.82 : W * 0.78;
+    const pulse = (time * 0.12) % 1;
+
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for(let i = 0; i < 3; i++){
+      const offset = (i - 1) * (mobile ? 38 : 52);
+      ctx.beginPath();
+      ctx.moveTo(left, y + offset);
+      ctx.bezierCurveTo(W * 0.38, y + offset * 0.35, W * 0.62, y - offset * 0.35, right, y - offset);
+      ctx.strokeStyle = rgba(palette.accent, 0.055);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      const px = left + (right - left) * ((pulse + i * 0.22) % 1);
+      const py = y + offset * (1 - ((pulse + i * 0.22) % 1) * 2);
+      ctx.fillStyle = rgba(palette.accent, 0.28);
+      ctx.beginPath();
+      ctx.arc(px, py, 2.2, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.restore();
+  }
+
+  function drawVignette(){
+    const shade = ctx.createLinearGradient(0, 0, 0, H);
+    shade.addColorStop(0, 'rgba(0,0,0,0.14)');
+    shade.addColorStop(0.52, 'rgba(0,0,0,0.08)');
+    shade.addColorStop(1, 'rgba(0,0,0,0.78)');
+    ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, W, H);
+  }
+
+  function loop(now){
+    const time = (now - t0) / 1000;
+    ctx.clearRect(0, 0, W, H);
+    drawBackdrop(time);
+    drawFlow(time);
+    drawOmicsMatrix(time);
+    drawLatentMap(time);
+    drawModelLayers(time);
+    drawVignette();
     requestAnimationFrame(loop);
   }
 
-  window.addEventListener('resize', init);
-  init(); loop();
+  window.addEventListener('resize', resize);
+  resize();
+  requestAnimationFrame(loop);
 })();
 </script>
 </body>
