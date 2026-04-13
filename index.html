@@ -243,26 +243,19 @@ gtag('config', 'G-LXFRTDPY7G');
   let W = 0;
   let H = 0;
   let DPR = 1;
+  let grid = [];
   let t0 = performance.now();
 
   const palette = {
-    ink: [5, 7, 10],
-    panel: [12, 18, 20],
+    bg: [5, 7, 10],
+    quiet: [84, 112, 114],
     line: [126, 151, 153],
-    accent: [140, 231, 223],
-    text: [225, 238, 236]
+    glow: [140, 231, 223],
+    text: [224, 240, 238]
   };
 
   function rgba(rgb, a){
     return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a + ')';
-  }
-
-  function mix(a, b, t){
-    return [
-      Math.round(a[0] + (b[0] - a[0]) * t),
-      Math.round(a[1] + (b[1] - a[1]) * t),
-      Math.round(a[2] + (b[2] - a[2]) * t)
-    ];
   }
 
   function resize(){
@@ -272,6 +265,37 @@ gtag('config', 'G-LXFRTDPY7G');
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    makeGrid();
+  }
+
+  function rand(seed){
+    const x = Math.sin(seed * 999.91) * 10000;
+    return x - Math.floor(x);
+  }
+
+  function makeGrid(){
+    grid = [];
+    const mobile = W < 640;
+    const gap = mobile ? 42 : 56;
+    const cols = Math.ceil(W / gap) + 3;
+    const rows = Math.ceil(H / gap) + 2;
+    const ox = (W - (cols - 1) * gap) / 2;
+    const oy = (H - (rows - 1) * gap) / 2;
+
+    for(let r = 0; r < rows; r++){
+      for(let c = 0; c < cols; c++){
+        const seed = r * 97 + c * 31 + 7;
+        grid.push({
+          x: ox + c * gap + (rand(seed) - 0.5) * gap * 0.24,
+          y: oy + r * gap + (rand(seed + 2) - 0.5) * gap * 0.18,
+          size: gap * (0.30 + rand(seed + 4) * 0.14),
+          shape: Math.floor(rand(seed + 8) * 5),
+          bit: rand(seed + 11) > 0.5 ? 1 : 0,
+          phase: rand(seed + 13) * Math.PI * 2,
+          nextFlip: rand(seed + 17) * 2.8
+        });
+      }
+    }
   }
 
   function drawBackdrop(time){
@@ -279,8 +303,8 @@ gtag('config', 'G-LXFRTDPY7G');
     ctx.fillRect(0, 0, W, H);
 
     const veil = ctx.createLinearGradient(0, 0, W, H);
-    veil.addColorStop(0, 'rgba(255,255,255,0.03)');
-    veil.addColorStop(0.42, 'rgba(140,231,223,0.055)');
+    veil.addColorStop(0, 'rgba(255,255,255,0.025)');
+    veil.addColorStop(0.52, 'rgba(140,231,223,0.045)');
     veil.addColorStop(1, 'rgba(0,0,0,0)');
     ctx.fillStyle = veil;
     ctx.fillRect(0, 0, W, H);
@@ -299,179 +323,124 @@ gtag('config', 'G-LXFRTDPY7G');
     ctx.restore();
   }
 
-  function roundedRect(x, y, w, h, r){
+  function drawCellPath(cell, scale){
+    const s = cell.size * scale;
+    const wobble = 0.10;
     ctx.beginPath();
-    ctx.moveTo(x + r, y);
-    ctx.lineTo(x + w - r, y);
-    ctx.quadraticCurveTo(x + w, y, x + w, y + r);
-    ctx.lineTo(x + w, y + h - r);
-    ctx.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
-    ctx.lineTo(x + r, y + h);
-    ctx.quadraticCurveTo(x, y + h, x, y + h - r);
-    ctx.lineTo(x, y + r);
-    ctx.quadraticCurveTo(x, y, x + r, y);
-    ctx.closePath();
+    if(cell.shape === 0){
+      ctx.ellipse(0, 0, s * 1.08, s * 0.78, cell.phase * 0.18, 0, Math.PI * 2);
+    } else if(cell.shape === 1){
+      for(let i = 0; i < 18; i++){
+        const a = i / 18 * Math.PI * 2;
+        const r = s * (0.86 + Math.sin(a * 3 + cell.phase) * wobble);
+        const x = Math.cos(a) * r * 1.05;
+        const y = Math.sin(a) * r * 0.84;
+        if(i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if(cell.shape === 2){
+      for(let i = 0; i < 20; i++){
+        const a = i / 20 * Math.PI * 2;
+        const r = s * (0.78 + Math.cos(a * 2 - cell.phase) * 0.12);
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r * 1.08;
+        if(i === 0) ctx.moveTo(x, y);
+        else ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if(cell.shape === 3){
+      const r = s * 0.86;
+      ctx.moveTo(-r, -r * 0.3);
+      ctx.bezierCurveTo(-r * 0.85, -r, r * 0.5, -r * 1.02, r, -r * 0.24);
+      ctx.bezierCurveTo(r * 1.12, r * 0.58, -r * 0.22, r * 1.08, -r * 0.9, r * 0.46);
+      ctx.bezierCurveTo(-r * 1.14, r * 0.24, -r * 1.08, -r * 0.02, -r, -r * 0.3);
+      ctx.closePath();
+    } else {
+      const r = s * 0.9;
+      ctx.moveTo(0, -r);
+      ctx.bezierCurveTo(r * 0.82, -r * 0.8, r * 0.96, r * 0.24, r * 0.38, r * 0.72);
+      ctx.bezierCurveTo(-r * 0.28, r * 1.12, -r * 1.02, r * 0.36, -r * 0.82, -r * 0.32);
+      ctx.bezierCurveTo(-r * 0.62, -r * 0.86, -r * 0.18, -r * 1.02, 0, -r);
+      ctx.closePath();
+    }
   }
 
-  function drawPanel(x, y, w, h, alpha){
-    roundedRect(x, y, w, h, 8);
-    ctx.fillStyle = rgba(palette.panel, alpha);
-    ctx.fill();
-    ctx.strokeStyle = rgba(palette.line, 0.10);
-    ctx.lineWidth = 1;
-    ctx.stroke();
-  }
-
-  function drawOmicsMatrix(time){
-    const mobile = W < 640;
-    const size = mobile ? Math.min(W * 0.58, 210) : Math.min(W * 0.22, 280);
-    const cols = 13;
-    const rows = 10;
-    const cell = size / cols;
-    const x0 = mobile ? W * 0.08 : W * 0.10;
-    const y0 = mobile ? H * 0.18 : H * 0.22;
-    const scan = (Math.sin(time * 0.7) + 1) * 0.5;
-
-    drawPanel(x0 - 18, y0 - 18, size + 36, rows * cell + 36, 0.18);
-
-    ctx.save();
-    for(let r = 0; r < rows; r++){
-      for(let c = 0; c < cols; c++){
-        const signal = 0.42 + 0.34 * Math.sin(c * 0.82 + r * 1.17 + time * 0.45);
-        const band = Math.max(0, 1 - Math.abs(c / (cols - 1) - scan) * 5);
-        const tint = mix(palette.line, palette.accent, signal);
-        ctx.fillStyle = rgba(tint, 0.07 + signal * 0.12 + band * 0.18);
-        roundedRect(x0 + c * cell + 2, y0 + r * cell + 2, cell - 4, cell - 4, 2);
-        ctx.fill();
+  function updateCells(time){
+    for(const cell of grid){
+      if(time > cell.nextFlip){
+        cell.nextFlip = time + 0.55 + rand(time + cell.x * 0.01 + cell.y * 0.02) * 2.8;
+        if(rand(time + cell.phase) > 0.35) cell.bit = cell.bit ? 0 : 1;
+        if(rand(time + cell.phase + 3) > 0.70) cell.shape = (cell.shape + 1 + Math.floor(rand(time + cell.x) * 4)) % 5;
       }
     }
-    ctx.strokeStyle = rgba(palette.accent, 0.14);
-    ctx.lineWidth = 1;
-    for(let r = 0; r <= rows; r += 2){
-      ctx.beginPath();
-      ctx.moveTo(x0, y0 + r * cell);
-      ctx.lineTo(x0 + size, y0 + r * cell);
-      ctx.stroke();
-    }
-    ctx.restore();
   }
 
-  function trajectoryPoint(p, cx, cy, scale, time){
-    const a = p * Math.PI * 2.2 - 0.35;
-    const x = cx + (p - 0.5) * scale * 1.2 + Math.sin(a + time * 0.2) * scale * 0.10;
-    const y = cy + Math.sin(a * 1.35) * scale * 0.23 + Math.cos(a * 0.72) * scale * 0.12;
-    return { x: x, y: y };
-  }
-
-  function drawLatentMap(time){
-    const mobile = W < 640;
-    const cx = W * 0.5;
-    const cy = mobile ? H * 0.50 : H * 0.48;
-    const scale = mobile ? W * 0.76 : Math.min(W * 0.36, 500);
+  function drawCells(time){
+    const centerPush = W < 640 ? 0.52 : 0.40;
 
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    ctx.beginPath();
-    for(let i = 0; i <= 120; i++){
-      const p = i / 120;
-      const point = trajectoryPoint(p, cx, cy, scale, time);
-      if(i === 0) ctx.moveTo(point.x, point.y);
-      else ctx.lineTo(point.x, point.y);
-    }
-    ctx.strokeStyle = rgba(palette.accent, 0.22);
-    ctx.lineWidth = 1.4;
-    ctx.stroke();
+    for(const cell of grid){
+      const dx = Math.abs(cell.x - W * 0.5) / (W * centerPush);
+      const dy = Math.abs(cell.y - H * 0.50) / (H * 0.68);
+      const edgeFade = Math.min(1, Math.max(0.12, dx * 0.72 + dy * 0.48));
+      const pulse = Math.max(0, Math.sin(time * 1.3 + cell.phase) - 0.50);
+      const flash = Math.max(0, 1 - Math.abs(time - cell.nextFlip + 0.22) * 3.8);
+      const lit = Math.min(1, pulse * 0.72 + flash);
+      const alpha = 0.05 + edgeFade * 0.08 + lit * 0.42;
+      const x = cell.x + Math.sin(time * 0.16 + cell.phase) * 3.2;
+      const y = cell.y + Math.cos(time * 0.13 + cell.phase) * 2.4;
 
-    for(let i = 0; i < 46; i++){
-      const p = i / 45;
-      const point = trajectoryPoint(p, cx, cy, scale, time);
-      const phase = Math.sin(time * 0.8 + i * 0.56);
-      const r = 1.4 + (phase + 1) * 0.55;
-      ctx.fillStyle = rgba(i % 5 === 0 ? palette.accent : palette.text, i % 5 === 0 ? 0.34 : 0.18);
-      ctx.beginPath();
-      ctx.arc(point.x, point.y, r, 0, Math.PI * 2);
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(Math.sin(cell.phase) * 0.24);
+      drawCellPath(cell, 1);
+      ctx.fillStyle = rgba(palette.glow, alpha * 0.30);
       ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  function drawModelLayers(time){
-    const mobile = W < 640;
-    const x0 = mobile ? W * 0.64 : W * 0.74;
-    const y0 = mobile ? H * 0.19 : H * 0.24;
-    const layerW = mobile ? W * 0.22 : Math.min(W * 0.07, 92);
-    const layerH = mobile ? H * 0.22 : H * 0.40;
-    const gap = mobile ? 9 : 16;
-
-    ctx.save();
-    for(let i = 0; i < 4; i++){
-      const x = x0 + i * gap;
-      const y = y0 + i * (mobile ? 8 : 12);
-      roundedRect(x, y, layerW, layerH, 8);
-      ctx.fillStyle = rgba(palette.text, 0.025 + i * 0.012);
-      ctx.fill();
-      ctx.strokeStyle = rgba(palette.accent, 0.11 + i * 0.025);
+      ctx.strokeStyle = rgba(lit > 0.18 ? palette.glow : palette.line, alpha);
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      for(let k = 0; k < 5; k++){
-        const yy = y + layerH * (0.16 + k * 0.16);
-        const width = layerW * (0.34 + 0.2 * Math.sin(time * 0.55 + i + k));
-        ctx.strokeStyle = rgba(palette.line, 0.11);
-        ctx.beginPath();
-        ctx.moveTo(x + layerW * 0.18, yy);
-        ctx.lineTo(x + layerW * 0.18 + width, yy);
-        ctx.stroke();
+      drawCellPath(cell, 0.42);
+      ctx.strokeStyle = rgba(palette.text, 0.035 + lit * 0.10);
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
+      if(lit > 0.20){
+        ctx.fillStyle = rgba(palette.text, 0.18 + lit * 0.56);
+        ctx.font = Math.max(11, cell.size * 0.72) + 'px ui-monospace, SFMono-Regular, Menlo, monospace';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(cell.bit), 0, 1);
       }
-    }
-    ctx.restore();
-  }
-
-  function drawFlow(time){
-    const mobile = W < 640;
-    const y = mobile ? H * 0.43 : H * 0.47;
-    const left = mobile ? W * 0.18 : W * 0.25;
-    const right = mobile ? W * 0.82 : W * 0.78;
-    const pulse = (time * 0.12) % 1;
-
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    for(let i = 0; i < 3; i++){
-      const offset = (i - 1) * (mobile ? 38 : 52);
-      ctx.beginPath();
-      ctx.moveTo(left, y + offset);
-      ctx.bezierCurveTo(W * 0.38, y + offset * 0.35, W * 0.62, y - offset * 0.35, right, y - offset);
-      ctx.strokeStyle = rgba(palette.accent, 0.055);
-      ctx.lineWidth = 1;
-      ctx.stroke();
-
-      const px = left + (right - left) * ((pulse + i * 0.22) % 1);
-      const py = y + offset * (1 - ((pulse + i * 0.22) % 1) * 2);
-      ctx.fillStyle = rgba(palette.accent, 0.28);
-      ctx.beginPath();
-      ctx.arc(px, py, 2.2, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.restore();
     }
     ctx.restore();
   }
 
   function drawVignette(){
     const shade = ctx.createLinearGradient(0, 0, 0, H);
-    shade.addColorStop(0, 'rgba(0,0,0,0.14)');
-    shade.addColorStop(0.52, 'rgba(0,0,0,0.08)');
-    shade.addColorStop(1, 'rgba(0,0,0,0.78)');
+    shade.addColorStop(0, 'rgba(0,0,0,0.18)');
+    shade.addColorStop(0.46, 'rgba(0,0,0,0.22)');
+    shade.addColorStop(1, 'rgba(0,0,0,0.80)');
     ctx.fillStyle = shade;
+    ctx.fillRect(0, 0, W, H);
+
+    const center = ctx.createRadialGradient(W * 0.5, H * 0.46, 0, W * 0.5, H * 0.46, Math.max(W, H) * 0.42);
+    center.addColorStop(0, 'rgba(0,0,0,0.64)');
+    center.addColorStop(0.46, 'rgba(0,0,0,0.38)');
+    center.addColorStop(1, 'rgba(0,0,0,0)');
+    ctx.fillStyle = center;
     ctx.fillRect(0, 0, W, H);
   }
 
   function loop(now){
     const time = (now - t0) / 1000;
     ctx.clearRect(0, 0, W, H);
+    updateCells(time);
     drawBackdrop(time);
-    drawFlow(time);
-    drawOmicsMatrix(time);
-    drawLatentMap(time);
-    drawModelLayers(time);
+    drawCells(time);
     drawVignette();
     requestAnimationFrame(loop);
   }
