@@ -100,51 +100,84 @@ gtag('config', 'G-LXFRTDPY7G');
 }
 .pi-link:hover { background: rgba(0,196,238,0.22); }
 
-.students-grid {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14px;
-  margin-top: 4px;
+.members-timeline {
+  position: relative;
+  margin-top: 8px;
 }
-@media (max-width: 760px) { .students-grid { grid-template-columns: 1fr 1fr; } }
-@media (max-width: 480px) { .students-grid { grid-template-columns: 1fr; } }
-
+.members-timeline::before {
+  content: '';
+  position: absolute;
+  left: 44px;
+  top: 8px;
+  bottom: 8px;
+  width: 1px;
+  background: var(--accent-border);
+}
+.member-year {
+  display: grid;
+  grid-template-columns: 88px 1fr;
+  gap: 18px;
+  margin-bottom: 18px;
+  position: relative;
+}
+.member-year-label {
+  color: var(--accent);
+  font-size: 0.78em;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  padding-top: 20px;
+  text-align: right;
+}
+.member-year-label::after {
+  content: '';
+  position: absolute;
+  left: 39px;
+  top: 22px;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 8px rgba(0,196,238,0.5);
+}
+.member-year-members {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
 .student-card {
   background: var(--bg-card);
   border: 1px solid var(--accent-border);
   border-radius: var(--radius);
-  padding: 20px 20px 18px;
+  padding: 18px 20px;
   transition: border-color 0.2s, background 0.2s;
 }
 .student-card:hover {
   border-color: var(--accent);
   background: var(--bg-card-hover);
 }
-.student-avatar {
-  width: 48px; height: 48px;
-  border-radius: 50%;
-  background: var(--accent-dim);
-  border: 1px solid var(--accent-border);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 1em; font-weight: 700; color: var(--accent);
-  margin-bottom: 12px;
-}
 .student-name {
-  font-size: 0.96em; font-weight: 600;
-  color: var(--text-hi); margin-bottom: 4px;
+  font-size: 0.96em;
+  font-weight: 600;
+  color: var(--text-hi);
+  margin-bottom: 5px;
 }
 .student-role {
   display: inline-block;
   background: var(--accent-dim);
   border: 1px solid var(--accent-border);
   color: var(--accent);
-  font-size: 0.70em; font-weight: 700;
-  padding: 1px 8px; border-radius: 4px;
-  letter-spacing: 0.08em; text-transform: uppercase;
+  font-size: 0.70em;
+  font-weight: 700;
+  padding: 1px 8px;
+  border-radius: 4px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
   margin-bottom: 10px;
 }
 .student-detail {
-  font-size: 0.84em; color: var(--text-dim); line-height: 1.65;
+  font-size: 0.84em;
+  color: var(--text-dim);
+  line-height: 1.65;
 }
 .student-detail span { color: var(--text); }
 
@@ -171,6 +204,11 @@ gtag('config', 'G-LXFRTDPY7G');
 @media (max-width: 560px) {
   .pi-card { flex-direction: column; }
   .pi-avatar { width: 64px; height: 64px; font-size: 1.2em; }
+  .members-timeline::before { left: 26px; }
+  .member-year { grid-template-columns: 54px 1fr; gap: 12px; }
+  .member-year-label { text-align: left; font-size: 0.72em; }
+  .member-year-label::after { left: 21px; }
+  .member-year-members { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -224,80 +262,91 @@ gtag('config', 'G-LXFRTDPY7G');
     </div>
   </div>
 
-  <div class="section-label">Ph.D. Students</div>
+  <div class="section-label">Members</div>
 
-  <div class="students-grid">
+  <div class="members-timeline">
+    <div class="member-year">
+      <div class="member-year-label">2023</div>
+      <div class="member-year-members">
+        <div class="student-card">
+          <div class="student-name">Zhu Yiming &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2023</div>
+            <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+          </div>
+        </div>
 
-    <div class="student-card">
-      <div class="student-avatar">朱</div>
-      <div class="student-name">Zhu Yiming &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2023</div>
-        <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+        <div class="student-card">
+          <div class="student-name">Wang Tianyun &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">王添运</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2023</div>
+            <div><span>B.S.:</span> Harbin Institute of Technology (哈尔滨工业大学)</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="student-card">
-      <div class="student-avatar">王</div>
-      <div class="student-name">Wang Tianyun &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">王添运</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2023</div>
-        <div><span>B.S.:</span> Harbin Institute of Technology</div>
+    <div class="member-year">
+      <div class="member-year-label">2024</div>
+      <div class="member-year-members">
+        <div class="student-card">
+          <div class="student-name">Li Mingxiao &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">李明晓</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2024</div>
+            <div><span>B.S.:</span> Shandong University (山东大学)</div>
+          </div>
+        </div>
+
+        <div class="student-card">
+          <div class="student-name">Huang Yiqi &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">黄一淇</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2024</div>
+            <div><span>M.S.:</span> McMaster University (麦克马斯特大学)</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="student-card">
-      <div class="student-avatar">李</div>
-      <div class="student-name">Li Mingxiao &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">李明晓</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2024</div>
-        <div><span>B.S.:</span> Shandong University</div>
+    <div class="member-year">
+      <div class="member-year-label">2025</div>
+      <div class="member-year-members">
+        <div class="student-card">
+          <div class="student-name">Li Qianqian &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">李芊芊</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2025</div>
+            <div><span>M.S.:</span> Chinese University of Hong Kong (香港中文大学)</div>
+          </div>
+        </div>
+
+        <div class="student-card">
+          <div class="student-name">Liu Chenfeng &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">刘晨风</span></div>
+          <div class="student-role">Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2025</div>
+            <div><span>M.S.:</span> University of Cambridge (剑桥大学)</div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="student-card">
-      <div class="student-avatar">黄</div>
-      <div class="student-name">Huang Yiqi &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">黄一淇</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2024</div>
-        <div><span>M.S.:</span> McMaster University</div>
+    <div class="member-year">
+      <div class="member-year-label">2026</div>
+      <div class="member-year-members">
+        <div class="student-card">
+          <div class="student-name">Ye Siyuan &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">叶思源</span></div>
+          <div class="student-role">Incoming Member</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2026</div>
+            <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+          </div>
+        </div>
       </div>
     </div>
-
-    <div class="student-card">
-      <div class="student-avatar">李</div>
-      <div class="student-name">Li Qianqian &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">李芊芊</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2025</div>
-        <div><span>M.S.:</span> Chinese University of Hong Kong</div>
-      </div>
-    </div>
-
-    <div class="student-card">
-      <div class="student-avatar">刘</div>
-      <div class="student-name">Liu Chenfeng &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">刘晨风</span></div>
-      <div class="student-role">Ph.D. Student</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2025</div>
-        <div><span>M.S.:</span> University of Cambridge</div>
-      </div>
-    </div>
-
-    <div class="student-card">
-      <div class="student-avatar">叶</div>
-      <div class="student-name">Ye Siyuan &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">叶思源</span></div>
-      <div class="student-role" style="background:rgba(170,70,255,0.12);border-color:rgba(170,70,255,0.3);color:rgba(190,110,255,1);">Incoming Ph.D.</div>
-      <div class="student-detail">
-        <div><span>Enrolled:</span> 2026</div>
-        <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
-      </div>
-    </div>
-
   </div>
 
   <div class="section-label">Join Us</div>
