@@ -10,10 +10,10 @@
   --sky:            #b8cddd;
   --rose:           #d4aaa5;
   --sage:           #a9b69e;
-  --bg:             #334451;
-  --bg-nav:         #293844;
-  --bg-card:        #3f505b;
-  --bg-card-hover:  #4b5d68;
+  --bg:             #243441;
+  --bg-nav:         #1d2b36;
+  --bg-card:        #2f414e;
+  --bg-card-hover:  #3a5060;
   --accent:         var(--rose);
   --accent-dim:     rgba(212, 170, 165, 0.16);
   --accent-border:  rgba(184, 205, 221, 0.25);
