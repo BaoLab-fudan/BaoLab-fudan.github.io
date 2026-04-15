@@ -351,8 +351,8 @@ gtag('config', 'G-LXFRTDPY7G');
     const ax = W * (0.30 + Math.sin(time * 0.08) * 0.16);
     const ay = H * (0.42 + Math.cos(time * 0.06) * 0.13);
     const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, W * 0.65);
-    g.addColorStop(0,   'rgba(0,196,238,0.10)');
-    g.addColorStop(0.5, 'rgba(0,196,238,0.04)');
+    g.addColorStop(0,   'rgba(0,196,238,0.07)');
+    g.addColorStop(0.5, 'rgba(0,196,238,0.025)');
     g.addColorStop(1,   'rgba(0,0,0,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
@@ -373,8 +373,8 @@ gtag('config', 'G-LXFRTDPY7G');
       const ey  = Math.max(0, Math.min(1, (cell.y / H - 0.04) * 14,  (0.96 - cell.y / H) * 14));
       const edgeFade = ex * ey;
 
-      /* ── revised alpha — much more visible ── */
-      const alpha = (0.18 + lit * 0.60) * edgeFade;
+      /* alpha: midpoint between old (max ~0.36) and new (max ~0.78) */
+      const alpha = (0.09 + lit * 0.38) * edgeFade;
 
       ctx.save();
       ctx.translate(cell.x, cell.y);
@@ -382,21 +382,21 @@ gtag('config', 'G-LXFRTDPY7G');
 
       /* outer cell wall — glow colour when lit, dim otherwise */
       drawCellPath(cell, 1);
-      ctx.fillStyle   = rgba(GLOW, alpha * 0.18);
+      ctx.fillStyle   = rgba(GLOW, alpha * 0.15);
       ctx.fill();
       ctx.strokeStyle = rgba(lit > 0.35 ? GLOW : LINE, alpha);
-      ctx.lineWidth   = 1.1;
+      ctx.lineWidth   = 1.0;
       ctx.stroke();
 
       /* inner membrane ring */
       drawCellPath(cell, 0.44);
-      ctx.strokeStyle = rgba(TEXT, alpha * 0.30);
+      ctx.strokeStyle = rgba(TEXT, alpha * 0.28);
       ctx.lineWidth   = 0.7;
       ctx.stroke();
 
       /* binary digit — visible once cell crosses brightness threshold */
-      if (lit > 0.18) {
-        ctx.fillStyle = rgba(TEXT, (lit - 0.18) * 1.05 * edgeFade);
+      if (lit > 0.22) {
+        ctx.fillStyle = rgba(TEXT, (lit - 0.22) * 0.78 * edgeFade);
         ctx.font      = Math.max(11, cell.size * 0.70) + 'px ui-monospace,SFMono-Regular,Menlo,monospace';
         ctx.textAlign    = 'center';
         ctx.textBaseline = 'middle';
