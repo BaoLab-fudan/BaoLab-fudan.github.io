@@ -245,260 +245,184 @@ gtag('config', 'G-LXFRTDPY7G');
 
 <script>
 (function () {
-  /* ── Neural Biology Network ─────────────────────────────
-     Nodes (cells) connected by glowing edges; data pulses
-     stream along the connections.  Cyan + violet palette.
+  /* ── Biological Cell Grid ───────────────────────────────
+     Original concept: grid of organic cell shapes with
+     pulsing glow and 0/1 binary text inside lit cells.
+     Fixed: centre vignette removed; alpha lifted 4×.
   ─────────────────────────────────────────────────────── */
   const canvas = document.getElementById('hero-canvas');
   const ctx    = canvas.getContext('2d');
 
-  const CYAN   = [0,   210, 255];
-  const VIOLET = [140,  80, 255];
-  const WHITE  = [210, 245, 255];
+  const GLOW = [0, 196, 238];   /* site accent cyan  */
+  const LINE = [60, 120, 160];  /* dim blue-grey      */
+  const TEXT = [200, 235, 255]; /* near-white         */
 
-  function c(rgb, a) {
+  function rgba(rgb, a) {
     return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(3) + ')';
   }
-  function lerp(a, b, t) { return a + (b - a) * t; }
-  function mix(ca, cb, t) {   /* mix two rgb arrays */
-    return [lerp(ca[0],cb[0],t)|0, lerp(ca[1],cb[1],t)|0, lerp(ca[2],cb[2],t)|0];
-  }
-  /* deterministic prng */
-  function rng(seed) {
-    const x = Math.sin(seed * 127.1 + 311.7) * 43758.5453;
+
+  let W, H, DPR, grid = [], t0 = performance.now();
+
+  /* ── Deterministic RNG ────────────────────────────────── */
+  function rand(seed) {
+    const x = Math.sin(seed * 999.91) * 10000;
     return x - Math.floor(x);
   }
 
-  let W, H, DPR, nodes, edges, pulses, t0 = performance.now(), lastT = 0;
+  /* ── Build cell grid ──────────────────────────────────── */
+  function makeGrid() {
+    grid = [];
+    const mobile = W < 640;
+    const gap    = mobile ? 44 : 58;
+    const cols   = Math.ceil(W / gap) + 3;
+    const rows   = Math.ceil(H / gap) + 2;
+    const ox     = (W - (cols - 1) * gap) / 2;
+    const oy     = (H - (rows - 1) * gap) / 2;
 
-  /* ── Scene builder ────────────────────────────────────── */
-  function build() {
-    nodes  = [];
-    edges  = [];
-    pulses = [];
-
-    const area    = W * H;
-    const target  = Math.max(28, Math.min(55, (area / 16000) | 0));
-    const minDist = Math.min(W, H) * 0.11;
-
-    /* Poisson-style placement: reject if too close to existing node */
-    let attempts = 0;
-    while (nodes.length < target && attempts < target * 20) {
-      attempts++;
-      const s  = attempts * 7 + nodes.length * 31;
-      const nx = rng(s)      * W;
-      const ny = rng(s + 1)  * H;
-      let ok = true;
-      for (const n of nodes) {
-        const dd = (n.x - nx) ** 2 + (n.y - ny) ** 2;
-        if (dd < minDist * minDist) { ok = false; break; }
+    for (let r = 0; r < rows; r++) {
+      for (let cl = 0; cl < cols; cl++) {
+        const seed = r * 97 + cl * 31 + 7;
+        grid.push({
+          x:     ox + cl * gap,
+          y:     oy + r  * gap,
+          size:  gap * 0.40,
+          shape: Math.floor(rand(seed + 8)  * 5),
+          bit:   rand(seed + 11) > 0.5 ? 1 : 0,
+          phase: rand(seed + 13) * Math.PI * 2,
+          speed: 0.75 + rand(seed + 17) * 0.70,
+        });
       }
-      if (!ok) continue;
-      const isCyan = rng(s + 2) > 0.35;
-      nodes.push({
-        x:     nx,
-        y:     ny,
-        r:     2.5 + rng(s + 3) * 2.5,          /* radius 2.5–5 */
-        color: isCyan ? CYAN : VIOLET,
-        phase: rng(s + 4) * Math.PI * 2,
-        speed: 0.35 + rng(s + 5) * 0.55,
-        hub:   rng(s + 6) > 0.72,                /* ~28% are hub nodes */
-      });
-    }
-
-    /* Edges: connect every pair within maxDist, limit per-node degree */
-    const maxDist = Math.min(W, H) * 0.24;
-    const degree  = new Array(nodes.length).fill(0);
-    for (let i = 0; i < nodes.length; i++) {
-      for (let j = i + 1; j < nodes.length; j++) {
-        if (degree[i] >= 5 || degree[j] >= 5) continue;
-        const dx = nodes[i].x - nodes[j].x;
-        const dy = nodes[i].y - nodes[j].y;
-        const d  = Math.sqrt(dx * dx + dy * dy);
-        if (d < maxDist) {
-          edges.push({ a: i, b: j, d, maxD: maxDist });
-          degree[i]++; degree[j]++;
-        }
-      }
-    }
-
-    /* Seed pulses */
-    const pCount = Math.min(edges.length, Math.max(12, (edges.length * 0.45) | 0));
-    for (let i = 0; i < pCount; i++) {
-      spawnPulse(i * 3.7 + 11.3);
     }
   }
 
-  function spawnPulse(seed) {
-    if (!edges.length) return;
-    const ei = (rng(seed) * edges.length) | 0;
-    const e  = edges[ei];
-    const col = mix(nodes[e.a].color, nodes[e.b].color, rng(seed + 1));
-    pulses.push({
-      edge:  ei,
-      t:     rng(seed + 2),
-      speed: 0.06 + rng(seed + 3) * 0.14,
-      alpha: 0.55 + rng(seed + 4) * 0.4,
-      color: col,
-    });
+  /* ── 5 organic cell shapes ────────────────────────────── */
+  function drawCellPath(cell, scale) {
+    const s = cell.size * scale;
+    const w = 0.11;   /* wobble factor */
+    ctx.beginPath();
+    if (cell.shape === 0) {
+      /* oval */
+      ctx.ellipse(0, 0, s * 1.1, s * 0.78, cell.phase * 0.18, 0, Math.PI * 2);
+    } else if (cell.shape === 1) {
+      /* amoeba A */
+      for (let i = 0; i < 18; i++) {
+        const a = i / 18 * Math.PI * 2;
+        const r = s * (0.86 + Math.sin(a * 3 + cell.phase) * w);
+        const x = Math.cos(a) * r * 1.05;
+        const y = Math.sin(a) * r * 0.84;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if (cell.shape === 2) {
+      /* amoeba B */
+      for (let i = 0; i < 20; i++) {
+        const a = i / 20 * Math.PI * 2;
+        const r = s * (0.78 + Math.cos(a * 2 - cell.phase) * 0.13);
+        const x = Math.cos(a) * r;
+        const y = Math.sin(a) * r * 1.1;
+        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+    } else if (cell.shape === 3) {
+      /* kidney */
+      const r = s * 0.86;
+      ctx.moveTo(-r, -r * 0.3);
+      ctx.bezierCurveTo(-r * 0.85, -r,      r * 0.5,  -r * 1.02, r,  -r * 0.24);
+      ctx.bezierCurveTo( r * 1.12,  r * 0.58, -r * 0.22, r * 1.08, -r * 0.9, r * 0.46);
+      ctx.bezierCurveTo(-r * 1.14,  r * 0.24, -r * 1.08, -r * 0.02, -r, -r * 0.3);
+      ctx.closePath();
+    } else {
+      /* teardrop */
+      const r = s * 0.9;
+      ctx.moveTo(0, -r);
+      ctx.bezierCurveTo( r * 0.82, -r * 0.8,   r * 0.96,  r * 0.24, r * 0.38, r * 0.72);
+      ctx.bezierCurveTo(-r * 0.28,  r * 1.12, -r * 1.02,  r * 0.36, -r * 0.82, -r * 0.32);
+      ctx.bezierCurveTo(-r * 0.62, -r * 0.86, -r * 0.18, -r * 1.02, 0, -r);
+      ctx.closePath();
+    }
   }
 
-  /* ── Draw layers ──────────────────────────────────────── */
+  /* ── Draw backdrop with gentle colour wash ────────────── */
   function drawBackdrop(time) {
     ctx.fillStyle = '#05070a';
     ctx.fillRect(0, 0, W, H);
 
-    /* Two slowly drifting aurora spots */
-    const spots = [
-      { x: 0.25 + Math.sin(time * 0.09)        * 0.18,
-        y: 0.38 + Math.cos(time * 0.07)        * 0.14,
-        r: 0.62, rgb: CYAN,   a: 0.13 },
-      { x: 0.75 + Math.sin(time * 0.07 + 2.1)  * 0.16,
-        y: 0.55 + Math.cos(time * 0.10 + 1.3)  * 0.14,
-        r: 0.52, rgb: VIOLET, a: 0.10 },
-      { x: 0.50 + Math.sin(time * 0.05 + 4.0)  * 0.12,
-        y: 0.20 + Math.cos(time * 0.06 + 0.8)  * 0.10,
-        r: 0.40, rgb: CYAN,   a: 0.07 },
-    ];
-    for (const s of spots) {
-      const ax = s.x * W, ay = s.y * H, ar = s.r * Math.max(W, H);
-      const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, ar);
-      g.addColorStop(0,   c(s.rgb, s.a));
-      g.addColorStop(0.5, c(s.rgb, s.a * 0.35));
-      g.addColorStop(1,   c(s.rgb, 0));
-      ctx.fillStyle = g;
-      ctx.fillRect(0, 0, W, H);
-    }
+    /* slow-drifting teal wash — gives the canvas warmth */
+    const ax = W * (0.30 + Math.sin(time * 0.08) * 0.16);
+    const ay = H * (0.42 + Math.cos(time * 0.06) * 0.13);
+    const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, W * 0.65);
+    g.addColorStop(0,   'rgba(0,196,238,0.10)');
+    g.addColorStop(0.5, 'rgba(0,196,238,0.04)');
+    g.addColorStop(1,   'rgba(0,0,0,0)');
+    ctx.fillStyle = g;
+    ctx.fillRect(0, 0, W, H);
   }
 
-  function edgeFade(e) {
-    /* fade edges that sit near the canvas edges */
-    const na = nodes[e.a], nb = nodes[e.b];
-    const mx = (na.x + nb.x) * 0.5, my = (na.y + nb.y) * 0.5;
-    const fx = 1 - Math.abs(mx / W - 0.5) * 1.6;
-    const fy = 1 - Math.abs(my / H - 0.5) * 1.6;
-    return Math.max(0, Math.min(1, fx)) * Math.max(0, Math.min(1, fy));
-  }
-
-  function drawEdges() {
+  /* ── Draw all cells ───────────────────────────────────── */
+  function drawCells(time) {
     ctx.save();
     ctx.globalCompositeOperation = 'screen';
-    for (const e of edges) {
-      const na = nodes[e.a], nb = nodes[e.b];
-      const proximity = Math.pow(1 - e.d / e.maxD, 1.6);
-      const alpha = proximity * edgeFade(e) * 0.45;
-      if (alpha < 0.015) continue;
 
-      const grad = ctx.createLinearGradient(na.x, na.y, nb.x, nb.y);
-      grad.addColorStop(0, c(na.color, alpha));
-      grad.addColorStop(1, c(nb.color, alpha));
-      ctx.beginPath();
-      ctx.moveTo(na.x, na.y);
-      ctx.lineTo(nb.x, nb.y);
-      ctx.strokeStyle = grad;
-      ctx.lineWidth   = 0.9;
+    for (const cell of grid) {
+      /* smoothstep wave: 0 → 1 */
+      const wave = 0.5 + Math.sin(time * cell.speed + cell.phase) * 0.5;
+      const lit  = wave * wave * (3 - 2 * wave);
+
+      /* fade cells near the canvas border so they disappear off-screen cleanly */
+      const ex  = Math.max(0, Math.min(1, (cell.x / W - 0.04) * 14,  (0.96 - cell.x / W) * 14));
+      const ey  = Math.max(0, Math.min(1, (cell.y / H - 0.04) * 14,  (0.96 - cell.y / H) * 14));
+      const edgeFade = ex * ey;
+
+      /* ── revised alpha — much more visible ── */
+      const alpha = (0.18 + lit * 0.60) * edgeFade;
+
+      ctx.save();
+      ctx.translate(cell.x, cell.y);
+      ctx.rotate(Math.sin(cell.phase) * 0.22);
+
+      /* outer cell wall — glow colour when lit, dim otherwise */
+      drawCellPath(cell, 1);
+      ctx.fillStyle   = rgba(GLOW, alpha * 0.18);
+      ctx.fill();
+      ctx.strokeStyle = rgba(lit > 0.35 ? GLOW : LINE, alpha);
+      ctx.lineWidth   = 1.1;
       ctx.stroke();
-    }
-    ctx.restore();
-  }
 
-  function drawNodes(time) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    for (const n of nodes) {
-      /* pulsing brightness */
-      const wave = 0.5 + Math.sin(time * n.speed + n.phase) * 0.5;
-      const lit  = wave * wave * (3 - 2 * wave);          /* smoothstep */
+      /* inner membrane ring */
+      drawCellPath(cell, 0.44);
+      ctx.strokeStyle = rgba(TEXT, alpha * 0.30);
+      ctx.lineWidth   = 0.7;
+      ctx.stroke();
 
-      /* edge proximity fade */
-      const fx = 1 - Math.abs(n.x / W - 0.5) * 1.7;
-      const fy = 1 - Math.abs(n.y / H - 0.5) * 1.7;
-      const fade = Math.max(0, Math.min(1, fx)) * Math.max(0, Math.min(1, fy));
-
-      const baseA = (n.hub ? 0.55 : 0.30) + lit * 0.50;
-      const alpha  = baseA * fade;
-      if (alpha < 0.02) continue;
-
-      /* outer glow halo */
-      const glowR = n.r * (n.hub ? 10 : 6);
-      const glow  = ctx.createRadialGradient(n.x, n.y, 0, n.x, n.y, glowR);
-      glow.addColorStop(0,   c(n.color, alpha * 0.55));
-      glow.addColorStop(0.4, c(n.color, alpha * 0.18));
-      glow.addColorStop(1,   c(n.color, 0));
-      ctx.fillStyle = glow;
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, glowR, 0, Math.PI * 2);
-      ctx.fill();
-
-      /* solid node dot */
-      ctx.fillStyle = c(n.color, alpha * 0.9);
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r, 0, Math.PI * 2);
-      ctx.fill();
-
-      /* bright specular centre */
-      ctx.fillStyle = c(WHITE, alpha * 0.75);
-      ctx.beginPath();
-      ctx.arc(n.x, n.y, n.r * 0.45, 0, Math.PI * 2);
-      ctx.fill();
-    }
-    ctx.restore();
-  }
-
-  function drawPulses(dt) {
-    ctx.save();
-    ctx.globalCompositeOperation = 'screen';
-    for (const p of pulses) {
-      const e  = edges[p.edge];
-      if (!e) continue;
-      const na = nodes[e.a], nb = nodes[e.b];
-      const x  = lerp(na.x, nb.x, p.t);
-      const y  = lerp(na.y, nb.y, p.t);
-
-      /* edge fade */
-      const fx = 1 - Math.abs(x / W - 0.5) * 1.7;
-      const fy = 1 - Math.abs(y / H - 0.5) * 1.7;
-      const fade = Math.max(0, Math.min(1, fx)) * Math.max(0, Math.min(1, fy));
-      const alpha = p.alpha * fade;
-
-      /* glow spot */
-      const gr = ctx.createRadialGradient(x, y, 0, x, y, 10);
-      gr.addColorStop(0,   c(WHITE,   alpha * 0.95));
-      gr.addColorStop(0.3, c(p.color, alpha * 0.55));
-      gr.addColorStop(1,   c(p.color, 0));
-      ctx.fillStyle = gr;
-      ctx.beginPath();
-      ctx.arc(x, y, 10, 0, Math.PI * 2);
-      ctx.fill();
-
-      /* advance */
-      p.t += p.speed * dt;
-      if (p.t > 1) {
-        p.t = 0;
-        /* jump to a new random edge */
-        const seed  = p.t * 1000 + Math.random() * 9999;
-        const newEi = (rng(seed) * edges.length) | 0;
-        p.edge  = newEi;
-        p.color = mix(nodes[edges[newEi].a].color, nodes[edges[newEi].b].color, rng(seed + 1));
+      /* binary digit — visible once cell crosses brightness threshold */
+      if (lit > 0.18) {
+        ctx.fillStyle = rgba(TEXT, (lit - 0.18) * 1.05 * edgeFade);
+        ctx.font      = Math.max(11, cell.size * 0.70) + 'px ui-monospace,SFMono-Regular,Menlo,monospace';
+        ctx.textAlign    = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(String(cell.bit), 0, 1);
       }
+
+      ctx.restore();
     }
     ctx.restore();
   }
 
+  /* ── Vignette: edges only, centre stays bright ────────── */
   function drawVignette() {
-    /* edges only — never darken the centre */
-    const eg = ctx.createRadialGradient(
-      W * 0.5, H * 0.5, Math.min(W, H) * 0.28,
-      W * 0.5, H * 0.5, Math.max(W, H) * 0.78
+    /* radial — darkens only the outermost ring */
+    const rg = ctx.createRadialGradient(
+      W * 0.5, H * 0.5, Math.min(W, H) * 0.32,
+      W * 0.5, H * 0.5, Math.max(W, H) * 0.76
     );
-    eg.addColorStop(0,   'rgba(0,0,0,0)');
-    eg.addColorStop(0.6, 'rgba(0,0,0,0.22)');
-    eg.addColorStop(1,   'rgba(0,0,0,0.80)');
-    ctx.fillStyle = eg;
+    rg.addColorStop(0,   'rgba(0,0,0,0)');
+    rg.addColorStop(0.65,'rgba(0,0,0,0.28)');
+    rg.addColorStop(1,   'rgba(0,0,0,0.82)');
+    ctx.fillStyle = rg;
     ctx.fillRect(0, 0, W, H);
 
-    /* bottom fade into page */
-    const bg = ctx.createLinearGradient(0, H * 0.52, 0, H);
+    /* bottom fade — blends into page background */
+    const bg = ctx.createLinearGradient(0, H * 0.54, 0, H);
     bg.addColorStop(0, 'rgba(7,9,15,0)');
     bg.addColorStop(1, 'rgba(7,9,15,1)');
     ctx.fillStyle = bg;
@@ -508,25 +432,20 @@ gtag('config', 'G-LXFRTDPY7G');
   /* ── Resize ───────────────────────────────────────────── */
   function resize() {
     DPR = Math.min(window.devicePixelRatio || 1, 2);
-    W = canvas.offsetWidth;
-    H = canvas.offsetHeight;
+    W   = canvas.offsetWidth;
+    H   = canvas.offsetHeight;
     canvas.width  = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
     ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-    build();
+    makeGrid();
   }
 
-  /* ── Loop ─────────────────────────────────────────────── */
+  /* ── Render loop ──────────────────────────────────────── */
   function loop(now) {
     const time = (now - t0) / 1000;
-    const dt   = Math.min((now - lastT) / 1000, 0.05);
-    lastT = now;
-
     ctx.clearRect(0, 0, W, H);
     drawBackdrop(time);
-    drawEdges();
-    drawPulses(dt);
-    drawNodes(time);
+    drawCells(time);
     drawVignette();
     requestAnimationFrame(loop);
   }
