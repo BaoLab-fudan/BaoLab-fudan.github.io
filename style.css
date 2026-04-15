@@ -232,3 +232,112 @@ a:hover {
   .nav-links a { padding: 7px 8px; font-size: 0.82em; }
   .page-title { font-size: 1.6em; }
 }
+
+/* ============================================================
+   Animations & Motion
+   ============================================================ */
+
+/* ── Keyframes ───────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+@keyframes pulseGlow {
+  0%, 100% { box-shadow: 0 0 7px rgba(0,196,238,0.45); }
+  50%       { box-shadow: 0 0 22px rgba(0,196,238,1), 0 0 44px rgba(0,196,238,0.3); }
+}
+
+@keyframes navUnderline {
+  from { transform: scaleX(0); }
+  to   { transform: scaleX(1); }
+}
+
+/* ── Hero entrance ───────────────────────────────────────── */
+.hero-lab     { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.10s both; }
+.hero-sub     { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.32s both; }
+.hero-tagline { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.54s both; }
+.hero-cta     { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.74s both; }
+
+/* ── Page title entrance ─────────────────────────────────── */
+.page-title    { animation: fadeUp 0.72s cubic-bezier(0.22,1,0.36,1) 0.04s both; }
+.page-subtitle { animation: fadeUp 0.72s cubic-bezier(0.22,1,0.36,1) 0.16s both; }
+
+/* ── Scroll reveal base ──────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.58s cubic-bezier(0.22,1,0.36,1),
+              transform 0.58s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* ── Button hover lift ───────────────────────────────────── */
+.btn {
+  transition: background 0.2s, border-color 0.2s,
+              transform 0.18s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.22s;
+}
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,196,238,0.30);
+}
+.btn-outline:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 22px rgba(0,196,238,0.14);
+}
+
+/* ── Enhanced card hover glow ────────────────────────────── */
+.card,
+.home-card {
+  transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
+}
+.card:hover,
+.home-card:hover {
+  box-shadow: 0 0 0 1px rgba(0,196,238,0.55), 0 8px 30px rgba(0,196,238,0.09);
+}
+
+/* ── Nav active indicator underline ─────────────────────── */
+.nav-links a {
+  overflow: hidden;
+}
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%;
+  right: 50%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  transition: left 0.24s cubic-bezier(0.22,1,0.36,1),
+              right 0.24s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after {
+  left: 8px;
+  right: 8px;
+}
+
+/* ── Timeline dot pulse ──────────────────────────────────── */
+.member-year-label::after {
+  animation: pulseGlow 2.8s ease-in-out infinite;
+}
+
+/* ── Reduced motion ──────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}

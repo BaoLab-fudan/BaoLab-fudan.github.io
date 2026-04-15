@@ -180,6 +180,27 @@ gtag('config', 'G-LXFRTDPY7G');
   line-height: 1.65;
 }
 .student-detail span { color: var(--text); }
+.student-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 10px;
+}
+.student-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--accent-dim);
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
+  font-size: 0.75em;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 5px;
+  text-decoration: none;
+  transition: background 0.18s;
+}
+.student-link:hover { background: rgba(0,196,238,0.22); }
 
 .member-card {
   background: var(--bg-card);
@@ -269,20 +290,14 @@ gtag('config', 'G-LXFRTDPY7G');
       <div class="member-year-label">2023</div>
       <div class="member-year-members">
         <div class="student-card">
-          <div class="student-name">Zhu Yiming &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
-          <div class="student-role">PhD Candidate</div>
-          <div class="student-detail">
-            <div><span>Enrolled:</span> 2023</div>
-            <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
-          </div>
-        </div>
-
-        <div class="student-card">
           <div class="student-name">Wang Tianyun &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">王添运</span></div>
           <div class="student-role">PhD Candidate</div>
           <div class="student-detail">
             <div><span>Enrolled:</span> 2023</div>
             <div><span>B.S.:</span> Harbin Institute of Technology (哈尔滨工业大学)</div>
+          </div>
+          <div class="student-links">
+            <a class="student-link" href="https://github.com/Stanwade" target="_blank">GitHub</a>
           </div>
         </div>
       </div>
@@ -307,6 +322,10 @@ gtag('config', 'G-LXFRTDPY7G');
             <div><span>Enrolled:</span> 2024</div>
             <div><span>M.S.:</span> McMaster University (麦克马斯特大学)</div>
           </div>
+          <div class="student-links">
+            <a class="student-link" href="https://github.com/hyqhanson" target="_blank">GitHub</a>
+            <a class="student-link" href="mailto:24110720041@m.fudan.edu.cn">Email</a>
+          </div>
         </div>
       </div>
     </div>
@@ -329,6 +348,20 @@ gtag('config', 'G-LXFRTDPY7G');
           <div class="student-detail">
             <div><span>Enrolled:</span> 2025</div>
             <div><span>M.S.:</span> University of Cambridge (剑桥大学)</div>
+          </div>
+          <div class="student-links">
+            <a class="student-link" href="mailto:2193879367@qq.com">Email</a>
+          </div>
+        </div>
+
+        <div class="student-card">
+          <div class="student-name">Zhu Yiming &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
+          <div class="student-role">PhD Candidate</div>
+          <div class="student-detail">
+            <div><span>Enrolled:</span> 2025</div>
+          </div>
+          <div class="student-links">
+            <a class="student-link" href="mailto:25113090170@m.fudan.edu.cn">Email</a>
           </div>
         </div>
       </div>
@@ -362,5 +395,6 @@ gtag('config', 'G-LXFRTDPY7G');
   </div>
 
 </div>
+<script src="animations.js"></script>
 </body>
 </html>
