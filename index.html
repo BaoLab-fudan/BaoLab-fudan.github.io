@@ -273,7 +273,7 @@ gtag('config', 'G-LXFRTDPY7G');
   function makeGrid() {
     grid = [];
     const mobile = W < 640;
-    const gap    = mobile ? 44 : 58;
+    const gap    = mobile ? 30 : 38;
     const cols   = Math.ceil(W / gap) + 3;
     const rows   = Math.ceil(H / gap) + 2;
     const ox     = (W - (cols - 1) * gap) / 2;
@@ -285,7 +285,7 @@ gtag('config', 'G-LXFRTDPY7G');
         grid.push({
           x:     ox + cl * gap,
           y:     oy + r  * gap,
-          size:  gap * 0.40,
+          size:  gap * 0.34,
           shape: Math.floor(rand(seed + 8)  * 5),
           bit:   rand(seed + 11) > 0.5 ? 1 : 0,
           phase: rand(seed + 13) * Math.PI * 2,
