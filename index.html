@@ -29,7 +29,7 @@ gtag('config', 'G-LXFRTDPY7G');
   align-items: center;
   justify-content: center;
   overflow: hidden;
-  background: #05070a;
+  background: #2b3944;
 }
 #hero-canvas {
   position: absolute;
@@ -42,7 +42,7 @@ gtag('config', 'G-LXFRTDPY7G');
   position: absolute;
   bottom: 0; left: 0; right: 0;
   height: 220px;
-  background: linear-gradient(transparent, rgba(7,9,15,0.86) 72%, var(--bg));
+  background: linear-gradient(transparent, rgba(49,65,78,0.86) 72%, var(--bg));
   pointer-events: none;
 }
 .hero-content {
@@ -97,11 +97,11 @@ gtag('config', 'G-LXFRTDPY7G');
 }
 .btn-primary {
   background: var(--accent);
-  color: #07090f;
+  color: #24313b;
   border: 1px solid var(--accent);
-  box-shadow: 0 14px 36px rgba(0,196,238,0.14);
+  box-shadow: 0 14px 36px rgba(184,205,221,0.14);
 }
-.btn-primary:hover { background: #33d1f5; }
+.btn-primary:hover { background: #dce8ef; }
 .btn-outline {
   background: transparent;
   color: var(--accent);
@@ -253,9 +253,9 @@ gtag('config', 'G-LXFRTDPY7G');
   const canvas = document.getElementById('hero-canvas');
   const ctx    = canvas.getContext('2d');
 
-  const GLOW = [0, 196, 238];   /* site accent cyan  */
-  const LINE = [60, 120, 160];  /* dim blue-grey      */
-  const TEXT = [200, 235, 255]; /* near-white         */
+  const GLOW = [184, 205, 221]; /* cloud-blue accent  */
+  const LINE = [126, 151, 168]; /* dim blue-grey      */
+  const TEXT = [241, 241, 237]; /* warm near-white    */
 
   function rgba(rgb, a) {
     return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(3) + ')';
@@ -344,16 +344,16 @@ gtag('config', 'G-LXFRTDPY7G');
 
   /* ── Draw backdrop with gentle colour wash ────────────── */
   function drawBackdrop(time) {
-    ctx.fillStyle = '#05070a';
+    ctx.fillStyle = '#2b3944';
     ctx.fillRect(0, 0, W, H);
 
-    /* slow-drifting teal wash — gives the canvas warmth */
+    /* slow-drifting cloud wash — gives the canvas depth */
     const ax = W * (0.30 + Math.sin(time * 0.08) * 0.16);
     const ay = H * (0.42 + Math.cos(time * 0.06) * 0.13);
     const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, W * 0.65);
-    g.addColorStop(0,   'rgba(0,196,238,0.07)');
-    g.addColorStop(0.5, 'rgba(0,196,238,0.025)');
-    g.addColorStop(1,   'rgba(0,0,0,0)');
+    g.addColorStop(0,   'rgba(184,205,221,0.085)');
+    g.addColorStop(0.5, 'rgba(184,205,221,0.032)');
+    g.addColorStop(1,   'rgba(49,65,78,0)');
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, W, H);
   }
@@ -415,16 +415,16 @@ gtag('config', 'G-LXFRTDPY7G');
       W * 0.5, H * 0.5, Math.min(W, H) * 0.32,
       W * 0.5, H * 0.5, Math.max(W, H) * 0.76
     );
-    rg.addColorStop(0,   'rgba(0,0,0,0)');
-    rg.addColorStop(0.65,'rgba(0,0,0,0.28)');
-    rg.addColorStop(1,   'rgba(0,0,0,0.82)');
+    rg.addColorStop(0,   'rgba(49,65,78,0)');
+    rg.addColorStop(0.65,'rgba(35,47,57,0.26)');
+    rg.addColorStop(1,   'rgba(24,33,40,0.76)');
     ctx.fillStyle = rg;
     ctx.fillRect(0, 0, W, H);
 
     /* bottom fade — blends into page background */
     const bg = ctx.createLinearGradient(0, H * 0.54, 0, H);
-    bg.addColorStop(0, 'rgba(7,9,15,0)');
-    bg.addColorStop(1, 'rgba(7,9,15,1)');
+    bg.addColorStop(0, 'rgba(49,65,78,0)');
+    bg.addColorStop(1, 'rgba(49,65,78,1)');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, W, H);
   }
