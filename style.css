@@ -234,18 +234,15 @@ a:hover {
 }
 
 /* ============================================================
-   Animations & Motion
+   Animations & Motion — Premium Edition
    ============================================================ */
+
+html { scroll-behavior: smooth; }
 
 /* ── Keyframes ───────────────────────────────────────────── */
 @keyframes fadeUp {
-  from { opacity: 0; transform: translateY(30px); }
+  from { opacity: 0; transform: translateY(32px); }
   to   { opacity: 1; transform: translateY(0); }
-}
-
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
 }
 
 @keyframes pulseGlow {
@@ -253,10 +250,93 @@ a:hover {
   50%       { box-shadow: 0 0 22px rgba(0,196,238,1), 0 0 44px rgba(0,196,238,0.3); }
 }
 
-@keyframes navUnderline {
-  from { transform: scaleX(0); }
-  to   { transform: scaleX(1); }
+@keyframes shimmer {
+  0%   { background-position: 150% 50%; }
+  100% { background-position: -150% 50%; }
 }
+
+@keyframes borderPulse {
+  0%, 100% { opacity: 0.22; }
+  50%       { opacity: 0.55; }
+}
+
+/* ── Custom cursor ───────────────────────────────────────── */
+.has-custom-cursor,
+.has-custom-cursor * { cursor: none !important; }
+
+.cursor-dot {
+  position: fixed;
+  top: 0; left: 0;
+  width: 8px; height: 8px;
+  background: var(--accent);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9999;
+  opacity: 0;
+  transition: opacity 0.3s, width 0.2s, height 0.2s;
+  will-change: transform;
+  box-shadow: 0 0 10px rgba(0,196,238,0.8);
+}
+.cursor-dot.hovering { width: 0; height: 0; opacity: 0; }
+
+.cursor-ring {
+  position: fixed;
+  top: 0; left: 0;
+  width: 36px; height: 36px;
+  border: 1.5px solid rgba(0,196,238,0.55);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 9998;
+  opacity: 0;
+  transition: opacity 0.3s, width 0.3s cubic-bezier(0.22,1,0.36,1),
+              height 0.3s cubic-bezier(0.22,1,0.36,1),
+              border-color 0.25s;
+  will-change: transform;
+  box-shadow: 0 0 12px rgba(0,196,238,0.12);
+}
+.cursor-ring.hovering {
+  width: 54px; height: 54px;
+  border-color: var(--accent);
+  box-shadow: 0 0 22px rgba(0,196,238,0.25);
+}
+
+/* ── Ambient glow orb ────────────────────────────────────── */
+.ambient-orb {
+  position: fixed;
+  top: 0; left: 0;
+  width: 640px; height: 640px;
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 0;
+  background: radial-gradient(circle, rgba(0,196,238,0.038) 0%, transparent 65%);
+  transition: transform 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
+  will-change: transform;
+}
+
+/* ── Nav scroll blur ─────────────────────────────────────── */
+nav { transition: background-color 0.35s, box-shadow 0.35s, backdrop-filter 0.35s; }
+nav.scrolled {
+  background-color: rgba(10,13,24,0.78);
+  backdrop-filter: blur(22px) saturate(1.5);
+  -webkit-backdrop-filter: blur(22px) saturate(1.5);
+  box-shadow: 0 1px 0 rgba(0,196,238,0.18), 0 8px 40px rgba(0,0,0,0.55);
+}
+
+/* ── Nav underline sweep ─────────────────────────────────── */
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: 3px;
+  left: 50%; right: 50%;
+  height: 2px;
+  background: var(--accent);
+  border-radius: 1px;
+  box-shadow: 0 0 6px rgba(0,196,238,0.6);
+  transition: left 0.26s cubic-bezier(0.22,1,0.36,1),
+              right 0.26s cubic-bezier(0.22,1,0.36,1);
+}
+.nav-links a:hover::after,
+.nav-links a.active::after { left: 8px; right: 8px; }
 
 /* ── Hero entrance ───────────────────────────────────────── */
 .hero-lab     { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.10s both; }
@@ -264,73 +344,83 @@ a:hover {
 .hero-tagline { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.54s both; }
 .hero-cta     { opacity: 0; animation: fadeUp 0.95s cubic-bezier(0.22,1,0.36,1) 0.74s both; }
 
-/* ── Page title entrance ─────────────────────────────────── */
-.page-title    { animation: fadeUp 0.72s cubic-bezier(0.22,1,0.36,1) 0.04s both; }
-.page-subtitle { animation: fadeUp 0.72s cubic-bezier(0.22,1,0.36,1) 0.16s both; }
-
-/* ── Scroll reveal base ──────────────────────────────────── */
-.reveal {
-  opacity: 0;
-  transform: translateY(22px);
-  transition: opacity 0.58s cubic-bezier(0.22,1,0.36,1),
-              transform 0.58s cubic-bezier(0.22,1,0.36,1);
-}
-.reveal.visible {
-  opacity: 1;
-  transform: none;
+/* ── Hero "Lab" shimmer ──────────────────────────────────── */
+.hero-lab span {
+  background: linear-gradient(90deg,
+    var(--accent) 0%, #7eeeff 40%, #fff 50%, #7eeeff 60%, var(--accent) 100%);
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s linear 1.6s infinite;
 }
 
-/* ── Button hover lift ───────────────────────────────────── */
-.btn {
-  transition: background 0.2s, border-color 0.2s,
-              transform 0.18s cubic-bezier(0.22,1,0.36,1),
-              box-shadow 0.22s;
-}
-.btn-primary:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 30px rgba(0,196,238,0.30);
-}
-.btn-outline:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 22px rgba(0,196,238,0.14);
-}
+/* ── Kinetic page title words ────────────────────────────── */
+.page-subtitle { animation: fadeUp 0.72s cubic-bezier(0.22,1,0.36,1) 0.22s both; }
 
-/* ── Enhanced card hover glow ────────────────────────────── */
-.card,
-.home-card {
-  transition: border-color 0.2s, background 0.2s, box-shadow 0.25s;
-}
-.card:hover,
-.home-card:hover {
-  box-shadow: 0 0 0 1px rgba(0,196,238,0.55), 0 8px 30px rgba(0,196,238,0.09);
-}
-
-/* ── Nav active indicator underline ─────────────────────── */
-.nav-links a {
+.word-wrap {
+  display: inline-block;
   overflow: hidden;
+  vertical-align: bottom;
+  line-height: 1.25;
 }
-.nav-links a::after {
+.word-inner {
+  display: inline-block;
+  transform: translateY(110%);
+  transition: transform 0.72s cubic-bezier(0.22,1,0.36,1);
+}
+.word-inner.shown { transform: translateY(0); }
+
+/* ── Section label sweep line ────────────────────────────── */
+.section-label { position: relative; }
+.section-label::after {
   content: '';
   position: absolute;
-  bottom: 3px;
-  left: 50%;
-  right: 50%;
-  height: 2px;
-  background: var(--accent);
-  border-radius: 1px;
-  transition: left 0.24s cubic-bezier(0.22,1,0.36,1),
-              right 0.24s cubic-bezier(0.22,1,0.36,1);
+  bottom: -1px; left: 0;
+  width: 100%; height: 1px;
+  background: linear-gradient(90deg, var(--accent) 0%, rgba(0,196,238,0.25) 70%, transparent);
+  box-shadow: 0 0 8px rgba(0,196,238,0.55);
+  transform-origin: left center;
+  transform: scaleX(0);
+  transition: transform 0.85s cubic-bezier(0.22,1,0.36,1);
 }
-.nav-links a:hover::after,
-.nav-links a.active::after {
-  left: 8px;
-  right: 8px;
+.section-label.visible::after { transform: scaleX(1); }
+
+/* ── Scroll reveal ───────────────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.62s cubic-bezier(0.22,1,0.36,1),
+              transform 0.62s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible { opacity: 1; transform: none; }
+
+/* ── Button interactions ─────────────────────────────────── */
+.btn {
+  transition: background 0.2s, border-color 0.2s,
+              transform 0.22s cubic-bezier(0.22,1,0.36,1),
+              box-shadow 0.25s;
+}
+.btn-primary:hover {
+  box-shadow: 0 12px 32px rgba(0,196,238,0.32);
+}
+.btn-outline:hover {
+  box-shadow: 0 8px 24px rgba(0,196,238,0.16);
 }
 
-/* ── Timeline dot pulse ──────────────────────────────────── */
-.member-year-label::after {
-  animation: pulseGlow 2.8s ease-in-out infinite;
+/* ── Card interactions (base) ────────────────────────────── */
+.card, .home-card {
+  transition: border-color 0.22s, background 0.22s, box-shadow 0.28s, transform 0.12s;
 }
+.card:hover, .home-card:hover {
+  box-shadow: 0 0 0 1px rgba(0,196,238,0.5), 0 10px 36px rgba(0,196,238,0.09);
+}
+
+/* ── Timeline & about dots ───────────────────────────────── */
+.member-year-label::after {
+  animation: pulseGlow 2.8s ease-in-out var(--pulse-delay, 0s) infinite;
+}
+.tl-dot { animation: pulseGlow 2.8s ease-in-out infinite; }
 
 /* ── Reduced motion ──────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
