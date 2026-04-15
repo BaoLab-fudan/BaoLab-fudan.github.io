@@ -1,22 +1,26 @@
 /* ============================================================
    Bao Lab — Shared Stylesheet
-   Theme: Cloud Dancer blue-grey palette
+   Theme: Cloud Dancer expanded palette
    ============================================================ */
 
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-  --bg:             #31414e;
-  --bg-nav:         #2b3944;
-  --bg-card:        #394b58;
-  --bg-card-hover:  #425665;
-  --accent:         #b8cddd;
-  --accent-dim:     rgba(184, 205, 221, 0.14);
-  --accent-border:  rgba(184, 205, 221, 0.26);
-  --accent-glow:    rgba(184, 205, 221, 0.10);
-  --text:           #d2dbe2;
-  --text-hi:        #f1f1ed;
-  --text-dim:       #aebbc5;
+  --cloud:          #f1f0ec;
+  --sky:            #b8cddd;
+  --rose:           #d4aaa5;
+  --sage:           #a9b69e;
+  --bg:             #334451;
+  --bg-nav:         #293844;
+  --bg-card:        #3f505b;
+  --bg-card-hover:  #4b5d68;
+  --accent:         var(--rose);
+  --accent-dim:     rgba(212, 170, 165, 0.16);
+  --accent-border:  rgba(184, 205, 221, 0.25);
+  --accent-glow:    rgba(212, 170, 165, 0.14);
+  --text:           #d7e0e4;
+  --text-hi:        var(--cloud);
+  --text-dim:       #adbac3;
   --radius:         8px;
   --max-w:          960px;
   --nav-h:          58px;
@@ -246,8 +250,8 @@ html { scroll-behavior: smooth; }
 }
 
 @keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 7px rgba(184,205,221,0.38); }
-  50%       { box-shadow: 0 0 20px rgba(184,205,221,0.78), 0 0 38px rgba(184,205,221,0.22); }
+  0%, 100% { box-shadow: 0 0 7px rgba(212,170,165,0.36); }
+  50%       { box-shadow: 0 0 18px rgba(212,170,165,0.72), 0 0 36px rgba(184,205,221,0.18); }
 }
 
 @keyframes shimmer {
@@ -269,7 +273,7 @@ html { scroll-behavior: smooth; }
   border-radius: 50%;
   pointer-events: none;
   z-index: 0;
-  background: radial-gradient(circle, rgba(184,205,221,0.045) 0%, transparent 65%);
+  background: radial-gradient(circle, rgba(212,170,165,0.045) 0%, rgba(184,205,221,0.025) 38%, transparent 65%);
   transition: transform 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
   will-change: transform;
 }
@@ -277,7 +281,7 @@ html { scroll-behavior: smooth; }
 /* ── Nav scroll blur ─────────────────────────────────────── */
 nav { transition: background-color 0.35s, box-shadow 0.35s, backdrop-filter 0.35s; }
 nav.scrolled {
-  background-color: rgba(43,57,68,0.82);
+  background-color: rgba(41,56,68,0.84);
   backdrop-filter: blur(22px) saturate(1.5);
   -webkit-backdrop-filter: blur(22px) saturate(1.5);
   box-shadow: 0 1px 0 rgba(184,205,221,0.18), 0 8px 40px rgba(20,28,34,0.38);
@@ -292,7 +296,7 @@ nav.scrolled {
   height: 2px;
   background: var(--accent);
   border-radius: 1px;
-  box-shadow: 0 0 6px rgba(184,205,221,0.5);
+  box-shadow: 0 0 6px rgba(212,170,165,0.5);
   transition: left 0.26s cubic-bezier(0.22,1,0.36,1),
               right 0.26s cubic-bezier(0.22,1,0.36,1);
 }
@@ -308,7 +312,7 @@ nav.scrolled {
 /* ── Hero "Lab" shimmer ──────────────────────────────────── */
 .hero-lab span {
   background: linear-gradient(90deg,
-    var(--accent) 0%, #dce8ef 40%, #fff 50%, #dce8ef 60%, var(--accent) 100%);
+    var(--rose) 0%, var(--sky) 34%, var(--cloud) 50%, var(--sage) 66%, var(--rose) 100%);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -339,8 +343,8 @@ nav.scrolled {
   position: absolute;
   bottom: -1px; left: 0;
   width: 100%; height: 1px;
-  background: linear-gradient(90deg, var(--accent) 0%, rgba(184,205,221,0.28) 70%, transparent);
-  box-shadow: 0 0 8px rgba(184,205,221,0.42);
+  background: linear-gradient(90deg, var(--rose) 0%, rgba(184,205,221,0.42) 52%, rgba(169,182,158,0.22) 78%, transparent);
+  box-shadow: 0 0 8px rgba(212,170,165,0.32);
   transform-origin: left center;
   transform: scaleX(0);
   transition: transform 0.85s cubic-bezier(0.22,1,0.36,1);
@@ -363,10 +367,10 @@ nav.scrolled {
               box-shadow 0.25s;
 }
 .btn-primary:hover {
-  box-shadow: 0 12px 32px rgba(184,205,221,0.24);
+  box-shadow: 0 12px 32px rgba(212,170,165,0.24);
 }
 .btn-outline:hover {
-  box-shadow: 0 8px 24px rgba(184,205,221,0.13);
+  box-shadow: 0 8px 24px rgba(184,205,221,0.16);
 }
 
 /* ── Card interactions (base) ────────────────────────────── */
@@ -374,7 +378,7 @@ nav.scrolled {
   transition: border-color 0.22s, background 0.22s, box-shadow 0.28s, transform 0.12s;
 }
 .card:hover, .home-card:hover {
-  box-shadow: 0 0 0 1px rgba(184,205,221,0.42), 0 10px 36px rgba(20,28,34,0.18);
+  box-shadow: 0 0 0 1px rgba(212,170,165,0.34), 0 10px 36px rgba(20,28,34,0.18);
 }
 
 /* ── Timeline & about dots ───────────────────────────────── */
