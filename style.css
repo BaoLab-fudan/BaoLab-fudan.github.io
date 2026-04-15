@@ -260,45 +260,6 @@ html { scroll-behavior: smooth; }
   50%       { opacity: 0.55; }
 }
 
-/* ── Custom cursor ───────────────────────────────────────── */
-.has-custom-cursor,
-.has-custom-cursor * { cursor: none !important; }
-
-.cursor-dot {
-  position: fixed;
-  top: 0; left: 0;
-  width: 8px; height: 8px;
-  background: var(--accent);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9999;
-  opacity: 0;
-  transition: opacity 0.3s, width 0.2s, height 0.2s;
-  will-change: transform;
-  box-shadow: 0 0 10px rgba(0,196,238,0.8);
-}
-.cursor-dot.hovering { width: 0; height: 0; opacity: 0; }
-
-.cursor-ring {
-  position: fixed;
-  top: 0; left: 0;
-  width: 36px; height: 36px;
-  border: 1.5px solid rgba(0,196,238,0.55);
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 9998;
-  opacity: 0;
-  transition: opacity 0.3s, width 0.3s cubic-bezier(0.22,1,0.36,1),
-              height 0.3s cubic-bezier(0.22,1,0.36,1),
-              border-color 0.25s;
-  will-change: transform;
-  box-shadow: 0 0 12px rgba(0,196,238,0.12);
-}
-.cursor-ring.hovering {
-  width: 54px; height: 54px;
-  border-color: var(--accent);
-  box-shadow: 0 0 22px rgba(0,196,238,0.25);
-}
 
 /* ── Ambient glow orb ────────────────────────────────────── */
 .ambient-orb {

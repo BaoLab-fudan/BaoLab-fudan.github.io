@@ -11,60 +11,7 @@
   var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
   /* ────────────────────────────────────────────────────────
-     1.  CUSTOM CURSOR  (desktop only)
-  ──────────────────────────────────────────────────────── */
-  if (!reduced && !isMobile) {
-    var dot  = document.createElement('div');
-    dot.className = 'cursor-dot';
-    var ring = document.createElement('div');
-    ring.className = 'cursor-ring';
-    document.body.appendChild(dot);
-    document.body.appendChild(ring);
-    document.documentElement.classList.add('has-custom-cursor');
-
-    var mx = -300, my = -300;   // start off-screen
-    var rx = -300, ry = -300;   // lagging ring position
-
-    document.addEventListener('mousemove', function (e) {
-      mx = e.clientX;
-      my = e.clientY;
-      dot.style.opacity  = '1';
-      ring.style.opacity = '1';
-      /* dot snaps instantly */
-      dot.style.transform = 'translate(' + (mx - 4) + 'px,' + (my - 4) + 'px)';
-    });
-
-    document.addEventListener('mouseleave', function () {
-      dot.style.opacity  = '0';
-      ring.style.opacity = '0';
-    });
-
-    /* ring lerps after dot */
-    (function tickRing() {
-      rx += (mx - rx) * 0.13;
-      ry += (my - ry) * 0.13;
-      ring.style.transform = 'translate(' + (rx - 18) + 'px,' + (ry - 18) + 'px)';
-      requestAnimationFrame(tickRing);
-    })();
-
-    /* enlarge ring on interactive elements */
-    function addHover(selector) {
-      document.querySelectorAll(selector).forEach(function (el) {
-        el.addEventListener('mouseenter', function () {
-          dot.classList.add('hovering');
-          ring.classList.add('hovering');
-        });
-        el.addEventListener('mouseleave', function () {
-          dot.classList.remove('hovering');
-          ring.classList.remove('hovering');
-        });
-      });
-    }
-    addHover('a, button, .btn, label, input, select, textarea, [role="button"]');
-  }
-
-  /* ────────────────────────────────────────────────────────
-     2.  AMBIENT CURSOR ORB  (desktop only)
+     1.  AMBIENT CURSOR ORB  (desktop only)
   ──────────────────────────────────────────────────────── */
   if (!reduced && !isMobile) {
     var orb = document.createElement('div');
