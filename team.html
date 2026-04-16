@@ -151,10 +151,26 @@ gtag('config', 'G-LXFRTDPY7G');
   padding: 18px 20px;
   transition: border-color 0.2s, background 0.2s;
 }
+.student-card.has-photo {
+  display: grid;
+  grid-template-columns: 76px 1fr;
+  gap: 16px;
+  align-items: flex-start;
+}
 .student-card:hover {
   border-color: var(--accent);
   background: var(--bg-card-hover);
 }
+.student-photo {
+  width: 76px;
+  aspect-ratio: 1;
+  border-radius: 6px;
+  border: 1px solid var(--accent-border);
+  object-fit: cover;
+  background: var(--accent-dim);
+}
+.student-photo.object-left { object-position: 32% 50%; }
+.student-photo.object-top { object-position: 50% 18%; }
 .student-name {
   font-size: 0.96em;
   font-weight: 600;
@@ -230,6 +246,8 @@ gtag('config', 'G-LXFRTDPY7G');
   .member-year-label { text-align: left; font-size: 0.72em; }
   .member-year-label::after { left: 21px; }
   .member-year-members { grid-template-columns: 1fr; }
+  .student-card.has-photo { grid-template-columns: 64px 1fr; gap: 12px; }
+  .student-photo { width: 64px; }
 }
 </style>
 </head>
@@ -289,14 +307,17 @@ gtag('config', 'G-LXFRTDPY7G');
     <div class="member-year">
       <div class="member-year-label">2023</div>
       <div class="member-year-members">
-        <div class="student-card">
-          <div class="student-name">Tianyun Wang &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">王添运</span></div>
-          <div class="student-role">PhD Candidate</div>
-          <div class="student-detail">
-            <div><span>B.S.:</span> Harbin Institute of Technology (哈尔滨工业大学)</div>
-          </div>
-          <div class="student-links">
-            <a class="student-link" href="https://github.com/Stanwade" target="_blank">GitHub</a>
+        <div class="student-card has-photo">
+          <img class="student-photo" src="images/team/tianyun-wang.jpg" alt="Tianyun Wang">
+          <div>
+            <div class="student-name">Tianyun Wang &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">王添运</span></div>
+            <div class="student-role">PhD Candidate</div>
+            <div class="student-detail">
+              <div><span>B.S.:</span> Harbin Institute of Technology (哈尔滨工业大学)</div>
+            </div>
+            <div class="student-links">
+              <a class="student-link" href="https://github.com/Stanwade" target="_blank">GitHub</a>
+            </div>
           </div>
         </div>
       </div>
@@ -349,14 +370,17 @@ gtag('config', 'G-LXFRTDPY7G');
           </div>
         </div>
 
-        <div class="student-card">
-          <div class="student-name">Yiming Zhu &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
-          <div class="student-role">PhD Candidate</div>
-          <div class="student-detail">
-            <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
-          </div>
-          <div class="student-links">
-            <a class="student-link" href="mailto:25113090170@m.fudan.edu.cn">Email</a>
+        <div class="student-card has-photo">
+          <img class="student-photo object-top" src="images/team/yiming-zhu.jpg" alt="Yiming Zhu">
+          <div>
+            <div class="student-name">Yiming Zhu &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">朱一鸣</span></div>
+            <div class="student-role">PhD Candidate</div>
+            <div class="student-detail">
+              <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+            </div>
+            <div class="student-links">
+              <a class="student-link" href="mailto:25113090170@m.fudan.edu.cn">Email</a>
+            </div>
           </div>
         </div>
       </div>
@@ -365,11 +389,46 @@ gtag('config', 'G-LXFRTDPY7G');
     <div class="member-year">
       <div class="member-year-label">2026</div>
       <div class="member-year-members">
-        <div class="student-card">
-          <div class="student-name">Siyuan Ye &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">叶思源</span></div>
-          <div class="student-role">Incoming PhD Candidate</div>
-          <div class="student-detail">
-            <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+        <div class="student-card has-photo">
+          <img class="student-photo" src="images/team/siyuan-ye.jpg" alt="Siyuan Ye">
+          <div>
+            <div class="student-name">Siyuan Ye &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">叶思源</span></div>
+            <div class="student-role">Incoming PhD Candidate</div>
+            <div class="student-detail">
+              <div><span>B.S.:</span> <a href="https://www.fudan.edu.cn/en/" target="_blank">Fudan University (复旦大学)</a></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="student-card has-photo">
+          <img class="student-photo object-left" src="images/team/junhao-xiao.jpg" alt="Junhao Xiao">
+          <div>
+            <div class="student-name">Junhao Xiao &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">肖俊豪</span></div>
+            <div class="student-role">Incoming PhD Candidate</div>
+            <div class="student-detail">
+              <div><span>Research:</span> Computer Vision</div>
+            </div>
+            <div class="student-links">
+              <a class="student-link" href="https://scholar.google.com.hk/citations?user=-oTsDsgAAAAJ&amp;hl=zh-CN&amp;authuser=1" target="_blank">Google Scholar</a>
+              <a class="student-link" href="https://github.com/Codecode-X" target="_blank">GitHub</a>
+              <a class="student-link" href="mailto:xiaojunhao066@gmail.com">Email</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="student-card has-photo">
+          <img class="student-photo object-top" src="images/team/jingjing-chen.jpg" alt="Jingjing Chen">
+          <div>
+            <div class="student-name">Jingjing Chen &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">陈菁晶</span></div>
+            <div class="student-role">Incoming PhD Candidate</div>
+            <div class="student-detail">
+              <div><span>B.S.:</span> Northeastern University (东北大学)</div>
+              <div><span>Research:</span> Machine Learning</div>
+            </div>
+            <div class="student-links">
+              <a class="student-link" href="https://github.com/Chenjingjing2026" target="_blank">GitHub</a>
+              <a class="student-link" href="mailto:jingjing.chen2026@gmail.com">Email</a>
+            </div>
           </div>
         </div>
       </div>
