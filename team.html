@@ -103,11 +103,14 @@ gtag('config', 'G-LXFRTDPY7G');
 .members-timeline {
   position: relative;
   margin-top: 8px;
+  --timeline-x: 44px;
+  --timeline-label-w: 88px;
+  --timeline-gap: 18px;
 }
 .members-timeline::before {
   content: '';
   position: absolute;
-  left: 44px;
+  left: var(--timeline-x);
   top: 8px;
   bottom: 8px;
   width: 1px;
@@ -115,10 +118,15 @@ gtag('config', 'G-LXFRTDPY7G');
 }
 .member-year {
   display: grid;
-  grid-template-columns: 88px 1fr;
-  gap: 18px;
+  grid-template-columns: var(--timeline-label-w) 1fr;
+  gap: var(--timeline-gap);
   margin-bottom: 18px;
   position: relative;
+}
+.members-timeline .member-year.reveal {
+  opacity: 1;
+  transform: none;
+  transition: none;
 }
 .member-year-label {
   color: var(--accent);
@@ -131,7 +139,7 @@ gtag('config', 'G-LXFRTDPY7G');
 .member-year-label::after {
   content: '';
   position: absolute;
-  left: 39px;
+  left: calc(var(--timeline-x) - 5px);
   top: 22px;
   width: 10px;
   height: 10px;
@@ -241,10 +249,16 @@ gtag('config', 'G-LXFRTDPY7G');
 @media (max-width: 560px) {
   .pi-card { flex-direction: column; }
   .pi-avatar { width: 64px; height: 64px; font-size: 1.2em; }
-  .members-timeline::before { left: 26px; }
-  .member-year { grid-template-columns: 54px 1fr; gap: 12px; }
-  .member-year-label { text-align: left; font-size: 0.72em; }
-  .member-year-label::after { left: 21px; }
+  .members-timeline {
+    --timeline-x: 30px;
+    --timeline-label-w: 62px;
+    --timeline-gap: 12px;
+  }
+  .member-year-label {
+    text-align: left;
+    font-size: 0.72em;
+    padding-left: 0;
+  }
   .member-year-members { grid-template-columns: 1fr; }
   .student-card.has-photo { grid-template-columns: 64px 1fr; gap: 12px; }
   .student-photo { width: 64px; }
@@ -406,7 +420,7 @@ gtag('config', 'G-LXFRTDPY7G');
             <div class="student-name">Junhao Xiao &nbsp;<span style="font-weight:400;font-size:0.82em;color:var(--text-dim)">肖俊豪</span></div>
             <div class="student-role">Incoming PhD Candidate</div>
             <div class="student-detail">
-              <div><span>Research:</span> Computer Vision</div>
+              <div><span>M.S.:</span> Central China Normal University (华中师范大学)</div>
             </div>
             <div class="student-links">
               <a class="student-link" href="https://scholar.google.com.hk/citations?user=-oTsDsgAAAAJ&amp;hl=zh-CN&amp;authuser=1" target="_blank">Google Scholar</a>
@@ -423,7 +437,6 @@ gtag('config', 'G-LXFRTDPY7G');
             <div class="student-role">Incoming PhD Candidate</div>
             <div class="student-detail">
               <div><span>B.S.:</span> Northeastern University (东北大学)</div>
-              <div><span>Research:</span> Machine Learning</div>
             </div>
             <div class="student-links">
               <a class="student-link" href="https://github.com/Chenjingjing2026" target="_blank">GitHub</a>
