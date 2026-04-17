@@ -239,13 +239,90 @@ a:hover {
   margin: 36px 0;
 }
 
-/* ── Responsive ──────────────────────────────────────────── */
+/* ── Hamburger button (hidden on desktop) ────────────────── */
+.nav-toggle {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+  transition: background 0.18s;
+  flex-shrink: 0;
+}
+.nav-toggle:hover { background: var(--accent-dim); }
+.nav-toggle span {
+  display: block;
+  width: 100%;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.3s cubic-bezier(0.22,1,0.36,1),
+              opacity 0.2s,
+              background 0.18s;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(1) {
+  transform: translateY(7px) rotate(45deg);
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(2) {
+  opacity: 0;
+}
+.nav-toggle[aria-expanded="true"] span:nth-child(3) {
+  transform: translateY(-7px) rotate(-45deg);
+}
+
+/* ── Mobile drawer ───────────────────────────────────────── */
 @media (max-width: 680px) {
   nav { padding: 0 20px; }
   .page-content { padding: 36px 20px 60px; }
   .nav-brand { font-size: 0.9em; }
-  .nav-links a { padding: 7px 8px; font-size: 0.82em; }
   .page-title { font-size: 1.6em; }
+
+  .nav-toggle { display: flex; }
+
+  .nav-links {
+    position: fixed;
+    top: var(--nav-h);
+    left: 0; right: 0;
+    background: rgba(29, 43, 54, 0.97);
+    backdrop-filter: blur(20px) saturate(1.4);
+    -webkit-backdrop-filter: blur(20px) saturate(1.4);
+    border-bottom: 1px solid var(--accent-border);
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 8px 0 16px;
+    z-index: 99;
+    /* collapsed */
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transition: opacity 0.25s cubic-bezier(0.22,1,0.36,1),
+                transform 0.25s cubic-bezier(0.22,1,0.36,1);
+  }
+  .nav-links.open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+  .nav-links a {
+    padding: 13px 24px;
+    font-size: 0.92em;
+    border-radius: 0;
+    border-left: 2px solid transparent;
+  }
+  .nav-links a:hover,
+  .nav-links a.active {
+    border-left-color: var(--accent);
+    background: var(--accent-dim);
+  }
+  /* suppress the underline sweep on mobile */
+  .nav-links a::after { display: none; }
 }
 
 /* ============================================================
