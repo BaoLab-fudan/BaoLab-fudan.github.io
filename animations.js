@@ -128,6 +128,9 @@
 
     /* contact */
     watchList(document.querySelectorAll('.contact-item'), 70);
+
+    /* tools */
+    watchList(document.querySelectorAll('.tool-card'), 70);
   }
 
   /* ────────────────────────────────────────────────────────
@@ -230,5 +233,24 @@
     var pseudo = el; /* ::after phase is inherited via animation-delay on the element */
     pseudo.style.setProperty('--pulse-delay', (i * 0.6) + 's');
   });
+
+  /* ────────────────────────────────────────────────────────
+     9.  HERO PARALLAX  (index.html — hero-content drifts up
+         at ~25 % of scroll speed for a depth effect)
+  ──────────────────────────────────────────────────────── */
+  if (!reduced && !isMobile) {
+    var heroContent = document.querySelector('.hero-content');
+    var heroCanvas  = document.querySelector('#hero-canvas');
+    if (heroContent) {
+      window.addEventListener('scroll', function () {
+        var y = window.scrollY;
+        heroContent.style.transform = 'translateY(' + (y * 0.25).toFixed(1) + 'px)';
+        heroContent.style.opacity   = Math.max(0, 1 - y / 420).toFixed(3);
+        if (heroCanvas) {
+          heroCanvas.style.transform = 'translateY(' + (y * 0.10).toFixed(1) + 'px)';
+        }
+      }, { passive: true });
+    }
+  }
 
 })();

@@ -34,6 +34,9 @@ body {
   font-size: 16px;
   line-height: 1.78;
   min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
 }
 
 /* ── Navigation ─────────────────────────────────────────── */
@@ -215,10 +218,18 @@ p {
 a {
   color: var(--accent);
   text-decoration: none;
+  text-underline-offset: 3px;
 }
 
 a:hover {
   text-decoration: underline;
+}
+
+/* ── CJK name sub-label ──────────────────────────────────── */
+.name-cn {
+  font-weight: 400;
+  font-size: 0.82em;
+  color: var(--text-dim);
 }
 
 /* ── Divider ─────────────────────────────────────────────── */
