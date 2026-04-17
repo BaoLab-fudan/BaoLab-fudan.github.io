@@ -26,6 +26,32 @@
   }
 
   /* ────────────────────────────────────────────────────────
+     2.  MOBILE HAMBURGER MENU
+  ──────────────────────────────────────────────────────── */
+  var toggle   = document.querySelector('.nav-toggle');
+  var navLinks = document.querySelector('.nav-links');
+  if (toggle && navLinks) {
+    toggle.addEventListener('click', function () {
+      var open = navLinks.classList.toggle('open');
+      toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    /* close menu when a link is tapped */
+    navLinks.querySelectorAll('a').forEach(function (link) {
+      link.addEventListener('click', function () {
+        navLinks.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      });
+    });
+    /* close on outside tap */
+    document.addEventListener('click', function (e) {
+      if (!nav.contains(e.target)) {
+        navLinks.classList.remove('open');
+        toggle.setAttribute('aria-expanded', 'false');
+      }
+    });
+  }
+
+  /* ────────────────────────────────────────────────────────
      3.  NAV BLUR ON SCROLL
   ──────────────────────────────────────────────────────── */
   var nav = document.querySelector('nav');
