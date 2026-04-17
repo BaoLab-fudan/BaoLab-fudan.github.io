@@ -16,27 +16,35 @@ gtag('config', 'G-LXFRTDPY7G');
 </script>
 <style>
 .timeline {
+  --tl-year-w: 80px;
+  --tl-gap: 20px;
+  --tl-dot: 10px;
+  --tl-dot-radius: 5px;
+  --tl-dot-offset: 5px;
+  --tl-row-gap: 20px;
+  --tl-line-tail: -30px;
   margin-top: 4px;
 }
 .tl-item {
   display: flex;
-  gap: 20px;
-  margin-bottom: 20px;
+  gap: var(--tl-gap);
+  margin-bottom: var(--tl-row-gap);
   position: relative;
 }
 .tl-item::before {
   content: '';
   position: absolute;
-  left: 88px;
-  top: 26px;
-  bottom: -20px;
+  left: calc(var(--tl-year-w) + var(--tl-gap) + var(--tl-dot-radius));
+  top: calc(var(--tl-dot-offset) + var(--tl-dot-radius));
+  bottom: var(--tl-line-tail);
   width: 1px;
   background: var(--accent-border);
+  transform: translateX(-0.5px);
 }
 .tl-item:last-child::before { display: none; }
 .tl-year {
   flex-shrink: 0;
-  width: 80px;
+  width: var(--tl-year-w);
   text-align: right;
   font-size: 0.78em;
   font-weight: 700;
@@ -46,8 +54,8 @@ gtag('config', 'G-LXFRTDPY7G');
 }
 .tl-dot {
   flex-shrink: 0;
-  width: 10px;
-  height: 10px;
+  width: var(--tl-dot);
+  height: var(--tl-dot);
   border-radius: 50%;
   background: var(--accent);
   margin-top: 5px;
@@ -71,6 +79,18 @@ gtag('config', 'G-LXFRTDPY7G');
   color: var(--text-dim);
   margin-top: 3px;
   font-style: italic;
+}
+
+@media (max-width: 560px) {
+  .timeline {
+    --tl-year-w: 68px;
+    --tl-gap: 14px;
+    --tl-row-gap: 18px;
+    --tl-line-tail: -28px;
+  }
+  .tl-year {
+    font-size: 0.72em;
+  }
 }
 
 .award-list {
