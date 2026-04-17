@@ -36,12 +36,36 @@ gtag('config', 'G-LXFRTDPY7G');
   line-height: 1.5;
   margin-bottom: 4px;
 }
+.pub-fields {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.pub-field {
+  display: inline-block;
+  font-size: 0.72em;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  padding: 2px 9px;
+  border-radius: 4px;
+  border: 1px solid;
+}
+/* field colour tokens */
+.pf-spatial    { background: rgba(169,182,158,0.18); border-color: rgba(169,182,158,0.45); color: #a9b69e; }
+.pf-multimodal { background: rgba(184,205,221,0.18); border-color: rgba(184,205,221,0.45); color: #b8cddd; }
+.pf-drug       { background: rgba(212,170,165,0.18); border-color: rgba(212,170,165,0.45); color: #d4aaa5; }
+.pf-genomics   { background: rgba(200,180,130,0.18); border-color: rgba(200,180,130,0.40); color: #c8b482; }
+.pf-imaging    { background: rgba(150,180,210,0.18); border-color: rgba(150,180,210,0.40); color: #96b4d2; }
+.pf-ml         { background: rgba(180,150,200,0.18); border-color: rgba(180,150,200,0.40); color: #b496c8; }
+.pf-singlecell { background: rgba(130,200,180,0.18); border-color: rgba(130,200,180,0.40); color: #82c8b4; }
+
 .pub-tagline {
-  font-size: 0.88em;
+  font-size: 0.90em;
   color: var(--text-dim);
-  font-style: italic;
-  margin-bottom: 8px;
-  line-height: 1.5;
+  margin-bottom: 10px;
+  line-height: 1.7;
 }
 .pub-authors {
   font-size: 0.82em;
@@ -134,7 +158,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Whole-body molecular and cellular mapping of the laboratory mouse</div>
-    <div class="pub-tagline">A comprehensive spatial atlas of cell types and molecular states across every tissue of the adult mouse, built with multi-modal omics.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-spatial">Spatial Atlas</span>
+      <span class="pub-field pf-multimodal">Multi-modal Omics</span>
+    </div>
+    <div class="pub-tagline">
+      Understanding how organs interact requires knowing the molecular identity of every cell in context — not just in isolated tissues. We generated a whole-body single-cell and spatial atlas of the adult laboratory mouse, integrating transcriptomics, chromatin accessibility, and protein data across all major organs. The resource provides a reference map for studying systemic disease, inter-organ crosstalk, and the cellular basis of physiology at unprecedented resolution.
+    </div>
     <div class="pub-authors">
       Clevenger MH, Cipurko D, Patil A, Li B, Takahama M, Mei L, Plaster M, Kawamoto G,
       <strong>Bao F</strong><sup>#</sup>, Chevrier N<sup>#</sup>
@@ -152,7 +182,14 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Transitive prediction of small molecule function through alignment of high-content screening resources</div>
-    <div class="pub-tagline">A method to predict what a new drug does by aligning it against large libraries of cell-imaging experiments — without requiring direct experimental comparison.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-drug">Drug Discovery</span>
+      <span class="pub-field pf-imaging">High-Content Screening</span>
+      <span class="pub-field pf-ml">Machine Learning</span>
+    </div>
+    <div class="pub-tagline">
+      Predicting what a new compound does in cells is central to drug discovery, but direct experimental testing of every compound–target pair is prohibitively expensive. We developed a transitive alignment strategy that infers a compound's biological function by linking it through shared cellular phenotypes across multiple large-scale imaging datasets — even when no direct comparison exists. Applied to millions of compound–cell image pairs, the method accurately recovers mechanism-of-action groupings and identifies functionally related compounds that classical approaches miss.
+    </div>
     <div class="pub-authors">
       <strong>Bao F</strong>, Li L, Hammerlindl H, Shen SQ, Hammerlindl S, Altschuler SJ, Wu LF
     </div>
@@ -168,7 +205,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Tissue characterization at an enhanced resolution across spatial omics platforms with deep generative model</div>
-    <div class="pub-tagline">A deep generative model that sharpens the spatial resolution of tissue maps from any omics platform, enabling finer cell-type delineation without additional experiments.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-spatial">Spatial Omics</span>
+      <span class="pub-field pf-ml">Deep Generative Model</span>
+    </div>
+    <div class="pub-tagline">
+      Spatial omics technologies reveal where genes are active within tissue, but most platforms trade molecular resolution for spatial coverage, leaving fine cellular boundaries blurred. We built a deep generative model that learns tissue structure from low-resolution spatial data and reconstructs it at a much finer scale — without requiring additional experiments or higher-throughput instruments. The approach works across platforms including Visium, Slide-seq, and MERFISH, and substantially improves the accuracy of downstream cell-type mapping and domain boundary detection.
+    </div>
     <div class="pub-authors">
       Li B, <strong>Bao F</strong><sup>*</sup>, Hou Y, Li F, Li H, Deng Y, Dai Q
     </div>
@@ -185,7 +228,14 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Integrative spatial analysis of cell morphologies and transcriptional states with MUSE</div>
-    <div class="pub-tagline">MUSE jointly learns from cell shape images and gene expression to discover tissue organization — showing that how a cell looks and what it expresses together reveal its identity.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-multimodal">Multimodal Analysis</span>
+      <span class="pub-field pf-spatial">Spatial Omics</span>
+      <span class="pub-field pf-imaging">Imaging</span>
+    </div>
+    <div class="pub-tagline">
+      A cell's function is encoded not only in its genes but also in its physical form — yet most analyses treat morphology and transcriptomics as entirely separate modalities. MUSE is a self-supervised framework that jointly embeds microscopy images of cell shape and single-cell gene expression into a shared latent space, learning a unified representation of cellular identity. Applied to spatial transcriptomics and high-content imaging datasets, MUSE uncovers tissue organization and cell subtypes that neither modality alone can resolve, providing a general strategy for integrating heterogeneous biological data.
+    </div>
     <div class="pub-authors">
       <strong>Bao F</strong>, Deng Y, Wan S, Wang B, Dai Q, Altschuler SJ, Wu LF
     </div>
@@ -201,7 +251,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Giotto: a toolbox for integrative analysis and visualization of spatial expression data</div>
-    <div class="pub-tagline">A widely adopted open-source platform for analyzing spatial transcriptomics data, providing tools to identify spatially variable genes and tissue domains.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-spatial">Spatial Transcriptomics</span>
+      <span class="pub-field pf-ml">Computational Tool</span>
+    </div>
+    <div class="pub-tagline">
+      Spatial transcriptomics generates rich data that maps gene expression to physical locations in tissue, but extracting biological insight requires coordinating many distinct analysis steps. Giotto is a comprehensive open-source toolbox that unifies pre-processing, spatially variable gene detection, cell-type deconvolution, spatial domain identification, and interactive visualization in a single framework. It has become one of the most widely adopted platforms in the field, with active use across thousands of datasets and support for all major spatial omics technologies.
+    </div>
     <div class="pub-authors">
       Dries R, Zhu Q, Dong R, Eng CHL, Li H, Liu K, Fu Y, <strong>Bao F</strong>, et al.
     </div>
@@ -215,7 +271,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Unsupervised content-preserving transformation for optical microscopy</div>
-    <div class="pub-tagline">A self-supervised deep learning approach that translates between microscopy modalities — enhancing image quality and enabling new imaging capabilities without paired training data.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-imaging">Computational Microscopy</span>
+      <span class="pub-field pf-ml">Self-supervised Learning</span>
+    </div>
+    <div class="pub-tagline">
+      Different microscopy modalities reveal complementary aspects of a biological sample, but translating between them experimentally is costly and often impossible. We developed an unsupervised deep learning framework that learns to convert images across microscopy modalities — for example, from brightfield to fluorescence — while strictly preserving the underlying biological content. The method requires no paired training images and generalises across microscope types, enabling new imaging capabilities from existing hardware and reducing the burden of multi-modal imaging experiments.
+    </div>
     <div class="pub-authors">
       Li X, Zhang G, Qiao H, <strong>Bao F</strong>, Deng Y, Wu J, He Y, et al.
     </div>
@@ -232,7 +294,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Explaining the Genetic Causality for Complex Phenotype via Deep Association Kernel Learning</div>
-    <div class="pub-tagline">A deep kernel learning framework that identifies which genetic variants causally drive complex traits, providing interpretable explanations alongside predictions.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-genomics">Genomics / GWAS</span>
+      <span class="pub-field pf-ml">Interpretable ML</span>
+    </div>
+    <div class="pub-tagline">
+      Genome-wide association studies identify statistical links between genetic variants and disease, but understanding which variants are truly causal — and why — remains a major challenge. We introduced a deep association kernel learning framework that jointly models non-linear interactions among variants and learns to assign causal importance scores, producing both accurate predictions and human-interpretable explanations. Applied to lung cancer and other complex traits, the method recovered known causal loci and revealed previously overlooked variant–gene pathways, demonstrating that deep learning can be made mechanistically informative in population genetics.
+    </div>
     <div class="pub-authors">
       <strong>Bao F</strong>, Deng Y, Du M, Ren Z, Wan S, Liang KY, Liu S, Wang B, Xin J, Chen F, Christiani DC, Wang M, Dai Q
     </div>
@@ -249,7 +317,13 @@ gtag('config', 'G-LXFRTDPY7G');
 
   <div class="pub-card">
     <div class="pub-title">Scalable analysis of cell type composition from single-cell transcriptomics using deep recurrent learning</div>
-    <div class="pub-tagline">A recurrent neural network that accurately decomposes bulk RNA-seq samples into constituent cell types using single-cell data as a reference — scalable to millions of cells.</div>
+    <div class="pub-fields">
+      <span class="pub-field pf-singlecell">Single-cell Genomics</span>
+      <span class="pub-field pf-ml">Deep Learning</span>
+    </div>
+    <div class="pub-tagline">
+      Bulk RNA sequencing captures the average gene expression of millions of cells together, obscuring the contributions of individual cell types — yet single-cell sequencing of every sample is still too expensive for large cohorts. We developed a deep recurrent learning framework (IQNCELL) that uses a single-cell reference atlas to decompose bulk RNA-seq data into precise cell type proportions, handling tens of thousands of genes and hundreds of cell types with high accuracy. The method scales to biobank-sized datasets and enables retrospective re-analysis of existing bulk RNA-seq cohorts with single-cell resolution.
+    </div>
     <div class="pub-authors">
       Deng Y<sup>*</sup>, <strong>Bao F</strong><sup>*</sup>, Dai Q, Wu LF, Altschuler SJ
     </div>
