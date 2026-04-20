@@ -345,27 +345,9 @@ gtag('config', 'G-LXFRTDPY7G');
     }
   }
 
-  /* ── Draw backdrop with gentle colour wash ────────────── */
-  function drawBackdrop(time) {
+  /* ── Draw backdrop ────────────────────────────────────── */
+  function drawBackdrop() {
     ctx.fillStyle = '#1d2b36';
-    ctx.fillRect(0, 0, W, H);
-
-    /* slow-drifting rose and cloud wash — gives the canvas depth */
-    const ax = W * (0.30 + Math.sin(time * 0.08) * 0.16);
-    const ay = H * (0.42 + Math.cos(time * 0.06) * 0.13);
-    const g  = ctx.createRadialGradient(ax, ay, 0, ax, ay, W * 0.65);
-    g.addColorStop(0,   'rgba(212,170,165,0.075)');
-    g.addColorStop(0.48,'rgba(184,205,221,0.035)');
-    g.addColorStop(1,   'rgba(36,52,65,0)');
-    ctx.fillStyle = g;
-    ctx.fillRect(0, 0, W, H);
-
-    const sx = W * (0.70 + Math.cos(time * 0.07) * 0.12);
-    const sy = H * (0.38 + Math.sin(time * 0.05) * 0.10);
-    const s = ctx.createRadialGradient(sx, sy, 0, sx, sy, W * 0.58);
-    s.addColorStop(0, 'rgba(169,182,158,0.045)');
-    s.addColorStop(1, 'rgba(36,52,65,0)');
-    ctx.fillStyle = s;
     ctx.fillRect(0, 0, W, H);
   }
 
@@ -455,7 +437,7 @@ gtag('config', 'G-LXFRTDPY7G');
   function loop(now) {
     const time = (now - t0) / 1000;
     ctx.clearRect(0, 0, W, H);
-    drawBackdrop(time);
+    drawBackdrop();
     drawCells(time);
     drawVignette();
     requestAnimationFrame(loop);
