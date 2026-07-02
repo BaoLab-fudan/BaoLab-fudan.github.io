@@ -6,11 +6,6 @@
 <title>Bao Lab · Fudan University</title>
 <link rel="stylesheet" href="style.css">
 <link rel="icon" type="image/svg+xml" href="favicon.svg">
-<script>
-if (window.location.pathname === '/') {
-  window.location.replace('/index.html');
-}
-</script>
 <!-- Google tag (gtag.js) -->
 <script async src="https://www.googletagmanager.com/gtag/js?id=G-LXFRTDPY7G"></script>
 <script>
@@ -285,7 +280,7 @@ gtag('config', 'G-LXFRTDPY7G');
     for (let r = 0; r < rows; r++) {
       for (let cl = 0; cl < cols; cl++) {
         const seed = r * 97 + cl * 31 + 7;
-        grid.push({
+        const cell = {
           x:     ox + cl * gap,
           y:     oy + r  * gap,
           size:  gap * 0.34,
@@ -293,19 +288,24 @@ gtag('config', 'G-LXFRTDPY7G');
           bit:   rand(seed + 11) > 0.5 ? 1 : 0,
           phase: rand(seed + 13) * Math.PI * 2,
           speed: 0.75 + rand(seed + 17) * 0.70,
-        });
+        };
+        /* shapes are static per cell — build their paths once,
+           not thousands of times per second inside the loop */
+        cell.pOuter = buildCellPath(cell, 1);
+        cell.pInner = buildCellPath(cell, 0.44);
+        grid.push(cell);
       }
     }
   }
 
-  /* ── 5 organic cell shapes ────────────────────────────── */
-  function drawCellPath(cell, scale) {
+  /* ── 5 organic cell shapes (pre-built as Path2D) ──────── */
+  function buildCellPath(cell, scale) {
+    const p = new Path2D();
     const s = cell.size * scale;
     const w = 0.11;   /* wobble factor */
-    ctx.beginPath();
     if (cell.shape === 0) {
       /* oval */
-      ctx.ellipse(0, 0, s * 1.1, s * 0.78, cell.phase * 0.18, 0, Math.PI * 2);
+      p.ellipse(0, 0, s * 1.1, s * 0.78, cell.phase * 0.18, 0, Math.PI * 2);
     } else if (cell.shape === 1) {
       /* amoeba A */
       for (let i = 0; i < 18; i++) {
@@ -313,9 +313,9 @@ gtag('config', 'G-LXFRTDPY7G');
         const r = s * (0.86 + Math.sin(a * 3 + cell.phase) * w);
         const x = Math.cos(a) * r * 1.05;
         const y = Math.sin(a) * r * 0.84;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
       }
-      ctx.closePath();
+      p.closePath();
     } else if (cell.shape === 2) {
       /* amoeba B */
       for (let i = 0; i < 20; i++) {
@@ -323,26 +323,27 @@ gtag('config', 'G-LXFRTDPY7G');
         const r = s * (0.78 + Math.cos(a * 2 - cell.phase) * 0.13);
         const x = Math.cos(a) * r;
         const y = Math.sin(a) * r * 1.1;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
       }
-      ctx.closePath();
+      p.closePath();
     } else if (cell.shape === 3) {
       /* kidney */
       const r = s * 0.86;
-      ctx.moveTo(-r, -r * 0.3);
-      ctx.bezierCurveTo(-r * 0.85, -r,      r * 0.5,  -r * 1.02, r,  -r * 0.24);
-      ctx.bezierCurveTo( r * 1.12,  r * 0.58, -r * 0.22, r * 1.08, -r * 0.9, r * 0.46);
-      ctx.bezierCurveTo(-r * 1.14,  r * 0.24, -r * 1.08, -r * 0.02, -r, -r * 0.3);
-      ctx.closePath();
+      p.moveTo(-r, -r * 0.3);
+      p.bezierCurveTo(-r * 0.85, -r,      r * 0.5,  -r * 1.02, r,  -r * 0.24);
+      p.bezierCurveTo( r * 1.12,  r * 0.58, -r * 0.22, r * 1.08, -r * 0.9, r * 0.46);
+      p.bezierCurveTo(-r * 1.14,  r * 0.24, -r * 1.08, -r * 0.02, -r, -r * 0.3);
+      p.closePath();
     } else {
       /* teardrop */
       const r = s * 0.9;
-      ctx.moveTo(0, -r);
-      ctx.bezierCurveTo( r * 0.82, -r * 0.8,   r * 0.96,  r * 0.24, r * 0.38, r * 0.72);
-      ctx.bezierCurveTo(-r * 0.28,  r * 1.12, -r * 1.02,  r * 0.36, -r * 0.82, -r * 0.32);
-      ctx.bezierCurveTo(-r * 0.62, -r * 0.86, -r * 0.18, -r * 1.02, 0, -r);
-      ctx.closePath();
+      p.moveTo(0, -r);
+      p.bezierCurveTo( r * 0.82, -r * 0.8,   r * 0.96,  r * 0.24, r * 0.38, r * 0.72);
+      p.bezierCurveTo(-r * 0.28,  r * 1.12, -r * 1.02,  r * 0.36, -r * 0.82, -r * 0.32);
+      p.bezierCurveTo(-r * 0.62, -r * 0.86, -r * 0.18, -r * 1.02, 0, -r);
+      p.closePath();
     }
+    return p;
   }
 
   /* ── Draw backdrop ────────────────────────────────────── */
@@ -365,6 +366,7 @@ gtag('config', 'G-LXFRTDPY7G');
       const ex  = Math.max(0, Math.min(1, (cell.x / W - 0.04) * 14,  (0.96 - cell.x / W) * 14));
       const ey  = Math.max(0, Math.min(1, (cell.y / H - 0.04) * 14,  (0.96 - cell.y / H) * 14));
       const edgeFade = ex * ey;
+      if (edgeFade <= 0.01) continue;   /* invisible near borders — skip */
 
       /* alpha: midpoint between old (max ~0.36) and new (max ~0.78) */
       const alpha = (0.09 + lit * 0.38) * edgeFade;
@@ -374,18 +376,16 @@ gtag('config', 'G-LXFRTDPY7G');
       ctx.rotate(Math.sin(cell.phase) * 0.22);
 
       /* outer cell wall — glow colour when lit, dim otherwise */
-      drawCellPath(cell, 1);
       ctx.fillStyle   = rgba(GLOW, alpha * 0.15);
-      ctx.fill();
+      ctx.fill(cell.pOuter);
       ctx.strokeStyle = rgba(lit > 0.35 ? GLOW : LINE, alpha);
       ctx.lineWidth   = 1.0;
-      ctx.stroke();
+      ctx.stroke(cell.pOuter);
 
       /* inner membrane ring */
-      drawCellPath(cell, 0.44);
       ctx.strokeStyle = rgba(TEXT, alpha * 0.28);
       ctx.lineWidth   = 0.7;
-      ctx.stroke();
+      ctx.stroke(cell.pInner);
 
       /* binary digit — visible once cell crosses brightness threshold */
       if (lit > 0.22) {
@@ -424,7 +424,7 @@ gtag('config', 'G-LXFRTDPY7G');
 
   /* ── Resize ───────────────────────────────────────────── */
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     W   = canvas.offsetWidth;
     H   = canvas.offsetHeight;
     canvas.width  = Math.round(W * DPR);
@@ -433,19 +433,55 @@ gtag('config', 'G-LXFRTDPY7G');
     makeGrid();
   }
 
-  /* ── Render loop ──────────────────────────────────────── */
-  function loop(now) {
+  /* ── Render loop — runs only while the hero is on screen ── */
+  let running = false;
+
+  function drawFrame(now) {
     const time = (now - t0) / 1000;
     ctx.clearRect(0, 0, W, H);
     drawBackdrop();
     drawCells(time);
     drawVignette();
+  }
+  function loop(now) {
+    if (!running) return;
+    drawFrame(now);
     requestAnimationFrame(loop);
   }
 
-  window.addEventListener('resize', resize);
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* debounced resize — mobile browsers fire resize while scrolling
+     (URL bar collapse), which used to rebuild the whole grid */
+  let resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) {
+        resize();
+        if (reduced || !running) drawFrame(performance.now());
+      }
+    }, 150);
+  });
+
   resize();
-  requestAnimationFrame(loop);
+
+  if (reduced) {
+    drawFrame(performance.now());   /* single static frame */
+  } else {
+    /* pause the loop when the hero scrolls out of view */
+    new IntersectionObserver(function (entries) {
+      const visible = entries[0].isIntersecting;
+      if (visible && !running) {
+        running = true;
+        requestAnimationFrame(loop);
+      } else if (!visible) {
+        running = false;
+      }
+    }, { threshold: 0.01 }).observe(canvas);
+    running = true;
+    requestAnimationFrame(loop);
+  }
 })();
 </script>
 <script src="animations.js"></script>

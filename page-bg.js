@@ -31,7 +31,10 @@
   var st = document.createElement('style');
   st.textContent =
     '.page-bg-layer{position:fixed;inset:0;width:100%;height:100%;' +
-    'z-index:0;pointer-events:none;}' +
+    'z-index:0;pointer-events:none;opacity:0;' +
+    'transition:opacity 0.9s ease;}' +
+    '.page-bg-layer.bg-ready{opacity:1;}' +
+    '.page-bg-layer.bg-instant{transition:none;}' +
     '.page-content{position:relative;z-index:1;}';
   document.head.appendChild(st);
 
@@ -40,46 +43,50 @@
   document.body.insertBefore(canvas, document.body.firstChild);
   var ctx = canvas.getContext('2d');
 
-  /* ── 5 organic cell shapes (from the homepage hero) ────── */
-  function drawCellPath(size, shape, phase, scale) {
+  /* ── 5 organic cell shapes (pre-built as Path2D — the shape
+        of each cell is static, so build it once instead of
+        re-tracing 400+ multi-segment paths every frame) ────── */
+  function buildCellPath(size, shape, phase, scale) {
+    var p = new Path2D();
     var s = size * scale;
-    ctx.beginPath();
     if (shape === 0) {
-      ctx.ellipse(0, 0, s * 1.1, s * 0.78, phase * 0.18, 0, Math.PI * 2);
+      p.ellipse(0, 0, s * 1.1, s * 0.78, phase * 0.18, 0, Math.PI * 2);
     } else if (shape === 1) {
       for (var i = 0; i < 18; i++) {
         var a = i / 18 * Math.PI * 2;
         var r = s * (0.86 + Math.sin(a * 3 + phase) * 0.11);
         var x = Math.cos(a) * r * 1.05, y = Math.sin(a) * r * 0.84;
-        i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
       }
-      ctx.closePath();
+      p.closePath();
     } else if (shape === 2) {
       for (var j = 0; j < 20; j++) {
         var a2 = j / 20 * Math.PI * 2;
         var r2 = s * (0.78 + Math.cos(a2 * 2 - phase) * 0.13);
         var x2 = Math.cos(a2) * r2, y2 = Math.sin(a2) * r2 * 1.1;
-        j === 0 ? ctx.moveTo(x2, y2) : ctx.lineTo(x2, y2);
+        j === 0 ? p.moveTo(x2, y2) : p.lineTo(x2, y2);
       }
-      ctx.closePath();
+      p.closePath();
     } else if (shape === 3) {
       var rk = s * 0.86;
-      ctx.moveTo(-rk, -rk * 0.3);
-      ctx.bezierCurveTo(-rk * 0.85, -rk, rk * 0.5, -rk * 1.02, rk, -rk * 0.24);
-      ctx.bezierCurveTo(rk * 1.12, rk * 0.58, -rk * 0.22, rk * 1.08, -rk * 0.9, rk * 0.46);
-      ctx.bezierCurveTo(-rk * 1.14, rk * 0.24, -rk * 1.08, -rk * 0.02, -rk, -rk * 0.3);
-      ctx.closePath();
+      p.moveTo(-rk, -rk * 0.3);
+      p.bezierCurveTo(-rk * 0.85, -rk, rk * 0.5, -rk * 1.02, rk, -rk * 0.24);
+      p.bezierCurveTo(rk * 1.12, rk * 0.58, -rk * 0.22, rk * 1.08, -rk * 0.9, rk * 0.46);
+      p.bezierCurveTo(-rk * 1.14, rk * 0.24, -rk * 1.08, -rk * 0.02, -rk, -rk * 0.3);
+      p.closePath();
     } else {
       var rt = s * 0.9;
-      ctx.moveTo(0, -rt);
-      ctx.bezierCurveTo(rt * 0.82, -rt * 0.8, rt * 0.96, rt * 0.24, rt * 0.38, rt * 0.72);
-      ctx.bezierCurveTo(-rt * 0.28, rt * 1.12, -rt * 1.02, rt * 0.36, -rt * 0.82, -rt * 0.32);
-      ctx.bezierCurveTo(-rt * 0.62, -rt * 0.86, -rt * 0.18, -rt * 1.02, 0, -rt);
-      ctx.closePath();
+      p.moveTo(0, -rt);
+      p.bezierCurveTo(rt * 0.82, -rt * 0.8, rt * 0.96, rt * 0.24, rt * 0.38, rt * 0.72);
+      p.bezierCurveTo(-rt * 0.28, rt * 1.12, -rt * 1.02, rt * 0.36, -rt * 0.82, -rt * 0.32);
+      p.bezierCurveTo(-rt * 0.62, -rt * 0.86, -rt * 0.18, -rt * 1.02, 0, -rt);
+      p.closePath();
     }
+    return p;
   }
 
   var nodes = [], groups = [];
+  var didRestore = false;   /* true when resuming the field from the previous page */
   var W = 0, H = 0, DPR = 1, t0 = performance.now();
   var R = 52;                 /* dot → cell activation radius */
   var curTime = 0;            /* latest sim time (seconds) */
@@ -132,7 +139,7 @@
       var seed = r * 131 + cl * 37 + 11;
       var jx = (rand(seed + 1) - 0.5) * gap * 0.62;
       var jy = (rand(seed + 2) - 0.5) * gap * 0.62;
-      nodes.push({
+      var node = {
         bx: ox + cl * gap + jx, by: oy + r * gap + jy,
         x: ox + cl * gap + jx, y: oy + r * gap + jy, act: 0,
         size:  9 + rand(seed + 3) * 11,
@@ -143,7 +150,10 @@
         breathPh: rand(seed + 11) * Math.PI * 2,
         spin:  (rand(seed + 12) - 0.5) * 0.10,
         tone:  rand(seed + 10)
-      });
+      };
+      node.pWall = buildCellPath(node.size, node.shape, node.phase, 1);
+      node.pCore = buildCellPath(node.size, node.shape, node.phase + 1.7, 0.42);
+      nodes.push(node);
     }
 
     /* signal-dot groups — each is a little swarm converging on a
@@ -189,12 +199,13 @@
       /* advance the clock across the (brief) reload gap for seamless motion */
       var resume = pendingRestore.time + (Date.now() - pendingRestore.savedAt) / 1000;
       t0 = performance.now() - resume * 1000;
+      didRestore = true;
     }
     pendingRestore = null;
   }
 
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 2);
+    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     W = canvas.offsetWidth; H = canvas.offsetHeight;
     canvas.width = Math.round(W * DPR);
     canvas.height = Math.round(H * DPR);
@@ -241,7 +252,10 @@
            dots at once → strong activation) */
         for (var q = 0; q < nodes.length; q++) {
           var nd = nodes[q];
-          var ex = nd.x - o.x, ey = nd.y - o.y;
+          var ex = nd.x - o.x;
+          if (ex > R || ex < -R) continue;      /* cheap bbox reject */
+          var ey = nd.y - o.y;
+          if (ey > R || ey < -R) continue;
           var e2 = ex * ex + ey * ey;
           if (e2 < R2) {
             var prox = 1 - Math.sqrt(e2) / R;
@@ -280,21 +294,22 @@
         ctx.beginPath(); ctx.arc(0, 0, hr, 0, Math.PI * 2); ctx.fill();
       }
 
+      /* breathing = uniform scale of the cached paths */
+      ctx.scale(breath, breath);
+
       /* cell wall — fill scales strongly with activation */
-      drawCellPath(c.size, c.shape, c.phase, breath);
       ctx.fillStyle = rgba(col, (0.06 + c.act * 0.7) * cf);
-      ctx.fill();
+      ctx.fill(c.pWall);
       ctx.strokeStyle = rgba(col, alpha + c.act * 0.3 * cf);
-      ctx.lineWidth = 1;
-      ctx.stroke();
+      ctx.lineWidth = 1 / breath;
+      ctx.stroke(c.pWall);
 
       /* nucleus — light-grey fill, offset from the cell body */
-      drawCellPath(c.size, c.shape, c.phase + 1.7, 0.42 * breath);
       ctx.fillStyle = rgba(TEXT, (0.16 + c.act * 0.45) * cf);
-      ctx.fill();
+      ctx.fill(c.pCore);
       ctx.strokeStyle = rgba(TEXT, (0.1 + c.act * 0.3) * cf);
-      ctx.lineWidth = 0.9;
-      ctx.stroke();
+      ctx.lineWidth = 0.9 / breath;
+      ctx.stroke(c.pCore);
 
       ctx.restore();
     }
@@ -324,9 +339,31 @@
     requestAnimationFrame(loop);
   }
 
-  window.addEventListener('resize', resize);
+  /* debounced resize — mobile browsers fire resize while scrolling
+     (URL bar collapse), which used to rebuild the whole field */
+  var resizeTimer;
+  window.addEventListener('resize', function () {
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(function () {
+      if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) {
+        resize();
+        if (reduced) frame(3.7);
+      }
+    }, 150);
+  });
   resize();
   if (reduced) frame(3.7); else requestAnimationFrame(loop);
+
+  /* reveal: continuing from another subpage → appear instantly
+     (seamless hand-off); fresh arrival (e.g. from the homepage)
+     → fade the field in gently instead of popping */
+  if (didRestore || reduced) {
+    canvas.classList.add('bg-instant', 'bg-ready');
+  } else {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(function () { canvas.classList.add('bg-ready'); });
+    });
+  }
 
   /* save the field so the next page can pick it up mid-flow */
   function saveState() {

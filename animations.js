@@ -11,21 +11,6 @@
   var isMobile = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
 
   /* ────────────────────────────────────────────────────────
-     1.  AMBIENT CURSOR ORB  (desktop only)
-  ──────────────────────────────────────────────────────── */
-  if (!reduced && !isMobile) {
-    var orb = document.createElement('div');
-    orb.className = 'ambient-orb';
-    document.body.appendChild(orb);
-
-    document.addEventListener('mousemove', function (e) {
-      /* orb lags behind via CSS transition on transform */
-      orb.style.transform =
-        'translate(' + (e.clientX - 320) + 'px,' + (e.clientY - 320) + 'px)';
-    });
-  }
-
-  /* ────────────────────────────────────────────────────────
      2.  MOBILE HAMBURGER MENU
   ──────────────────────────────────────────────────────── */
   var toggle   = document.querySelector('.nav-toggle');

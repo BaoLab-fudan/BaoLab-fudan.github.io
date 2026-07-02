@@ -353,19 +353,6 @@ html { scroll-behavior: smooth; }
 }
 
 
-/* ── Ambient glow orb ────────────────────────────────────── */
-.ambient-orb {
-  position: fixed;
-  top: 0; left: 0;
-  width: 640px; height: 640px;
-  border-radius: 50%;
-  pointer-events: none;
-  z-index: 0;
-  background: radial-gradient(circle, rgba(212,170,165,0.045) 0%, rgba(184,205,221,0.025) 38%, transparent 65%);
-  transition: transform 1.4s cubic-bezier(0.25,0.46,0.45,0.94);
-  will-change: transform;
-}
-
 /* ── Nav scroll blur ─────────────────────────────────────── */
 nav { transition: background-color 0.35s, box-shadow 0.35s, backdrop-filter 0.35s; }
 nav.scrolled {
