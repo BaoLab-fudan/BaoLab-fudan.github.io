@@ -288,6 +288,14 @@
       ctx.lineWidth = 1;
       ctx.stroke();
 
+      /* nucleus — light-grey fill, offset from the cell body */
+      drawCellPath(c.size, c.shape, c.phase + 1.7, 0.4 * breath);
+      ctx.fillStyle = rgba(TEXT, (0.05 + c.act * 0.4) * cf);
+      ctx.fill();
+      ctx.strokeStyle = rgba(TEXT, (alpha + c.act * 0.28 * cf) * 0.7);
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+
       ctx.restore();
     }
 
