@@ -64,7 +64,7 @@
     canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     cells = []; edges = []; routes = [];
-    const gap = W < 640 ? 76 : 96;
+    const gap = W < 640 ? 88 : 112;
     const cols = Math.ceil(W / gap) + 1, rows = Math.ceil(H / gap) + 1;
     for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) {
       const seed = r * 131 + c * 37 + 11;
@@ -88,9 +88,12 @@
         cell.neighbors.push(n.j); cells[n.j].neighbors.push(i);
       });
     });
-    const count = W < 640 ? 3 : 5;
+    const count = W < 640 ? 2 : 4;
     for (let k = 0; k < count; k++) {
-      const root = Math.floor(rand(k * 211 + 19) * cells.length);
+      const candidates = cells.map((cell, id) => ({ cell, id })).filter(n =>
+        n.cell.x > 20 && n.cell.x < W - 20 && n.cell.y > 20 && n.cell.y < H * 0.8 &&
+        Math.abs(n.cell.x / W - 0.5) > 0.2);
+      const root = candidates.length ? candidates[Math.floor(rand(k * 211 + 19) * candidates.length)].id : 0;
       const visited = new Set([root]), queue = [{ id: root, depth: 0 }], branches = [];
       while (queue.length) {
         const current = queue.shift();
@@ -107,7 +110,7 @@
   }
   function quiet(x, y) {
     const nx = (x - W * 0.5) / (W * 0.32), ny = (y - H * 0.48) / (H * 0.38);
-    return 0.15 + 0.85 * Math.min(1, (nx * nx + ny * ny) * 0.65);
+    return 0.10 + 0.90 * Math.min(1, (nx * nx + ny * ny) * 0.65);
   }
   function point(cell, t) {
     return { x: cell.x + Math.sin(t * 0.22 + cell.phase) * 5,
@@ -124,7 +127,7 @@
     cells.forEach(c => { c.activation = 0; });
     edges.forEach(function (edge) {
       const a = positions[edge.a], b = positions[edge.b];
-      path(a, b); ctx.strokeStyle = rgba(LINE, 0.08 * quiet((a.x + b.x) / 2, (a.y + b.y) / 2));
+      path(a, b); ctx.strokeStyle = rgba(LINE, 0.12 * quiet((a.x + b.x) / 2, (a.y + b.y) / 2));
       ctx.lineWidth = 0.7; ctx.stroke();
     });
     routes.forEach(function (route) {
@@ -143,11 +146,11 @@
         const x = u*u*a.x + 2*u*progress*cx + progress*progress*b.x;
         const y = u*u*a.y + 2*u*progress*cy + progress*progress*b.y;
         const fade = quiet(x, y) * Math.sin(Math.PI * progress);
-        path(a, b); ctx.strokeStyle = rgba(route.color, fade * 0.24); ctx.stroke();
+        path(a, b); ctx.strokeStyle = rgba(route.color, fade * 0.42); ctx.stroke();
         const glow = ctx.createRadialGradient(x, y, 0, x, y, 16);
-        glow.addColorStop(0, rgba(route.color, fade * 0.5)); glow.addColorStop(1, rgba(route.color, 0));
+        glow.addColorStop(0, rgba(route.color, fade * 0.7)); glow.addColorStop(1, rgba(route.color, 0));
         ctx.fillStyle = glow; ctx.fillRect(x - 16, y - 16, 32, 32);
-        ctx.beginPath(); ctx.arc(x, y, 1.8, 0, Math.PI * 2);
+        ctx.beginPath(); ctx.arc(x, y, 2.5, 0, Math.PI * 2);
         ctx.fillStyle = rgba(route.color, fade * 0.9); ctx.fill();
       });
     });

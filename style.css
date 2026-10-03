@@ -516,3 +516,9 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--sky); outline-o
 ::view-transition-new(root) { animation: page-in 0.35s ease both; }
 @keyframes page-out { to { opacity: 0; } }
 @keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* Research: short, scannable groups of three. */
+.research-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+.research-grid .card { margin-bottom: 0; padding: 24px; }
+.research-grid .card-title { line-height: 1.4; margin-bottom: 12px; }
+@media (max-width: 800px) { .research-grid { grid-template-columns: 1fr; } }
