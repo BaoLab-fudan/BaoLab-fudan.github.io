@@ -517,11 +517,20 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--sky); outline-o
 @keyframes page-out { to { opacity: 0; } }
 @keyframes page-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
-/* Research: short, scannable groups of three. */
-.research-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
-.research-grid .card { margin-bottom: 0; padding: 24px; }
-.research-grid .card-title { line-height: 1.4; margin-bottom: 12px; }
-@media (max-width: 800px) { .research-grid { grid-template-columns: 1fr; } }
+/* Research topics read as a vertical list rather than boxed tiles. */
+.research-list { display: flex; flex-direction: column; }
+.research-row.card {
+  display: grid; grid-template-columns: 32px minmax(0, 1fr); column-gap: 20px;
+  padding: 22px 0; margin: 0; border: 0; border-bottom: 1px solid var(--accent-border);
+  border-radius: 0; background: transparent; box-shadow: none;
+}
+.research-row.card:hover { background: transparent; box-shadow: none; }
+.research-icon { grid-row: 1 / 3; width: 28px; height: 28px; color: var(--rose); margin-top: 2px; }
+.research-row .card-title { margin-bottom: 6px; }
+.research-row .card-body { max-width: 720px; }
+@media (max-width: 680px) { .research-row.card { column-gap: 14px; padding: 20px 0; } }
+.page-arriving { animation: content-arrive 0.35s ease both; }
+@keyframes content-arrive { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 
 /* One fixed biological field, shared across every page. */
 .page-bg-layer {

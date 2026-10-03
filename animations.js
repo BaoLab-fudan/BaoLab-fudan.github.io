@@ -1,11 +1,15 @@
-/* ============================================================
-   Bao Lab — Premium Animations
-   Effects: custom cursor · ambient orb · nav blur · kinetic
-   title · 3-D card tilt + inner light · magnetic buttons ·
-   section sweep · scroll reveal · timeline dot stagger
-   ============================================================ */
+/* Shared page interactions, reinitialized after internal navigation. */
 (function () {
   'use strict';
+  var cleanups = [];
+  function listen(target, event, handler, options) {
+    target.addEventListener(event, handler, options);
+    cleanups.push(function () { target.removeEventListener(event, handler, options); });
+  }
+  window.initializePageAnimations = function () {
+    cleanups.forEach(function (cleanup) { cleanup(); });
+    cleanups = [];
+
 
   var reduced  = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   var isMobile = !window.matchMedia('(hover: hover) and (pointer: fine)').matches;
@@ -16,19 +20,19 @@
   var toggle   = document.querySelector('.nav-toggle');
   var navLinks = document.querySelector('.nav-links');
   if (toggle && navLinks) {
-    toggle.addEventListener('click', function () {
+    listen(toggle, 'click', function () {
       var open = navLinks.classList.toggle('open');
       toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
     /* close menu when a link is tapped */
     navLinks.querySelectorAll('a').forEach(function (link) {
-      link.addEventListener('click', function () {
+      listen(link, 'click', function () {
         navLinks.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
       });
     });
     /* close on outside tap */
-    document.addEventListener('click', function (e) {
+    listen(document, 'click', function (e) {
       if (nav && !nav.contains(e.target)) {
         navLinks.classList.remove('open');
         toggle.setAttribute('aria-expanded', 'false');
@@ -44,7 +48,7 @@
     function updateNav() {
       nav.classList.toggle('scrolled', window.scrollY > 24);
     }
-    window.addEventListener('scroll', updateNav, { passive: true });
+    listen(window, 'scroll', updateNav, { passive: true });
     updateNav();
   }
 
@@ -84,6 +88,7 @@
         }
       });
     }, { threshold: 0.07, rootMargin: '0px 0px -24px 0px' });
+    cleanups.push(function () { io.disconnect(); });
 
     function watch(el, delay) {
       if (!el) return;
@@ -167,6 +172,7 @@
   progress.className = 'reading-progress';
   progress.setAttribute('aria-hidden', 'true');
   document.body.appendChild(progress);
+  cleanups.push(function () { progress.remove(); });
   var scrollPending = false;
   function updateScroll() {
     scrollPending = false;
@@ -179,11 +185,13 @@
       heroContent.style.opacity = Math.max(0, 1 - y / height).toFixed(3);
     }
   }
-  window.addEventListener('scroll', function () {
+  listen(window, 'scroll', function () {
     if (!scrollPending) { scrollPending = true; requestAnimationFrame(updateScroll); }
   }, { passive: true });
-  window.addEventListener('resize', updateScroll);
-  window.addEventListener('pageshow', updateScroll);
+  listen(window, 'resize', updateScroll);
+  listen(window, 'pageshow', updateScroll);
   updateScroll();
 
+  };
+  window.initializePageAnimations();
 })();
