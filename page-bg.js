@@ -1,13 +1,13 @@
 /* ============================================================
-   Bao Lab — Subpage Background
+   Bao Lab — Shared Background
    A full-page, animated cell field: faint organic cells drift
    and breathe; small groups of slow rose "signal" dots roam
    the space, converging together on a target cell and lighting
    it up (filling it with colour that then fades), before moving
    on to another cell. Heavily dimmed through the centre so page
-   text stays crisp. Reuses the homepage organic cell shapes.
+   text stays crisp. The same field runs on Home and every other page.
 
-   Drop into any non-home page, just before animations.js:
+   Drop into any page, just before animations.js:
      <script src="page-bg.js"></script>
    ============================================================ */
 (function () {
@@ -17,7 +17,8 @@
   var DEEP = [198, 138, 132]; /* deeper rose for variation */
   var SKY  = [184, 205, 221]; /* sky   — cool minority accent */
   var TEXT = [241, 240, 236]; /* cloud */
-  var reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var reduced = motionPreference.matches;
 
   function rgba(rgb, a) {
     return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(3) + ')';
@@ -27,22 +28,12 @@
     return x - Math.floor(x);
   }
 
-  /* keep content above the layer */
-  var st = document.createElement('style');
-  st.textContent =
-    '.page-bg-layer{position:fixed;inset:0;width:100%;height:100%;' +
-    'z-index:0;pointer-events:none;opacity:0;' +
-    'transition:opacity 0.9s ease;}' +
-    '.page-bg-layer.bg-ready{opacity:1;}' +
-    '.page-bg-layer.bg-instant{transition:none;}' +
-    '.page-content{position:relative;z-index:1;}';
-  document.head.appendChild(st);
-
   var canvas = document.createElement('canvas');
   canvas.className = 'page-bg-layer';
   canvas.setAttribute('aria-hidden', 'true');
   document.body.insertBefore(canvas, document.body.firstChild);
   var ctx = canvas.getContext('2d');
+  if (!ctx) { canvas.remove(); return; }
 
   /* ── 5 organic cell shapes (pre-built as Path2D — the shape
         of each cell is static, so build it once instead of
@@ -335,12 +326,27 @@
     }
   }
 
-  var frameId;
+  var frameId = 0;
   function loop(now) {
-    if (document.hidden) return;
+    frameId = 0;
+    if (document.hidden || reduced) return;
     frame((now - t0) / 1000);
     frameId = requestAnimationFrame(loop);
   }
+  function resume() {
+    cancelAnimationFrame(frameId);
+    frameId = 0;
+    if (document.hidden) return;
+    // Continue from the saved simulation time rather than jumping after a pause.
+    t0 = performance.now() - curTime * 1000;
+    prevT = -1;
+    if (reduced) frame(curTime || 3.7);
+    else frameId = requestAnimationFrame(loop);
+  }
+  motionPreference.addEventListener('change', function (event) {
+    reduced = event.matches;
+    resume();
+  });
 
   /* debounced resize — mobile browsers fire resize while scrolling
      (URL bar collapse), which used to rebuild the whole field */
@@ -384,9 +390,10 @@
       }));
     } catch (e) {}
   }
-  window.addEventListener('pagehide', saveState);
+  window.addEventListener('pagehide', function () { saveState(); cancelAnimationFrame(frameId); });
+  window.addEventListener('pageshow', resume);
   document.addEventListener('visibilitychange', function () {
     if (document.hidden) { saveState(); cancelAnimationFrame(frameId); }
-    else if (!reduced) frameId = requestAnimationFrame(loop);
+    else resume();
   });
 })();

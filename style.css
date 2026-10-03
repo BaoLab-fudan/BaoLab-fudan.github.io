@@ -522,3 +522,13 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--sky); outline-o
 .research-grid .card { margin-bottom: 0; padding: 24px; }
 .research-grid .card-title { line-height: 1.4; margin-bottom: 12px; }
 @media (max-width: 800px) { .research-grid { grid-template-columns: 1fr; } }
+
+/* One fixed biological field, shared across every page. */
+.page-bg-layer {
+  position: fixed; inset: 0; width: 100%; height: 100%;
+  z-index: 0; pointer-events: none; opacity: 0;
+  transition: opacity 0.9s ease;
+}
+.page-bg-layer.bg-ready { opacity: 1; }
+.page-bg-layer.bg-instant { transition: none; }
+.page-content { position: relative; z-index: 1; }
