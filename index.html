@@ -171,7 +171,7 @@ gtag('config', 'G-LXFRTDPY7G');
 </nav>
 
 <div class="hero">
-  <canvas id="hero-canvas"></canvas>
+  <canvas id="hero-canvas" aria-hidden="true"></canvas>
   <div class="hero-fade"></div>
   <div class="hero-content">
     <div class="hero-lab">Bao<span>Lab</span></div>
@@ -271,7 +271,7 @@ gtag('config', 'G-LXFRTDPY7G');
   function makeGrid() {
     grid = [];
     const mobile = W < 640;
-    const gap    = mobile ? 30 : 38;
+    const gap    = mobile ? 42 : 48;
     const cols   = Math.ceil(W / gap) + 3;
     const rows   = Math.ceil(H / gap) + 2;
     const ox     = (W - (cols - 1) * gap) / 2;
@@ -346,6 +346,41 @@ gtag('config', 'G-LXFRTDPY7G');
     return p;
   }
 
+  const pointer = { x: -1000, y: -1000, tx: -1000, ty: -1000 };
+  const hero = canvas.parentElement;
+  hero.addEventListener('pointermove', function (event) {
+    if (event.pointerType === 'touch') return;
+    const rect = canvas.getBoundingClientRect();
+    pointer.tx = event.clientX - rect.left;
+    pointer.ty = event.clientY - rect.top;
+  }, { passive: true });
+  hero.addEventListener('pointerleave', function () { pointer.tx = pointer.ty = -1000; });
+
+  /* Signals travel through the field in broad, coordinated waves. */
+  function drawSignals(time) {
+    ctx.save();
+    ctx.globalCompositeOperation = 'screen';
+    for (let i = 0; i < 7; i++) {
+      const travel = (time * 0.045 + i / 7) % 1;
+      const x = travel * (W + 240) - 120;
+      const y = H * (0.16 + (i % 4) * 0.21) + Math.sin(time * 0.4 + i) * 42;
+      const glow = ctx.createRadialGradient(x, y, 0, x, y, 100);
+      glow.addColorStop(0, rgba(i % 2 ? LINE : GLOW, 0.11));
+      glow.addColorStop(1, rgba(GLOW, 0));
+      ctx.fillStyle = glow;
+      ctx.fillRect(x - 100, y - 100, 200, 200);
+      ctx.beginPath();
+      ctx.moveTo(x - 90, y + Math.sin(time + i) * 18);
+      ctx.quadraticCurveTo(x - 40, y - 20, x, y);
+      ctx.strokeStyle = rgba(LINE, 0.18);
+      ctx.lineWidth = 0.8;
+      ctx.stroke();
+      ctx.beginPath(); ctx.arc(x, y, 2, 0, Math.PI * 2);
+      ctx.fillStyle = rgba(TEXT, 0.65); ctx.fill();
+    }
+    ctx.restore();
+  }
+
   /* ── Draw backdrop ────────────────────────────────────── */
   function drawBackdrop() {
     ctx.fillStyle = '#1d2b36';
@@ -360,7 +395,10 @@ gtag('config', 'G-LXFRTDPY7G');
     for (const cell of grid) {
       /* smoothstep wave: 0 → 1 */
       const wave = 0.5 + Math.sin(time * cell.speed + cell.phase) * 0.5;
-      const lit  = wave * wave * (3 - 2 * wave);
+      const distance = Math.hypot(cell.x - pointer.x, cell.y - pointer.y);
+      const proximity = Math.max(0, 1 - distance / 160);
+      const signal = Math.pow(0.5 + 0.5 * Math.sin(cell.x * 0.012 + cell.y * 0.008 - time * 1.1), 8);
+      const lit = Math.min(1, wave * wave * (3 - 2 * wave) * 0.45 + signal * 0.55 + proximity * 0.65);
 
       /* fade cells near the canvas border so they disappear off-screen cleanly */
       const ex  = Math.max(0, Math.min(1, (cell.x / W - 0.04) * 14,  (0.96 - cell.x / W) * 14));
@@ -372,8 +410,11 @@ gtag('config', 'G-LXFRTDPY7G');
       const alpha = (0.09 + lit * 0.38) * edgeFade;
 
       ctx.save();
-      ctx.translate(cell.x, cell.y);
-      ctx.rotate(Math.sin(cell.phase) * 0.22);
+      ctx.translate(cell.x + Math.sin(time * 0.3 + cell.phase) * 4,
+                    cell.y + Math.cos(time * 0.25 + cell.phase) * 4);
+      ctx.rotate(Math.sin(cell.phase + time * 0.15) * 0.22);
+      const breath = 1 + Math.sin(time * 0.7 + cell.phase) * 0.06 + proximity * 0.12;
+      ctx.scale(breath, breath);
 
       /* outer cell wall — glow colour when lit, dim otherwise */
       ctx.fillStyle   = rgba(GLOW, alpha * 0.15);
@@ -435,18 +476,22 @@ gtag('config', 'G-LXFRTDPY7G');
 
   /* ── Render loop — runs only while the hero is on screen ── */
   let running = false;
+  let frameId;
 
   function drawFrame(now) {
     const time = (now - t0) / 1000;
     ctx.clearRect(0, 0, W, H);
     drawBackdrop();
+    pointer.x += (pointer.tx - pointer.x) * 0.08;
+    pointer.y += (pointer.ty - pointer.y) * 0.08;
+    drawSignals(time);
     drawCells(time);
     drawVignette();
   }
   function loop(now) {
     if (!running) return;
     drawFrame(now);
-    requestAnimationFrame(loop);
+    frameId = requestAnimationFrame(loop);
   }
 
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -472,15 +517,21 @@ gtag('config', 'G-LXFRTDPY7G');
     /* pause the loop when the hero scrolls out of view */
     new IntersectionObserver(function (entries) {
       const visible = entries[0].isIntersecting;
-      if (visible && !running) {
+      if (visible && !document.hidden && !running) {
         running = true;
-        requestAnimationFrame(loop);
+        frameId = requestAnimationFrame(loop);
       } else if (!visible) {
         running = false;
+        cancelAnimationFrame(frameId);
       }
     }, { threshold: 0.01 }).observe(canvas);
-    running = true;
-    requestAnimationFrame(loop);
+    document.addEventListener('visibilitychange', function () {
+      if (document.hidden) { running = false; cancelAnimationFrame(frameId); }
+      else if (!running && canvas.getBoundingClientRect().bottom > 0) {
+        running = true;
+        frameId = requestAnimationFrame(loop);
+      }
+    });
   }
 })();
 </script>

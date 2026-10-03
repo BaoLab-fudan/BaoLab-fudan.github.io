@@ -40,6 +40,7 @@
 
   var canvas = document.createElement('canvas');
   canvas.className = 'page-bg-layer';
+  canvas.setAttribute('aria-hidden', 'true');
   document.body.insertBefore(canvas, document.body.firstChild);
   var ctx = canvas.getContext('2d');
 
@@ -334,9 +335,11 @@
     }
   }
 
+  var frameId;
   function loop(now) {
+    if (document.hidden) return;
     frame((now - t0) / 1000);
-    requestAnimationFrame(loop);
+    frameId = requestAnimationFrame(loop);
   }
 
   /* debounced resize — mobile browsers fire resize while scrolling
@@ -352,7 +355,7 @@
     }, 150);
   });
   resize();
-  if (reduced) frame(3.7); else requestAnimationFrame(loop);
+  if (reduced) frame(3.7); else frameId = requestAnimationFrame(loop);
 
   /* reveal: continuing from another subpage → appear instantly
      (seamless hand-off); fresh arrival (e.g. from the homepage)
@@ -383,6 +386,7 @@
   }
   window.addEventListener('pagehide', saveState);
   document.addEventListener('visibilitychange', function () {
-    if (document.visibilityState === 'hidden') saveState();
+    if (document.hidden) { saveState(); cancelAnimationFrame(frameId); }
+    else if (!reduced) frameId = requestAnimationFrame(loop);
   });
 })();
