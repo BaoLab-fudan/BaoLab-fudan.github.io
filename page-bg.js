@@ -6,7 +6,6 @@
 
   var palette = [[212, 170, 165], [184, 205, 221], [169, 182, 158]];
   var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var pointerMedia = window.matchMedia('(hover: hover) and (pointer: fine)');
   var reduced = motion.matches;
   var canvas = document.createElement('canvas');
   canvas.className = 'page-bg-layer';
@@ -16,9 +15,9 @@
   if (!ctx) { canvas.remove(); return; }
 
   var W = 0, H = 0, dpr = 1, focal = 900;
+  var sceneWidth = 0, sceneHeight = 0;
   var cells = [], dust = [], signals = [];
   var clock = 0, last = 0, frameId = 0;
-  var pointer = { x: 0, y: 0 }, camera = { x: 0, y: 0 };
   var yaw = 0, pitch = 0;
   var STORE = 'baolab_bg_3d_v1';
   var restored = false;
@@ -60,13 +59,18 @@
   function build() {
     cells = []; dust = []; signals = [];
     // Fill a volume with a dense population, rather than a sparse screen layer.
-    var count = Math.min(1100, Math.max(200, Math.round(W * H / 1600)));
+    var count = Math.min(1100, Math.max(200, Math.round(sceneWidth * sceneHeight / 1600)));
     for (var i = 0; i < count; i++) {
       var seed = i * 31 + 11;
-      var z = focal * (-0.58 + rand(seed + 3) * 1.8);
+      // A bounded volume can turn through a full revolution without crossing the camera.
+      var angle = rand(seed) * Math.PI * 2;
+      var elevation = rand(seed + 1) * 2 - 1;
+      var radial = Math.cbrt(rand(seed + 3));
+      var horizontal = Math.sqrt(1 - elevation * elevation) * radial;
+      var z = Math.sin(angle) * horizontal * focal * 0.72;
       cells.push({
-        bx: (rand(seed) - 0.5) * W * 1.55,
-        by: (rand(seed + 1) - 0.5) * H * 1.55,
+        bx: Math.cos(angle) * horizontal * focal * 0.72,
+        by: elevation * radial * sceneHeight * 0.78,
         bz: z, x: 0, y: 0, z: z,
         radius: 12 + rand(seed + 4) * 6,
         phase: rand(seed + 5) * Math.PI * 2,
@@ -80,10 +84,11 @@
     });
     for (var d = 0; d < Math.min(80, Math.round(count / 4)); d++) {
       var ds = d * 23 + 71;
-      var dz = (rand(ds + 2) - 0.5) * 1400;
-      var de = (focal + dz) / focal;
-      dust.push({ x: (rand(ds) - 0.5) * W * 1.5 * de,
-        y: (rand(ds + 1) - 0.5) * H * 1.5 * de, z: dz,
+      var dustAngle = rand(ds) * Math.PI * 2;
+      var dustRadius = Math.sqrt(rand(ds + 2)) * focal * 0.72;
+      dust.push({ x: Math.cos(dustAngle) * dustRadius,
+        y: (rand(ds + 1) - 0.5) * sceneHeight * 1.5,
+        z: Math.sin(dustAngle) * dustRadius,
         size: 0.5 + rand(ds + 3), phase: rand(ds + 4) * 6.28 });
     }
     for (var s = 0; s < Math.min(12, Math.floor(count / 5)); s++) {
@@ -103,12 +108,19 @@
     return best;
   }
   function resize() {
-    W = canvas.offsetWidth; H = canvas.offsetHeight;
-    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
-    focal = Math.max(950, W * 0.85);
-    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    var width = canvas.offsetWidth, height = canvas.offsetHeight;
+    var pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    if (width === W && height === H && pixelRatio === dpr) return false;
+    W = width; H = height; dpr = pixelRatio;
+    var bitmapWidth = Math.round(W * dpr), bitmapHeight = Math.round(H * dpr);
+    if (canvas.width !== bitmapWidth) canvas.width = bitmapWidth;
+    if (canvas.height !== bitmapHeight) canvas.height = bitmapHeight;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    build();
+    // Resize the view into the existing world, retaining cell sizes and signals.
+    return true;
+  }
+  function syncViewport() {
+    if (resize()) draw(clock, 0);
   }
 
   function project(x, y, z) {
@@ -129,10 +141,9 @@
   }
 
   function draw(time, dt) {
-    camera.x += (pointer.x - camera.x) * Math.min(1, dt * 2.5);
-    camera.y += (pointer.y - camera.y) * Math.min(1, dt * 2.5);
-    yaw = Math.sin(time * 0.055 - 0.5) * 0.22 + camera.x * 0.14;
-    pitch = Math.cos(time * 0.045) * 0.12 + camera.y * 0.08;
+    // Rotate the whole cloud steadily: one revolution in about 140 seconds.
+    yaw = time * 0.045 - 0.35;
+    pitch = 0.12;
     ctx.clearRect(0, 0, W, H);
     var objects = [];
     cells.forEach(function (c) {
@@ -188,12 +199,12 @@
         ctx.translate(p.x, p.y);
         ctx.scale(p.scale * breath, p.scale * breath);
         ctx.rotate(c.phase + time * 0.025);
-        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.06 + c.act * 0.3));
+        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.09 + c.act * 0.3));
         ctx.fill(c.wall);
-        ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * (0.38 + c.act * 0.4));
+        ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * (0.48 + c.act * 0.4));
         ctx.lineWidth = 0.85 / p.scale;
         ctx.stroke(c.wall);
-        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.2 + c.act * 0.3));
+        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.27 + c.act * 0.3));
         ctx.fill(c.core);
         ctx.restore();
         if (c.act > 0.05) {
@@ -208,6 +219,8 @@
   function loop(now) {
     frameId = 0;
     if (document.hidden || reduced) return;
+    // A changed viewport must redraw even between the usual 30 FPS frames.
+    if (resize()) { draw(clock, 0); last = now; }
     if (!last) last = now;
     var elapsed = now - last;
     if (elapsed >= 1000 / 30) {
@@ -220,27 +233,21 @@
   function resume() {
     cancelAnimationFrame(frameId); frameId = 0; last = 0;
     if (document.hidden) return;
+    resize();
     draw(clock, 0);
     if (!reduced) frameId = requestAnimationFrame(loop);
   }
   motion.addEventListener('change', function (event) {
     reduced = event.matches;
-    if (reduced) { pointer.x = pointer.y = camera.x = camera.y = 0; }
     resume();
   });
-  window.addEventListener('pointermove', function (event) {
-    if (reduced || !pointerMedia.matches || event.pointerType === 'touch') return;
-    pointer.x = event.clientX / W * 2 - 1;
-    pointer.y = event.clientY / H * 2 - 1;
-  }, { passive: true });
-  document.documentElement.addEventListener('pointerleave', function () { pointer.x = pointer.y = 0; });
-  var resizeTimer;
-  window.addEventListener('resize', function () {
-    clearTimeout(resizeTimer);
-    resizeTimer = setTimeout(function () {
-      if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) { resize(); draw(clock, 0); }
-    }, 150);
-  });
+  // ResizeObserver runs before paint, preventing a stretched old bitmap.
+  // The resize event also covers pixel-ratio changes between displays.
+  window.addEventListener('resize', syncViewport);
+  if (window.ResizeObserver) {
+    var viewportObserver = new ResizeObserver(syncViewport);
+    viewportObserver.observe(canvas);
+  }
   function save() {
     try { sessionStorage.setItem(STORE, JSON.stringify({ time: clock, savedAt: Date.now() })); }
     catch (error) {}
@@ -251,7 +258,13 @@
     if (document.hidden) { save(); cancelAnimationFrame(frameId); last = 0; }
     else resume();
   });
-  resize(); resume();
+  resize();
+  // Cover the display once so growing the window reveals the same cell cloud.
+  sceneWidth = Math.max(W, window.screen.width || W);
+  sceneHeight = Math.max(H, window.screen.height || H);
+  focal = Math.max(950, sceneWidth * 0.85);
+  build();
+  resume();
   if (restored || reduced) canvas.classList.add('bg-instant');
   requestAnimationFrame(function () { canvas.classList.add('bg-ready'); });
 })();
