@@ -1,33 +1,13 @@
-/* ============================================================
-   Bao Lab — Shared Background
-   A full-page, animated cell field: faint organic cells drift
-   and breathe; small groups of slow rose "signal" dots roam
-   the space, converging together on a target cell and lighting
-   it up (filling it with colour that then fades), before moving
-   on to another cell. Heavily dimmed through the centre so page
-   text stays crisp. The same field runs on Home and every other page.
-
-   Drop into any page, just before animations.js:
-     <script src="page-bg.js"></script>
-   ============================================================ */
+/* Bao Lab — a perspective-projected 3D biological field.
+   World-space cells and signals are rendered back to front on Canvas 2D.
+   No external dependencies; the live scene survives internal navigation. */
 (function () {
   'use strict';
 
-  var ROSE = [212, 170, 165]; /* rose  — the ambient accent (dominant) */
-  var DEEP = [198, 138, 132]; /* deeper rose for variation */
-  var SKY  = [184, 205, 221]; /* sky   — cool minority accent */
-  var TEXT = [241, 240, 236]; /* cloud */
-  var motionPreference = window.matchMedia('(prefers-reduced-motion: reduce)');
-  var reduced = motionPreference.matches;
-
-  function rgba(rgb, a) {
-    return 'rgba(' + rgb[0] + ',' + rgb[1] + ',' + rgb[2] + ',' + a.toFixed(3) + ')';
-  }
-  function rand(seed) {
-    var x = Math.sin(seed * 999.91) * 10000;
-    return x - Math.floor(x);
-  }
-
+  var palette = [[212, 170, 165], [184, 205, 221], [169, 182, 158]];
+  var motion = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var pointerMedia = window.matchMedia('(hover: hover) and (pointer: fine)');
+  var reduced = motion.matches;
   var canvas = document.createElement('canvas');
   canvas.className = 'page-bg-layer';
   canvas.setAttribute('aria-hidden', 'true');
@@ -35,365 +15,243 @@
   var ctx = canvas.getContext('2d');
   if (!ctx) { canvas.remove(); return; }
 
-  /* ── 5 organic cell shapes (pre-built as Path2D — the shape
-        of each cell is static, so build it once instead of
-        re-tracing 400+ multi-segment paths every frame) ────── */
-  function buildCellPath(size, shape, phase, scale) {
-    var p = new Path2D();
-    var s = size * scale;
-    if (shape === 0) {
-      p.ellipse(0, 0, s * 1.1, s * 0.78, phase * 0.18, 0, Math.PI * 2);
-    } else if (shape === 1) {
-      for (var i = 0; i < 18; i++) {
-        var a = i / 18 * Math.PI * 2;
-        var r = s * (0.86 + Math.sin(a * 3 + phase) * 0.11);
-        var x = Math.cos(a) * r * 1.05, y = Math.sin(a) * r * 0.84;
-        i === 0 ? p.moveTo(x, y) : p.lineTo(x, y);
-      }
-      p.closePath();
-    } else if (shape === 2) {
-      for (var j = 0; j < 20; j++) {
-        var a2 = j / 20 * Math.PI * 2;
-        var r2 = s * (0.78 + Math.cos(a2 * 2 - phase) * 0.13);
-        var x2 = Math.cos(a2) * r2, y2 = Math.sin(a2) * r2 * 1.1;
-        j === 0 ? p.moveTo(x2, y2) : p.lineTo(x2, y2);
-      }
-      p.closePath();
-    } else if (shape === 3) {
-      var rk = s * 0.86;
-      p.moveTo(-rk, -rk * 0.3);
-      p.bezierCurveTo(-rk * 0.85, -rk, rk * 0.5, -rk * 1.02, rk, -rk * 0.24);
-      p.bezierCurveTo(rk * 1.12, rk * 0.58, -rk * 0.22, rk * 1.08, -rk * 0.9, rk * 0.46);
-      p.bezierCurveTo(-rk * 1.14, rk * 0.24, -rk * 1.08, -rk * 0.02, -rk, -rk * 0.3);
-      p.closePath();
-    } else {
-      var rt = s * 0.9;
-      p.moveTo(0, -rt);
-      p.bezierCurveTo(rt * 0.82, -rt * 0.8, rt * 0.96, rt * 0.24, rt * 0.38, rt * 0.72);
-      p.bezierCurveTo(-rt * 0.28, rt * 1.12, -rt * 1.02, rt * 0.36, -rt * 0.82, -rt * 0.32);
-      p.bezierCurveTo(-rt * 0.62, -rt * 0.86, -rt * 0.18, -rt * 1.02, 0, -rt);
-      p.closePath();
+  var W = 0, H = 0, dpr = 1, focal = 900;
+  var cells = [], dust = [], signals = [];
+  var clock = 0, last = 0, frameId = 0;
+  var pointer = { x: 0, y: 0 }, camera = { x: 0, y: 0 };
+  var yaw = 0, pitch = 0;
+  var STORE = 'baolab_bg_3d_v1';
+  var restored = false;
+  try {
+    var saved = JSON.parse(sessionStorage.getItem(STORE));
+    if (saved && Date.now() - saved.savedAt < 5000 && Number.isFinite(saved.time)) {
+      clock = saved.time;
+      restored = true;
     }
-    return p;
+  } catch (error) {}
+
+  function rand(seed) {
+    var x = Math.sin(seed * 999.91) * 10000;
+    return x - Math.floor(x);
+  }
+  function rgba(color, alpha) {
+    return 'rgba(' + color.join(',') + ',' + Math.max(0, Math.min(1, alpha)) + ')';
+  }
+  function quietCenter(x) {
+    var edge = Math.min(1, Math.abs(x / W - 0.5) * 2);
+    // Quiet the text column on narrow screens as well as wide screens.
+    return 0.13 + Math.pow(edge, 1.8) * 0.77;
   }
 
-  var nodes = [], groups = [];
-  var didRestore = false;   /* true when resuming the field from the previous page */
-  var W = 0, H = 0, DPR = 1, t0 = performance.now();
-  var R = 52;                 /* dot → cell activation radius */
-  var curTime = 0;            /* latest sim time (seconds) */
-
-  /* ── cross-page continuity: resume the field after navigation ─ */
-  var STORE = 'baolab_bg_v1';
-  var pendingRestore = (function () {
-    try {
-      var s = JSON.parse(sessionStorage.getItem(STORE));
-      if (s && Date.now() - s.savedAt < 5000) return s;   /* recent nav only */
-    } catch (e) {}
-    return null;
-  })();
-
-  /* smoothstep centre-dim: text column goes quiet, edges livelier */
-  function centreFade(x) {
-    var cx = Math.abs(x / W - 0.5);
-    return 0.12 + Math.min(1, Math.max(0, (cx - 0.14) * 3.2)) * 0.88;
-  }
-
-  function toneColor(tone) {
-    return tone > 0.82 ? SKY : (tone > 0.5 ? DEEP : ROSE);
-  }
-
-  function randNodeId(seed) {
-    return Math.floor(rand(seed) * nodes.length);
-  }
-
-  /* pick a fresh target a moderate distance from the current one */
-  function pickTarget(fromId, seed) {
-    var f = nodes[fromId];
-    for (var i = 0; i < 12; i++) {
-      var id = randNodeId(seed + i * 17.3);
-      var n = nodes[id];
-      var d = Math.hypot(n.x - f.x, n.y - f.y);
-      if (d > 150 && d < 460) return id;
+  // Preserve simple organic cell drawings; depth comes from world positions.
+  function cellPath(radius, phase, core) {
+    var path = new Path2D();
+    var size = radius * (core ? 0.34 : 1);
+    for (var i = 0; i <= 32; i++) {
+      var angle = i / 32 * Math.PI * 2;
+      var r = size * (1 + Math.sin(angle * 3 + phase) * 0.1);
+      var x = Math.cos(angle) * r, y = Math.sin(angle) * r * 0.84;
+      if (i === 0) path.moveTo(x, y); else path.lineTo(x, y);
     }
-    return randNodeId(seed + 91);
+    path.closePath();
+    return path;
   }
 
   function build() {
-    nodes = []; groups = [];
-    var gap  = W < 640 ? 62 : 78;             /* cell spacing */
-    var cols = Math.ceil(W / gap) + 2;
-    var rows = Math.ceil(H / gap) + 2;
-    var ox   = (W - (cols - 1) * gap) / 2;
-    var oy   = (H - (rows - 1) * gap) / 2;
-
-    for (var r = 0; r < rows; r++) for (var cl = 0; cl < cols; cl++) {
-      var seed = r * 131 + cl * 37 + 11;
-      var jx = (rand(seed + 1) - 0.5) * gap * 0.62;
-      var jy = (rand(seed + 2) - 0.5) * gap * 0.62;
-      var node = {
-        bx: ox + cl * gap + jx, by: oy + r * gap + jy,
-        x: ox + cl * gap + jx, y: oy + r * gap + jy, act: 0,
-        size:  9 + rand(seed + 3) * 11,
-        shape: Math.floor(rand(seed + 4) * 5),
-        phase: rand(seed + 6) * Math.PI * 2,
-        drift: 0.05 + rand(seed + 8) * 0.09,
-        driftPh: rand(seed + 9) * Math.PI * 2,
-        breathPh: rand(seed + 11) * Math.PI * 2,
-        spin:  (rand(seed + 12) - 0.5) * 0.10,
-        tone:  rand(seed + 10)
-      };
-      node.pWall = buildCellPath(node.size, node.shape, node.phase, 1);
-      node.pCore = buildCellPath(node.size, node.shape, node.phase + 1.7, 0.42);
-      nodes.push(node);
+    cells = []; dust = []; signals = [];
+    var count = Math.min(100, Math.max(40, Math.round(W * H / 17000)));
+    for (var i = 0; i < count; i++) {
+      var seed = i * 31 + 11;
+      var z = (rand(seed + 3) - 0.5) * 1100;
+      var extent = (focal + z) / focal;
+      cells.push({
+        bx: (rand(seed) - 0.5) * W * 1.28 * extent,
+        by: (rand(seed + 1) - 0.5) * H * 1.28 * extent,
+        bz: z, x: 0, y: 0, z: z,
+        radius: 11 + rand(seed + 4) * 13,
+        phase: rand(seed + 5) * Math.PI * 2,
+        tone: rand(seed + 6) < 0.68 ? 0 : (rand(seed + 7) < 0.75 ? 1 : 2),
+        act: 0
+      });
     }
-
-    /* signal-dot groups — each is a little swarm converging on a
-       shared target cell, then moving on to the next */
-    var nGroup = Math.max(4, Math.min(13, Math.round(nodes.length / 22)));
-    for (var g = 0; g < nGroup; g++) {
-      var gs = g * 211 + 17;
-      var target = randNodeId(gs);
-      var t = nodes[target];
-      var count = 4 + Math.floor(rand(gs + 1) * 4);        /* 4–7 dots */
-      var members = [];
-      for (var d = 0; d < count; d++) {
-        var ds = gs + d * 29 + 3;
-        members.push({
-          /* start scattered near the target */
-          x: t.x + (rand(ds) - 0.5) * 260,
-          y: t.y + (rand(ds + 1) - 0.5) * 260,
-          spd:  16 + rand(ds + 2) * 14,        /* slow: 16–30 px/s */
-          size: 1.2 + rand(ds + 3) * 1.0,
-          oa:   rand(ds + 4) * Math.PI * 2,    /* offset around the cell */
-          orr:  10 + rand(ds + 5) * 26,
-          wob:  rand(ds + 6) * Math.PI * 2
-        });
-      }
-      groups.push({ target: target, tone: rand(gs + 7), dots: members, seed: gs });
+    cells.forEach(function (cell) {
+      cell.wall = cellPath(cell.radius, cell.phase, false);
+      cell.core = cellPath(cell.radius, cell.phase + 1.7, true);
+    });
+    for (var d = 0; d < Math.min(150, count * 2); d++) {
+      var ds = d * 23 + 71;
+      var dz = (rand(ds + 2) - 0.5) * 1400;
+      var de = (focal + dz) / focal;
+      dust.push({ x: (rand(ds) - 0.5) * W * 1.5 * de,
+        y: (rand(ds + 1) - 0.5) * H * 1.5 * de, z: dz,
+        size: 0.5 + rand(ds + 3), phase: rand(ds + 4) * 6.28 });
     }
-
-    /* resume from the previous page if the layout matches */
-    if (pendingRestore && pendingRestore.w === W && pendingRestore.h === H &&
-        pendingRestore.acts && pendingRestore.acts.length === nodes.length &&
-        pendingRestore.groups && pendingRestore.groups.length === groups.length) {
-      for (var ri = 0; ri < nodes.length; ri++) nodes[ri].act = pendingRestore.acts[ri] || 0;
-      for (var gj = 0; gj < groups.length; gj++) {
-        var sg = pendingRestore.groups[gj];
-        groups[gj].target = sg.target;
-        groups[gj].tone = sg.tone;
-        for (var dj = 0; dj < groups[gj].dots.length && dj < sg.dots.length; dj++) {
-          var sd = sg.dots[dj], dd = groups[gj].dots[dj];
-          dd.x = sd.x; dd.y = sd.y; dd.spd = sd.spd; dd.size = sd.size;
-          dd.oa = sd.oa; dd.orr = sd.orr; dd.wob = sd.wob;
-        }
-      }
-      /* advance the clock across the (brief) reload gap for seamless motion */
-      var resume = pendingRestore.time + (Date.now() - pendingRestore.savedAt) / 1000;
-      t0 = performance.now() - resume * 1000;
-      didRestore = true;
+    for (var s = 0; s < Math.min(12, Math.floor(count / 5)); s++) {
+      var from = Math.floor(rand(s * 51 + 9) * count);
+      signals.push({ from: from, to: target(from, s + 37),
+        offset: rand(s + 81) * 12, duration: 9 + rand(s + 22) * 8, cycle: -1 });
     }
-    pendingRestore = null;
   }
-
+  function target(from, seed) {
+    var origin = cells[from], best = (from + 1) % cells.length;
+    for (var i = 0; i < 16; i++) {
+      var id = Math.floor(rand(seed + i * 19) * cells.length);
+      var c = cells[id];
+      var distance = Math.hypot(c.bx - origin.bx, c.by - origin.by, c.bz - origin.bz);
+      if (id !== from && distance > 160 && distance < 680) return id;
+    }
+    return best;
+  }
   function resize() {
-    DPR = Math.min(window.devicePixelRatio || 1, 1.5);
     W = canvas.offsetWidth; H = canvas.offsetHeight;
-    canvas.width = Math.round(W * DPR);
-    canvas.height = Math.round(H * DPR);
-    ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+    dpr = Math.min(window.devicePixelRatio || 1, 1.5);
+    focal = Math.max(950, W * 0.85);
+    canvas.width = Math.round(W * dpr); canvas.height = Math.round(H * dpr);
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     build();
   }
 
-  var prevT = -1;
-
-  function frame(time) {
-    var dt = prevT < 0 ? 0.016 : Math.min(0.05, time - prevT);
-    prevT = time;
-    curTime = time;
-    ctx.clearRect(0, 0, W, H);
-
-    /* 1 ── cells: gentle float + activation decay */
-    for (var i = 0; i < nodes.length; i++) {
-      var n = nodes[i];
-      n.x = n.bx + Math.sin(time * n.drift + n.driftPh) * 9;
-      n.y = n.by + Math.cos(time * n.drift * 0.8 + n.driftPh) * 9;
-      n.act -= dt * 0.5;                             /* fade over ~2s */
-      if (n.act < 0) n.act = 0;
-    }
-
-    /* 2 ── dot groups: swarm toward the shared target cell, light
-            cells they pass, and retarget once they've converged */
-    var R2 = R * R;
-    for (var gi = 0; gi < groups.length; gi++) {
-      var G = groups[gi];
-      var tn = nodes[G.target];
-      var sumd = 0;
-      for (var p = 0; p < G.dots.length; p++) {
-        var o = G.dots[p];
-        var aim = { x: tn.x + Math.cos(o.oa) * o.orr, y: tn.y + Math.sin(o.oa) * o.orr };
-        var dx = aim.x - o.x, dy = aim.y - o.y;
-        var dist = Math.sqrt(dx * dx + dy * dy) || 1;
-        o.wob += dt * 0.5;
-        var wob = 5;
-        o.x += (dx / dist * o.spd + Math.cos(o.wob) * wob) * dt;
-        o.y += (dy / dist * o.spd + Math.sin(o.wob * 1.3) * wob) * dt;
-        sumd += Math.hypot(tn.x - o.x, tn.y - o.y);
-
-        /* light up cells this dot is near (target gets hit by many
-           dots at once → strong activation) */
-        for (var q = 0; q < nodes.length; q++) {
-          var nd = nodes[q];
-          var ex = nd.x - o.x;
-          if (ex > R || ex < -R) continue;      /* cheap bbox reject */
-          var ey = nd.y - o.y;
-          if (ey > R || ey < -R) continue;
-          var e2 = ex * ex + ey * ey;
-          if (e2 < R2) {
-            var prox = 1 - Math.sqrt(e2) / R;
-            if (prox > nd.act) { nd.act = prox; nd.tone = G.tone; }
-          }
-        }
-      }
-      /* converged → pick a new target, drift the colour occasionally */
-      if (sumd / G.dots.length < R * 0.75) {
-        G.target = pickTarget(G.target, G.seed + Math.floor(time * 7) + 1);
-        if (rand(G.seed + Math.floor(time * 13)) < 0.16) G.tone = rand(G.seed + time * 3 % 991);
-      }
-    }
-
-    /* 3 ── draw cells — fill with colour driven by activation */
-    for (var k = 0; k < nodes.length; k++) {
-      var c = nodes[k];
-      var cf = centreFade(c.x);
-      var lit = Math.min(1, 0.085 + Math.sin(time * 0.5 + c.breathPh) * 0.03 + c.act);
-      var alpha = (0.02 + lit * 0.17) * cf;
-      if (alpha < 0.005) continue;
-      var col = toneColor(c.tone);
-      var breath = 1 + Math.sin(time * 0.5 + c.breathPh) * 0.09 + c.act * 0.12;
-
-      ctx.save();
-      ctx.translate(c.x, c.y);
-      ctx.rotate(c.phase + time * c.spin);
-
-      /* activation halo */
-      if (c.act > 0.05) {
-        var hr = c.size * 2.9 * breath;
-        var hg = ctx.createRadialGradient(0, 0, 0, 0, 0, hr);
-        hg.addColorStop(0, rgba(col, c.act * 0.30 * cf));
-        hg.addColorStop(1, rgba(col, 0));
-        ctx.fillStyle = hg;
-        ctx.beginPath(); ctx.arc(0, 0, hr, 0, Math.PI * 2); ctx.fill();
-      }
-
-      /* breathing = uniform scale of the cached paths */
-      ctx.scale(breath, breath);
-
-      /* cell wall — fill scales strongly with activation */
-      ctx.fillStyle = rgba(col, (0.06 + c.act * 0.7) * cf);
-      ctx.fill(c.pWall);
-      ctx.strokeStyle = rgba(col, alpha + c.act * 0.3 * cf);
-      ctx.lineWidth = 1 / breath;
-      ctx.stroke(c.pWall);
-
-      /* nucleus — light-grey fill, offset from the cell body */
-      ctx.fillStyle = rgba(TEXT, (0.16 + c.act * 0.45) * cf);
-      ctx.fill(c.pCore);
-      ctx.strokeStyle = rgba(TEXT, (0.1 + c.act * 0.3) * cf);
-      ctx.lineWidth = 0.9 / breath;
-      ctx.stroke(c.pCore);
-
-      ctx.restore();
-    }
-
-    /* 4 ── draw the dots themselves (over the cells) */
-    for (var m = 0; m < groups.length; m++) {
-      var G2 = groups[m];
-      var col2 = toneColor(G2.tone);
-      for (var mm = 0; mm < G2.dots.length; mm++) {
-        var o2 = G2.dots[mm];
-        var cf2 = centreFade(o2.x);
-        var a1 = 0.6 * cf2;
-        if (a1 < 0.02) continue;
-        var g = ctx.createRadialGradient(o2.x, o2.y, 0, o2.x, o2.y, o2.size * 6);
-        g.addColorStop(0, rgba(col2, a1));
-        g.addColorStop(1, rgba(col2, 0));
-        ctx.fillStyle = g;
-        ctx.beginPath(); ctx.arc(o2.x, o2.y, o2.size * 6, 0, Math.PI * 2); ctx.fill();
-        ctx.fillStyle = rgba(TEXT, a1 * 0.9);
-        ctx.beginPath(); ctx.arc(o2.x, o2.y, o2.size, 0, Math.PI * 2); ctx.fill();
-      }
-    }
+  function project(x, y, z) {
+    var rx = x * Math.cos(yaw) + z * Math.sin(yaw);
+    var rz = z * Math.cos(yaw) - x * Math.sin(yaw);
+    var ry = y * Math.cos(pitch) - rz * Math.sin(pitch);
+    rz = y * Math.sin(pitch) + rz * Math.cos(pitch);
+    var scale = focal / Math.max(200, focal + rz);
+    return { x: W / 2 + rx * scale, y: H / 2 + ry * scale,
+      z: rz, scale: scale };
+  }
+  function signalPoint(signal, progress) {
+    var a = cells[signal.from], b = cells[signal.to];
+    var curve = Math.sin(progress * Math.PI);
+    return project(a.x + (b.x - a.x) * progress,
+      a.y + (b.y - a.y) * progress - curve * 65,
+      a.z + (b.z - a.z) * progress + curve * 100);
   }
 
-  var frameId = 0;
+  function draw(time, dt) {
+    camera.x += (pointer.x - camera.x) * Math.min(1, dt * 2.5);
+    camera.y += (pointer.y - camera.y) * Math.min(1, dt * 2.5);
+    yaw = Math.sin(time * 0.055) * 0.18 + camera.x * 0.14;
+    pitch = Math.cos(time * 0.045) * 0.09 + camera.y * 0.08;
+    ctx.clearRect(0, 0, W, H);
+    var objects = [];
+    cells.forEach(function (c) {
+      c.x = c.bx + Math.sin(time * 0.12 + c.phase) * 13;
+      c.y = c.by + Math.cos(time * 0.1 + c.phase) * 13;
+      c.z = c.bz + Math.sin(time * 0.09 + c.phase) * 35;
+      c.act = Math.max(0, c.act - dt * 0.35);
+      var p = project(c.x, c.y, c.z);
+      objects.push({ type: 'cell', p: p, cell: c });
+    });
+    dust.forEach(function (d) {
+      var p = project(d.x, d.y + Math.sin(time * 0.08 + d.phase) * 10, d.z);
+      objects.push({ type: 'dust', p: p, size: d.size });
+    });
+    signals.forEach(function (s, index) {
+      var elapsed = (time + s.offset) / s.duration;
+      var cycle = Math.floor(elapsed);
+      if (s.cycle < 0) s.cycle = cycle;
+      if (cycle !== s.cycle) {
+        s.from = s.to; s.to = target(s.from, cycle * 97 + index * 23);
+        s.cycle = cycle;
+      }
+      var progress = elapsed - cycle;
+      if (progress > 0.86) cells[s.to].act = Math.max(cells[s.to].act, (progress - 0.86) / 0.14);
+      for (var k = 0; k < 7; k++) {
+        var t = progress - k * 0.012;
+        if (t >= 0) objects.push({ type: 'signal', p: signalPoint(s, t),
+          tone: cells[s.from].tone, strength: 1 - k / 7 });
+      }
+    });
+    objects.sort(function (a, b) { return b.p.z - a.p.z; });
+    objects.forEach(function (o) {
+      var p = o.p, quiet = quietCenter(p.x);
+      var fog = Math.max(0.22, Math.min(1, 1 - (p.z + 300) / 1400));
+      if (o.type === 'dust') {
+        ctx.fillStyle = rgba(palette[1], quiet * fog * 0.3);
+        ctx.beginPath(); ctx.arc(p.x, p.y, o.size * p.scale, 0, Math.PI * 2); ctx.fill();
+      } else if (o.type === 'signal') {
+        var size = 2 * p.scale;
+        ctx.globalAlpha = quiet * fog * o.strength;
+        ctx.fillStyle = rgba(palette[o.tone], 0.16);
+        ctx.beginPath(); ctx.arc(p.x, p.y, size * 3, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = 'rgba(241,240,236,0.9)';
+        ctx.beginPath(); ctx.arc(p.x, p.y, size, 0, Math.PI * 2); ctx.fill();
+        ctx.globalAlpha = 1;
+      } else {
+        var c = o.cell;
+        var radius = c.radius * (1 + Math.sin(time * 0.35 + c.phase) * 0.035);
+        var r = radius * p.scale;
+        if (p.x < -r * 2 || p.x > W + r * 2 || p.y < -r * 2 || p.y > H + r * 2) return;
+        var breath = radius / c.radius;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.scale(p.scale * breath, p.scale * breath);
+        ctx.rotate(c.phase + time * 0.025);
+        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.08 + c.act * 0.3));
+        ctx.fill(c.wall);
+        ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * (0.38 + c.act * 0.4));
+        ctx.lineWidth = 0.85 / p.scale;
+        ctx.stroke(c.wall);
+        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.2 + c.act * 0.3));
+        ctx.fill(c.core);
+        ctx.restore();
+        if (c.act > 0.05) {
+          ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * c.act * 0.4);
+          ctx.beginPath(); ctx.arc(p.x, p.y, r * (1.08 + (1 - c.act) * 0.45), 0, Math.PI * 2); ctx.stroke();
+        }
+      }
+    });
+  }
+
+  // Limit to 30 FPS, cap resolution, and stop work while the page is hidden.
   function loop(now) {
     frameId = 0;
     if (document.hidden || reduced) return;
-    frame((now - t0) / 1000);
+    if (!last) last = now;
+    var elapsed = now - last;
+    if (elapsed >= 1000 / 30) {
+      var dt = Math.min(0.08, elapsed / 1000);
+      clock += dt; last = now;
+      draw(clock, dt);
+    }
     frameId = requestAnimationFrame(loop);
   }
   function resume() {
-    cancelAnimationFrame(frameId);
-    frameId = 0;
+    cancelAnimationFrame(frameId); frameId = 0; last = 0;
     if (document.hidden) return;
-    // Continue from the saved simulation time rather than jumping after a pause.
-    t0 = performance.now() - curTime * 1000;
-    prevT = -1;
-    if (reduced) frame(curTime || 3.7);
-    else frameId = requestAnimationFrame(loop);
+    draw(clock, 0);
+    if (!reduced) frameId = requestAnimationFrame(loop);
   }
-  motionPreference.addEventListener('change', function (event) {
+  motion.addEventListener('change', function (event) {
     reduced = event.matches;
+    if (reduced) { pointer.x = pointer.y = camera.x = camera.y = 0; }
     resume();
   });
-
-  /* debounced resize — mobile browsers fire resize while scrolling
-     (URL bar collapse), which used to rebuild the whole field */
+  window.addEventListener('pointermove', function (event) {
+    if (reduced || !pointerMedia.matches || event.pointerType === 'touch') return;
+    pointer.x = event.clientX / W * 2 - 1;
+    pointer.y = event.clientY / H * 2 - 1;
+  }, { passive: true });
+  document.documentElement.addEventListener('pointerleave', function () { pointer.x = pointer.y = 0; });
   var resizeTimer;
   window.addEventListener('resize', function () {
     clearTimeout(resizeTimer);
     resizeTimer = setTimeout(function () {
-      if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) {
-        resize();
-        if (reduced) frame(3.7);
-      }
+      if (canvas.offsetWidth !== W || canvas.offsetHeight !== H) { resize(); draw(clock, 0); }
     }, 150);
   });
-  resize();
-  if (reduced) frame(3.7); else frameId = requestAnimationFrame(loop);
-
-  /* reveal: continuing from another subpage → appear instantly
-     (seamless hand-off); fresh arrival (e.g. from the homepage)
-     → fade the field in gently instead of popping */
-  if (didRestore || reduced) {
-    canvas.classList.add('bg-instant', 'bg-ready');
-  } else {
-    requestAnimationFrame(function () {
-      requestAnimationFrame(function () { canvas.classList.add('bg-ready'); });
-    });
+  function save() {
+    try { sessionStorage.setItem(STORE, JSON.stringify({ time: clock, savedAt: Date.now() })); }
+    catch (error) {}
   }
-
-  /* save the field so the next page can pick it up mid-flow */
-  function saveState() {
-    try {
-      sessionStorage.setItem(STORE, JSON.stringify({
-        savedAt: Date.now(), time: curTime, w: W, h: H,
-        acts: nodes.map(function (n) { return +n.act.toFixed(3); }),
-        groups: groups.map(function (G) {
-          return { target: G.target, tone: G.tone,
-            dots: G.dots.map(function (o) {
-              return { x: Math.round(o.x), y: Math.round(o.y), spd: o.spd,
-                       size: o.size, oa: o.oa, orr: o.orr, wob: o.wob };
-            }) };
-        })
-      }));
-    } catch (e) {}
-  }
-  window.addEventListener('pagehide', function () { saveState(); cancelAnimationFrame(frameId); });
+  window.addEventListener('pagehide', function () { save(); cancelAnimationFrame(frameId); });
   window.addEventListener('pageshow', resume);
   document.addEventListener('visibilitychange', function () {
-    if (document.hidden) { saveState(); cancelAnimationFrame(frameId); }
+    if (document.hidden) { save(); cancelAnimationFrame(frameId); last = 0; }
     else resume();
   });
+  resize(); resume();
+  if (restored || reduced) canvas.classList.add('bg-instant');
+  requestAnimationFrame(function () { canvas.classList.add('bg-ready'); });
 })();
