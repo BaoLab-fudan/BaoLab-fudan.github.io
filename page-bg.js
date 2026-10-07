@@ -40,7 +40,7 @@
   function quietCenter(x) {
     var edge = Math.min(1, Math.abs(x / W - 0.5) * 2);
     // Quiet the text column on narrow screens as well as wide screens.
-    return 0.13 + Math.pow(edge, 1.8) * 0.77;
+    return 0.09 + Math.pow(edge, 1.8) * 0.81;
   }
 
   // Preserve simple organic cell drawings; depth comes from world positions.
@@ -59,16 +59,16 @@
 
   function build() {
     cells = []; dust = []; signals = [];
-    var count = Math.min(100, Math.max(40, Math.round(W * H / 17000)));
+    // Fill a volume with a dense population, rather than a sparse screen layer.
+    var count = Math.min(1100, Math.max(200, Math.round(W * H / 1600)));
     for (var i = 0; i < count; i++) {
       var seed = i * 31 + 11;
-      var z = (rand(seed + 3) - 0.5) * 1100;
-      var extent = (focal + z) / focal;
+      var z = focal * (-0.58 + rand(seed + 3) * 1.8);
       cells.push({
-        bx: (rand(seed) - 0.5) * W * 1.28 * extent,
-        by: (rand(seed + 1) - 0.5) * H * 1.28 * extent,
+        bx: (rand(seed) - 0.5) * W * 1.55,
+        by: (rand(seed + 1) - 0.5) * H * 1.55,
         bz: z, x: 0, y: 0, z: z,
-        radius: 11 + rand(seed + 4) * 13,
+        radius: 12 + rand(seed + 4) * 6,
         phase: rand(seed + 5) * Math.PI * 2,
         tone: rand(seed + 6) < 0.68 ? 0 : (rand(seed + 7) < 0.75 ? 1 : 2),
         act: 0
@@ -78,7 +78,7 @@
       cell.wall = cellPath(cell.radius, cell.phase, false);
       cell.core = cellPath(cell.radius, cell.phase + 1.7, true);
     });
-    for (var d = 0; d < Math.min(150, count * 2); d++) {
+    for (var d = 0; d < Math.min(80, Math.round(count / 4)); d++) {
       var ds = d * 23 + 71;
       var dz = (rand(ds + 2) - 0.5) * 1400;
       var de = (focal + dz) / focal;
@@ -131,8 +131,8 @@
   function draw(time, dt) {
     camera.x += (pointer.x - camera.x) * Math.min(1, dt * 2.5);
     camera.y += (pointer.y - camera.y) * Math.min(1, dt * 2.5);
-    yaw = Math.sin(time * 0.055) * 0.18 + camera.x * 0.14;
-    pitch = Math.cos(time * 0.045) * 0.09 + camera.y * 0.08;
+    yaw = Math.sin(time * 0.055 - 0.5) * 0.22 + camera.x * 0.14;
+    pitch = Math.cos(time * 0.045) * 0.12 + camera.y * 0.08;
     ctx.clearRect(0, 0, W, H);
     var objects = [];
     cells.forEach(function (c) {
@@ -166,7 +166,7 @@
     objects.sort(function (a, b) { return b.p.z - a.p.z; });
     objects.forEach(function (o) {
       var p = o.p, quiet = quietCenter(p.x);
-      var fog = Math.max(0.22, Math.min(1, 1 - (p.z + 300) / 1400));
+      var fog = Math.max(0.18, Math.min(1, (p.scale - 0.3) * 0.78));
       if (o.type === 'dust') {
         ctx.fillStyle = rgba(palette[1], quiet * fog * 0.3);
         ctx.beginPath(); ctx.arc(p.x, p.y, o.size * p.scale, 0, Math.PI * 2); ctx.fill();
@@ -188,7 +188,7 @@
         ctx.translate(p.x, p.y);
         ctx.scale(p.scale * breath, p.scale * breath);
         ctx.rotate(c.phase + time * 0.025);
-        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.08 + c.act * 0.3));
+        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.06 + c.act * 0.3));
         ctx.fill(c.wall);
         ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * (0.38 + c.act * 0.4));
         ctx.lineWidth = 0.85 / p.scale;
