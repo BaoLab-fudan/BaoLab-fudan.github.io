@@ -16,7 +16,10 @@
 
   var W = 0, H = 0, dpr = 1, focal = 900;
   var sceneWidth = 0, sceneHeight = 0;
-  var cells = [], dust = [], signals = [];
+  var cells = [], dust = [], signals = [], renderList = [];
+  var cellGrid = new Map(), activationRadius = 150, glows = [];
+  var cosYaw = 1, sinYaw = 0, cosPitch = 1, sinPitch = 0;
+  var colorPrefixes = palette.map(function (color) { return 'rgba(' + color.join(',') + ','; });
   var clock = 0, last = 0, frameId = 0;
   var yaw = 0, pitch = 0;
   var STORE = 'baolab_bg_3d_v1';
@@ -34,7 +37,7 @@
     return x - Math.floor(x);
   }
   function rgba(color, alpha) {
-    return 'rgba(' + color.join(',') + ',' + Math.max(0, Math.min(1, alpha)) + ')';
+    return colorPrefixes[palette.indexOf(color)] + Math.max(0, Math.min(1, alpha)) + ')';
   }
   function quietCenter(x) {
     var edge = Math.min(1, Math.abs(x / W - 0.5) * 2);
@@ -56,8 +59,50 @@
     return path;
   }
 
+  // Cache soft glow textures once, rather than building gradients per lit cell.
+  palette.forEach(function (color) {
+    var glow = document.createElement('canvas');
+    glow.width = glow.height = 96;
+    var g = glow.getContext('2d');
+    var gradient = g.createRadialGradient(48, 48, 0, 48, 48, 48);
+    gradient.addColorStop(0, rgba(color, 0.8));
+    gradient.addColorStop(0.4, rgba(color, 0.28));
+    gradient.addColorStop(1, rgba(color, 0));
+    g.fillStyle = gradient; g.fillRect(0, 0, 96, 96);
+    glows.push(glow);
+  });
+  function gridKey(x, y, z) { return x + '/' + y + '/' + z; }
+  function renderObject(type) {
+    return { type: type, p: { x: 0, y: 0, z: 0, scale: 1 } };
+  }
+  function activateRegion(point, tone, strength) {
+    // Base positions index the cloud once. Padding includes each cell's drift.
+    var reach = activationRadius + 35;
+    var minX = Math.floor((point.x - reach) / activationRadius);
+    var maxX = Math.floor((point.x + reach) / activationRadius);
+    var minY = Math.floor((point.y - reach) / activationRadius);
+    var maxY = Math.floor((point.y + reach) / activationRadius);
+    var minZ = Math.floor((point.z - reach) / activationRadius);
+    var maxZ = Math.floor((point.z + reach) / activationRadius);
+    var radiusSquared = activationRadius * activationRadius;
+    for (var x = minX; x <= maxX; x++) for (var y = minY; y <= maxY; y++) for (var z = minZ; z <= maxZ; z++) {
+      var bucket = cellGrid.get(gridKey(x, y, z));
+      if (!bucket) continue;
+      for (var i = 0; i < bucket.length; i++) {
+        var cell = bucket[i];
+        var dx = cell.x - point.x, dy = cell.y - point.y, dz = cell.z - point.z;
+        var distanceSquared = dx * dx + dy * dy + dz * dz;
+        if (distanceSquared >= radiusSquared) continue;
+        var intensity = Math.pow(1 - distanceSquared / radiusSquared, 1.3) * strength;
+        if (intensity > cell.act) { cell.act = intensity; cell.activeTone = tone; }
+      }
+    }
+  }
+
   function build() {
     cells = []; dust = []; signals = [];
+    cellGrid.clear();
+    activationRadius = focal * 0.16;
     // Fill a volume with a dense population, rather than a sparse screen layer.
     var count = Math.min(1100, Math.max(200, Math.round(sceneWidth * sceneHeight / 1600)));
     for (var i = 0; i < count; i++) {
@@ -81,6 +126,11 @@
     cells.forEach(function (cell) {
       cell.wall = cellPath(cell.radius, cell.phase, false);
       cell.core = cellPath(cell.radius, cell.phase + 1.7, true);
+      cell.activeTone = cell.tone;
+      cell.render = renderObject('cell'); cell.render.cell = cell;
+      var key = gridKey(Math.floor(cell.bx / activationRadius), Math.floor(cell.by / activationRadius), Math.floor(cell.bz / activationRadius));
+      if (!cellGrid.has(key)) cellGrid.set(key, []);
+      cellGrid.get(key).push(cell);
     });
     for (var d = 0; d < Math.min(80, Math.round(count / 4)); d++) {
       var ds = d * 23 + 71;
@@ -91,11 +141,20 @@
         z: Math.sin(dustAngle) * dustRadius,
         size: 0.5 + rand(ds + 3), phase: rand(ds + 4) * 6.28 });
     }
+    dust.forEach(function (d) { d.render = renderObject('dust'); d.render.size = d.size; });
     for (var s = 0; s < Math.min(12, Math.floor(count / 5)); s++) {
       var from = Math.floor(rand(s * 51 + 9) * count);
       signals.push({ from: from, to: target(from, s + 37),
         offset: rand(s + 81) * 12, duration: 9 + rand(s + 22) * 8, cycle: -1 });
     }
+    signals.forEach(function (signal) {
+      signal.head = { x: 0, y: 0, z: 0 };
+      signal.trail = [];
+      for (var i = 0; i < 7; i++) {
+        var dot = renderObject('signal'); dot.strength = 1 - i / 7;
+        signal.trail.push(dot);
+      }
+    });
   }
   function target(from, seed) {
     var origin = cells[from], best = (from + 1) % cells.length;
@@ -109,7 +168,8 @@
   }
   function resize() {
     var width = canvas.offsetWidth, height = canvas.offsetHeight;
-    var pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+    // A decorative canvas does not need a huge Retina buffer on large displays.
+    var pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5, Math.sqrt(3000000 / Math.max(1, width * height)));
     if (width === W && height === H && pixelRatio === dpr) return false;
     W = width; H = height; dpr = pixelRatio;
     var bitmapWidth = Math.round(W * dpr), bitmapHeight = Math.round(H * dpr);
@@ -123,40 +183,49 @@
     if (resize()) draw(clock, 0);
   }
 
-  function project(x, y, z) {
-    var rx = x * Math.cos(yaw) + z * Math.sin(yaw);
-    var rz = z * Math.cos(yaw) - x * Math.sin(yaw);
-    var ry = y * Math.cos(pitch) - rz * Math.sin(pitch);
-    rz = y * Math.sin(pitch) + rz * Math.cos(pitch);
+  function project(x, y, z, out) {
+    var rx = x * cosYaw + z * sinYaw;
+    var rz = z * cosYaw - x * sinYaw;
+    var ry = y * cosPitch - rz * sinPitch;
+    rz = y * sinPitch + rz * cosPitch;
     var scale = focal / Math.max(200, focal + rz);
-    return { x: W / 2 + rx * scale, y: H / 2 + ry * scale,
-      z: rz, scale: scale };
+    out = out || {};
+    out.x = W / 2 + rx * scale; out.y = H / 2 + ry * scale;
+    out.z = rz; out.scale = scale;
+    return out;
   }
-  function signalPoint(signal, progress) {
+  function signalPosition(signal, progress, out) {
     var a = cells[signal.from], b = cells[signal.to];
     var curve = Math.sin(progress * Math.PI);
-    return project(a.x + (b.x - a.x) * progress,
-      a.y + (b.y - a.y) * progress - curve * 65,
-      a.z + (b.z - a.z) * progress + curve * 100);
+    out.x = a.x + (b.x - a.x) * progress;
+    out.y = a.y + (b.y - a.y) * progress - curve * 65;
+    out.z = a.z + (b.z - a.z) * progress + curve * 100;
+    return out;
+  }
+  function visible(p, radius) {
+    return p.x >= -radius && p.x <= W + radius && p.y >= -radius && p.y <= H + radius;
   }
 
   function draw(time, dt) {
     // Rotate the whole cloud steadily: one revolution in about 140 seconds.
     yaw = time * 0.045 - 0.35;
     pitch = 0.12;
+    cosYaw = Math.cos(yaw); sinYaw = Math.sin(yaw);
+    cosPitch = Math.cos(pitch); sinPitch = Math.sin(pitch);
     ctx.clearRect(0, 0, W, H);
-    var objects = [];
+    var objects = renderList;
+    objects.length = 0;
     cells.forEach(function (c) {
       c.x = c.bx + Math.sin(time * 0.12 + c.phase) * 13;
       c.y = c.by + Math.cos(time * 0.1 + c.phase) * 13;
       c.z = c.bz + Math.sin(time * 0.09 + c.phase) * 35;
       c.act = Math.max(0, c.act - dt * 0.35);
-      var p = project(c.x, c.y, c.z);
-      objects.push({ type: 'cell', p: p, cell: c });
+      var p = project(c.x, c.y, c.z, c.render.p);
+      if (visible(p, c.radius * p.scale * 3)) objects.push(c.render);
     });
     dust.forEach(function (d) {
-      var p = project(d.x, d.y + Math.sin(time * 0.08 + d.phase) * 10, d.z);
-      objects.push({ type: 'dust', p: p, size: d.size });
+      var p = project(d.x, d.y + Math.sin(time * 0.08 + d.phase) * 10, d.z, d.render.p);
+      if (visible(p, d.size * p.scale)) objects.push(d.render);
     });
     signals.forEach(function (s, index) {
       var elapsed = (time + s.offset) / s.duration;
@@ -167,11 +236,19 @@
         s.cycle = cycle;
       }
       var progress = elapsed - cycle;
-      if (progress > 0.86) cells[s.to].act = Math.max(cells[s.to].act, (progress - 0.86) / 0.14);
-      for (var k = 0; k < 7; k++) {
+      var tone = cells[s.from].tone;
+      signalPosition(s, progress, s.head);
+      activateRegion(s.head, tone, 0.85);
+      // Arrival lights the target's neighborhood, then decays over about 3 seconds.
+      if (progress > 0.82) activateRegion(cells[s.to], tone, (progress - 0.82) / 0.18);
+      for (var k = 0; k < s.trail.length; k++) {
         var t = progress - k * 0.012;
-        if (t >= 0) objects.push({ type: 'signal', p: signalPoint(s, t),
-          tone: cells[s.from].tone, strength: 1 - k / 7 });
+        if (t < 0) continue;
+        var dot = s.trail[k];
+        signalPosition(s, t, s.head);
+        project(s.head.x, s.head.y, s.head.z, dot.p);
+        dot.tone = tone;
+        if (visible(dot.p, dot.p.scale * 6)) objects.push(dot);
       }
     });
     objects.sort(function (a, b) { return b.p.z - a.p.z; });
@@ -195,20 +272,27 @@
         var r = radius * p.scale;
         if (p.x < -r * 2 || p.x > W + r * 2 || p.y < -r * 2 || p.y > H + r * 2) return;
         var breath = radius / c.radius;
+        var tone = c.act > 0.05 ? c.activeTone : c.tone;
+        if (c.act > 0.05) {
+          var glowRadius = r * 2.8;
+          ctx.globalAlpha = quiet * fog * c.act * 0.5;
+          ctx.drawImage(glows[tone], p.x - glowRadius, p.y - glowRadius, glowRadius * 2, glowRadius * 2);
+          ctx.globalAlpha = 1;
+        }
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.scale(p.scale * breath, p.scale * breath);
         ctx.rotate(c.phase + time * 0.025);
-        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.09 + c.act * 0.3));
+        ctx.fillStyle = rgba(palette[tone], quiet * fog * (0.09 + c.act * 0.65));
         ctx.fill(c.wall);
-        ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * (0.48 + c.act * 0.4));
+        ctx.strokeStyle = rgba(palette[tone], quiet * fog * (0.48 + c.act * 0.45));
         ctx.lineWidth = 0.85 / p.scale;
         ctx.stroke(c.wall);
-        ctx.fillStyle = rgba(palette[c.tone], quiet * fog * (0.27 + c.act * 0.3));
+        ctx.fillStyle = rgba(palette[tone], quiet * fog * (0.27 + c.act * 0.45));
         ctx.fill(c.core);
         ctx.restore();
         if (c.act > 0.05) {
-          ctx.strokeStyle = rgba(palette[c.tone], quiet * fog * c.act * 0.4);
+          ctx.strokeStyle = rgba(palette[tone], quiet * fog * c.act * 0.4);
           ctx.beginPath(); ctx.arc(p.x, p.y, r * (1.08 + (1 - c.act) * 0.45), 0, Math.PI * 2); ctx.stroke();
         }
       }
