@@ -6,7 +6,8 @@
     target.addEventListener(event, handler, options);
     cleanups.push(function () { target.removeEventListener(event, handler, options); });
   }
-  window.initializePageAnimations = function () {
+  window.initializePageAnimations = function (options) {
+  var navigating = options && options.navigation;
     cleanups.forEach(function (cleanup) { cleanup(); });
     cleanups = [];
 
@@ -56,7 +57,7 @@
      4.  KINETIC PAGE TITLE  (word-by-word slide-up)
   ──────────────────────────────────────────────────────── */
   if (!reduced) {
-    var titleEl = document.querySelector('.page-title');
+    var titleEl = navigating ? null : document.querySelector('.page-title');
     if (titleEl && titleEl.children.length === 0) {
       /* only plain-text titles */
       titleEl.style.cssText = 'animation:none; opacity:1;';
@@ -93,6 +94,7 @@
     function watch(el, delay) {
       if (!el) return;
       if (delay) el.style.transitionDelay = Math.min(delay, 240) + 'ms';
+      if (navigating && el.getBoundingClientRect().top < window.innerHeight) { el.classList.add('visible'); return; }
       el.classList.add('reveal');
       io.observe(el);
     }

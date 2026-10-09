@@ -541,3 +541,8 @@ a:focus-visible, button:focus-visible { outline: 2px solid var(--sky); outline-o
 .page-bg-layer.bg-ready { opacity: 1; }
 .page-bg-layer.bg-instant { transition: none; }
 .page-content { position: relative; z-index: 1; }
+
+/* Navigation uses one content fade; the fixed field and navigation stay live. */
+.has-navigated .hero-lab, .has-navigated .hero-sub,
+.has-navigated .hero-tagline, .has-navigated .hero-cta,
+.has-navigated .page-subtitle { animation: none; opacity: 1; transform: none; }
