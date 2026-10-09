@@ -94,7 +94,7 @@
         var distanceSquared = dx * dx + dy * dy + dz * dz;
         if (distanceSquared >= radiusSquared) continue;
         var intensity = Math.pow(1 - distanceSquared / radiusSquared, 1.3) * strength;
-        if (intensity > cell.act) { cell.act = intensity; cell.activeTone = tone; }
+        if (intensity > cell.excitation) { cell.excitation = intensity; cell.activeTone = tone; }
       }
     }
   }
@@ -120,7 +120,7 @@
         radius: 12 + rand(seed + 4) * 6,
         phase: rand(seed + 5) * Math.PI * 2,
         tone: rand(seed + 6) < 0.68 ? 0 : (rand(seed + 7) < 0.75 ? 1 : 2),
-        act: 0
+        act: 0, excitation: 0
       });
     }
     cells.forEach(function (cell) {
@@ -145,7 +145,7 @@
     for (var s = 0; s < Math.min(12, Math.floor(count / 5)); s++) {
       var from = Math.floor(rand(s * 51 + 9) * count);
       signals.push({ from: from, to: target(from, s + 37),
-        offset: rand(s + 81) * 12, duration: 9 + rand(s + 22) * 8, cycle: -1 });
+        offset: rand(s + 81) * 12, duration: 12 + rand(s + 22) * 8, cycle: -1 });
     }
     signals.forEach(function (signal) {
       signal.head = { x: 0, y: 0, z: 0 };
@@ -207,8 +207,8 @@
   }
 
   function draw(time, dt) {
-    // Rotate the whole cloud steadily: one revolution in about 140 seconds.
-    yaw = time * 0.045 - 0.35;
+    // Rotate the whole cloud steadily: one revolution in about 225 seconds.
+    yaw = time * 0.028 - 0.35;
     pitch = 0.12;
     cosYaw = Math.cos(yaw); sinYaw = Math.sin(yaw);
     cosPitch = Math.cos(pitch); sinPitch = Math.sin(pitch);
@@ -219,7 +219,7 @@
       c.x = c.bx + Math.sin(time * 0.12 + c.phase) * 13;
       c.y = c.by + Math.cos(time * 0.1 + c.phase) * 13;
       c.z = c.bz + Math.sin(time * 0.09 + c.phase) * 35;
-      c.act = Math.max(0, c.act - dt * 0.35);
+      c.excitation = 0;
       var p = project(c.x, c.y, c.z, c.render.p);
       if (visible(p, c.radius * p.scale * 3)) objects.push(c.render);
     });
@@ -235,7 +235,9 @@
         s.from = s.to; s.to = target(s.from, cycle * 97 + index * 23);
         s.cycle = cycle;
       }
-      var progress = elapsed - cycle;
+      var phase = elapsed - cycle;
+      // Ease departures and arrivals without changing the cell-to-cell route.
+      var progress = phase * phase * (3 - 2 * phase);
       var tone = cells[s.from].tone;
       signalPosition(s, progress, s.head);
       activateRegion(s.head, tone, 0.85);
@@ -248,8 +250,14 @@
         signalPosition(s, t, s.head);
         project(s.head.x, s.head.y, s.head.z, dot.p);
         dot.tone = tone;
+        dot.opacity = Math.min(1, phase / 0.12, (1 - phase) / 0.12);
         if (visible(dot.p, dot.p.scale * 6)) objects.push(dot);
       }
+    });
+    // Smooth activation makes each cell brighten and recover organically.
+    cells.forEach(function (cell) {
+      var rate = cell.excitation > cell.act ? 4 : 0.75;
+      if (dt > 0) cell.act += (cell.excitation - cell.act) * (1 - Math.exp(-rate * dt));
     });
     objects.sort(function (a, b) { return b.p.z - a.p.z; });
     objects.forEach(function (o) {
@@ -260,7 +268,7 @@
         ctx.beginPath(); ctx.arc(p.x, p.y, o.size * p.scale, 0, Math.PI * 2); ctx.fill();
       } else if (o.type === 'signal') {
         var size = 2 * p.scale;
-        ctx.globalAlpha = quiet * fog * o.strength;
+        ctx.globalAlpha = quiet * fog * o.strength * o.opacity;
         ctx.fillStyle = rgba(palette[o.tone], 0.16);
         ctx.beginPath(); ctx.arc(p.x, p.y, size * 3, 0, Math.PI * 2); ctx.fill();
         ctx.fillStyle = 'rgba(241,240,236,0.9)';
